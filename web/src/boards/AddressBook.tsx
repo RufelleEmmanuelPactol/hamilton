@@ -1,6 +1,34 @@
-/* eslint-disable */
-// Converted from design/project/AddressBook.dc.html. Holes: none
-export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?: any; h?: any }) {
+"use client";
+// Converted from design/project/AddressBook.dc.html, then wired: Ben's reply (10:40) only exists after 10:30,
+// notes and the AI guidance Edit are local (not saved).
+import { useState } from "react";
+import { useScenarioFacts } from "@/lib/scenario";
+
+const GUIDANCE_BEFORE = ["Message on WhatsApp before dispatch.", "If missed again, ask for a safe-drop person."];
+const GUIDANCE_AFTER = [
+  "Message on WhatsApp before dispatch.",
+  "Schedule after 15:00 on weekdays.",
+  "If missed again, ask for a safe-drop person.",
+];
+
+export default function AddressBookBoard() {
+  const facts = useScenarioFacts();
+  const replied = facts.phase !== "before"; // Ben replies at 10:40; the clock reads 10:30 before the incident.
+  const [editing, setEditing] = useState(false);
+  const [edited, setEdited] = useState<string | null>(null);
+  const [draftGuidance, setDraftGuidance] = useState("");
+  const [note, setNote] = useState("");
+  const [notes, setNotes] = useState<{ time: string; text: string }[]>([]);
+  const guidance = edited !== null ? edited.split("\n").filter((l) => l.trim()) : replied ? GUIDANCE_AFTER : GUIDANCE_BEFORE;
+  const startEdit = () => {
+    setDraftGuidance(guidance.join("\n"));
+    setEditing(true);
+  };
+  const saveNote = () => {
+    if (!note.trim()) return;
+    setNotes((n) => [{ time: facts.clock, text: note.trim() }, ...n]);
+    setNote("");
+  };
   return (
     <>
       {" "}
@@ -262,21 +290,25 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
               </div>{" "}
               <div>
                 <dt style={{ fontSize: "12px", color: "var(--mute)" }}>Best delivery time</dt>
-                <dd style={{ margin: "2px 0 0" }}>
-                  Weekdays after 15:00{" "}
-                  <span
-                    style={{
-                      fontSize: "11px",
-                      color: "var(--ok)",
-                      background: "var(--okBg)",
-                      border: "1px solid var(--okLine)",
-                      borderRadius: "4px",
-                      padding: "0 5px",
-                    }}
-                  >
-                    Learned today
-                  </span>
-                </dd>
+                {!replied ? (
+                  <dd style={{ margin: "2px 0 0", color: "var(--mute)" }}>Unknown, asked on WhatsApp at 09:12</dd>
+                ) : (
+                  <dd style={{ margin: "2px 0 0" }}>
+                    Weekdays after 15:00{" "}
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--ok)",
+                        background: "var(--okBg)",
+                        border: "1px solid var(--okLine)",
+                        borderRadius: "4px",
+                        padding: "0 5px",
+                      }}
+                    >
+                      Learned today
+                    </span>
+                  </dd>
+                )}
               </div>{" "}
               <div>
                 <dt style={{ fontSize: "12px", color: "var(--mute)" }}>Safe-drop</dt>
@@ -414,9 +446,15 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
               <input
                 aria-label="Add a note"
                 placeholder="Add a note about this address…"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") saveNote();
+                }}
                 style={{ font: "inherit", flex: "1", minWidth: "0", border: "0", outline: "0" }}
               />
               <button
+                onClick={saveNote}
                 style={{
                   font: "inherit",
                   fontWeight: "600",
@@ -444,64 +482,107 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
               Today
             </div>{" "}
             <div style={{ background: "var(--panel)", border: "1px solid var(--line)", borderRadius: "8px" }}>
-              {" "}
-              <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
-                <span
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    flex: "none",
-                    borderRadius: "6px",
-                    background: "var(--brandTint)",
-                    color: "var(--brandInk)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
+              {notes.map((n, i) => (
+                <div
+                  key={i}
+                  className="ham-in"
+                  style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                    <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
-                  </svg>
-                </span>
-                <div style={{ flex: "1" }}>
-                  <div>
-                    <b>Assurance agent</b> updated <b>Best delivery time</b> to weekdays after 15:00
+                  <span
+                    style={{
+                      width: "28px",
+                      height: "28px",
+                      flex: "none",
+                      borderRadius: "99px",
+                      background: "#344054",
+                      color: "#fff",
+                      fontSize: "10px",
+                      fontWeight: 600,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    MS
+                  </span>
+                  <div style={{ flex: "1" }}>
+                    <div>
+                      <b>Maria Santos</b> added a note
+                    </div>
+                    <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "2px" }}>{n.text}</div>
                   </div>
-                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
-                    From reply &#34;wala pa ako sa bahay, after 3pm pa po&#34; · policy: save memory (Auto)
-                  </div>
+                  <span style={{ fontSize: "12px", color: "var(--mute)" }}>{n.time}</span>
                 </div>
-                <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
-              </div>{" "}
-              <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
-                <span
-                  style={{
-                    width: "28px",
-                    height: "28px",
-                    flex: "none",
-                    borderRadius: "6px",
-                    background: "var(--infoBg)",
-                    color: "var(--info)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7v5l3 2" />
-                  </svg>
-                </span>
-                <div style={{ flex: "1" }}>
-                  <div>
-                    Order <b>#1044</b> rescheduled 11:00–15:00 → <b>15:00–17:00</b>
+              ))}
+              {replied && (
+                <>
+                  <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
+                    <span
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        flex: "none",
+                        borderRadius: "6px",
+                        background: "var(--brandTint)",
+                        color: "var(--brandInk)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.2"
+                        aria-hidden="true"
+                      >
+                        <path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z" />
+                      </svg>
+                    </span>
+                    <div style={{ flex: "1" }}>
+                      <div>
+                        <b>Assurance agent</b> updated <b>Best delivery time</b> to weekdays after 15:00
+                      </div>
+                      <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                        From reply &#34;wala pa ako sa bahay, after 3pm pa po&#34; · policy: save memory (Auto)
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
+                  </div>{" "}
+                  <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
+                    <span
+                      style={{
+                        width: "28px",
+                        height: "28px",
+                        flex: "none",
+                        borderRadius: "6px",
+                        background: "var(--infoBg)",
+                        color: "var(--info)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7v5l3 2" />
+                      </svg>
+                    </span>
+                    <div style={{ flex: "1" }}>
+                      <div>
+                        Order <b>#1044</b> rescheduled 11:00–15:00 → <b>15:00–17:00</b>
+                      </div>
+                      <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                        Driver: Ana Villanueva · route re-sequenced
+                      </div>
+                    </div>
+                    <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
                   </div>
-                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
-                    Driver: Ana Villanueva · route re-sequenced
-                  </div>
-                </div>
-                <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
-              </div>{" "}
+                </>
+              )}
               <div style={{ display: "flex", gap: "12px", padding: "12px 14px" }}>
                 <span
                   style={{
@@ -521,7 +602,11 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
                   </svg>
                 </span>
                 <div style={{ flex: "1" }}>
-                  <div>WhatsApp pre-confirmation sent, Ben replied in 88 min</div>
+                  <div>
+                    {replied
+                      ? "WhatsApp pre-confirmation sent, Ben replied in 88 min"
+                      : "WhatsApp pre-confirmation sent, waiting for Ben's reply"}
+                  </div>
                   <a href="/app/messages" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
                     View conversation
                   </a>
@@ -672,7 +757,9 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
                 </span>
               </div>
               <div style={{ fontWeight: "500", marginTop: "4px" }}>Sunflower bundle</div>
-              <div style={{ fontSize: "12px", color: "var(--mute)" }}>Today 15:00–17:00 · Ana</div>
+              <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                {replied ? "Today 15:00–17:00 · Ana" : "Today 11:00–15:00 · Ana"}
+              </div>
             </div>{" "}
           </div>{" "}
           <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
@@ -729,6 +816,13 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
               <span style={{ fontWeight: "600" }}>Delivery guidance</span>
               <span style={{ flex: "1" }}></span>
               <button
+                onClick={() => {
+                  if (editing) {
+                    setEdited(draftGuidance);
+                    setEditing(false);
+                  } else startEdit();
+                }}
+                aria-pressed={editing}
                 style={{
                   font: "inherit",
                   fontSize: "12px",
@@ -741,15 +835,37 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
                   cursor: "pointer",
                 }}
               >
-                Edit
+                {editing ? "Done" : "Edit"}
               </button>
             </div>
             <div style={{ border: "1px solid #F8BBD0", background: "#FFF7FA", borderRadius: "6px", padding: "10px 12px" }}>
-              <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.6" }}>
-                <li>Message on WhatsApp before dispatch.</li>
-                <li>Schedule after 15:00 on weekdays.</li>
-                <li>If missed again, ask for a safe-drop person.</li>
-              </ul>
+              {editing ? (
+                <textarea
+                  aria-label="Delivery guidance, one line per instruction"
+                  value={draftGuidance}
+                  onChange={(e) => setDraftGuidance(e.target.value)}
+                  rows={Math.max(5, draftGuidance.split("\n").length * 2)}
+                  autoFocus
+                  style={{
+                    font: "inherit",
+                    width: "100%",
+                    boxSizing: "border-box",
+                    border: "1px solid var(--line2)",
+                    borderRadius: "6px",
+                    padding: "6px 8px",
+                    lineHeight: "1.6",
+                    color: "var(--ink)",
+                    background: "var(--panel)",
+                    resize: "vertical",
+                  }}
+                />
+              ) : (
+                <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.6" }}>
+                  {guidance.map((g, i) => (
+                    <li key={i}>{g}</li>
+                  ))}
+                </ul>
+              )}
               <div
                 style={{
                   fontSize: "12px",
@@ -759,19 +875,40 @@ export default function AddressBookBoard({ v = {} as any, h = {} as any }: { v?:
                   borderTop: "1px solid #FBD5E3",
                 }}
               >
-                <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
-                <a href="/app/addresses" style={{ textDecoration: "none" }}>
-                  2 failed attempts
-                </a>
-                ,{" "}
-                <a href="/app/messages" style={{ textDecoration: "none" }}>
-                  3 WhatsApp replies
-                </a>{" "}
-                and{" "}
-                <a href="/app/drivers" style={{ textDecoration: "none" }}>
-                  1 driver note
-                </a>{" "}
-                · updated today 10:41
+                {edited !== null ? (
+                  <>
+                    <span style={{ color: "var(--ink)", fontWeight: "500" }}>Edited by Maria</span> at {facts.clock}. Your version is kept.{" "}
+                    <button
+                      onClick={() => setEdited(null)}
+                      style={{
+                        font: "inherit",
+                        border: "0",
+                        background: "none",
+                        padding: "0",
+                        color: "var(--brandInk)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Restore summary
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
+                    <a href="/app/addresses" style={{ textDecoration: "none" }}>
+                      2 failed attempts
+                    </a>
+                    ,{" "}
+                    <a href="/app/messages" style={{ textDecoration: "none" }}>
+                      {replied ? "3 WhatsApp replies" : "2 WhatsApp replies"}
+                    </a>{" "}
+                    and{" "}
+                    <a href="/app/drivers" style={{ textDecoration: "none" }}>
+                      1 driver note
+                    </a>{" "}
+                    · updated today {replied ? "10:41" : "09:12"}
+                  </>
+                )}
               </div>
             </div>
             <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px" }}>
