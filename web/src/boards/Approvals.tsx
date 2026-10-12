@@ -144,7 +144,7 @@ const TICKETS: Record<TicketId, { tag: [Tone, string]; agent: string; created: s
     agent: "Dispatch agent",
     created: "09:58",
     title: "Create order WA-0912 from WhatsApp",
-    sub: "82% confidence · below 95% policy threshold",
+    sub: "Not sure which building in Makati",
   },
   "HAM-416": {
     tag: ["neutral", "Escalated"],

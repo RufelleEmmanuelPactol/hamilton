@@ -92,7 +92,7 @@ const SEED: Row[] = [
   {
     id: "seed-414",
     time: "09:58",
-    event: "Created order draft from WhatsApp message (82% parsed)",
+    event: "Created order draft from WhatsApp message (building unclear)",
     agent: "Intake",
     outcome: "Asked you",
     policy: "Turn WhatsApp and email requests into orders",

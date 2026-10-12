@@ -1,8 +1,11 @@
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Hydrated } from "./ScenarioRuntime";
-import { useScenarioFacts } from "@/lib/scenario";
+import { useState } from "react";
+import { useScenarioFacts, scenarioEvents } from "@/lib/scenario";
+import { openPalette, openPerson, openSoon, showToast } from "./Overlays";
+import { PEOPLE } from "@/lib/people";
 
 const groupLabel: React.CSSProperties = {
   fontSize: "11px",
@@ -246,6 +249,191 @@ function Nav() {
   );
 }
 
+const menuBox: React.CSSProperties = {
+  position: "absolute",
+  top: "38px",
+  right: 0,
+  zIndex: 40,
+  width: "300px",
+  background: "var(--panel)",
+  border: "1px solid var(--line)",
+  borderRadius: "10px",
+  boxShadow: "0 24px 48px -12px rgba(16,24,40,0.28)",
+  padding: "6px",
+};
+const menuItem: React.CSSProperties = {
+  font: "inherit",
+  width: "100%",
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  height: "34px",
+  padding: "0 10px",
+  border: 0,
+  borderRadius: "6px",
+  background: "transparent",
+  color: "var(--ink)",
+  cursor: "pointer",
+  textAlign: "left",
+  textDecoration: "none",
+};
+function Away({ onClose }: { onClose: () => void }) {
+  return <div aria-hidden="true" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 39 }} />;
+}
+
+/** Notifications: open tickets and the latest agent events from the scenario. */
+function Bell() {
+  const f = useScenarioFacts();
+  const [open, setOpen] = useState(false);
+  const [seen, setSeen] = useState(0);
+  const events = scenarioEvents(f.phase, f.notifyCustomers).slice(0, 4);
+  const items: { title: string; sub: string; href: string; tone: string }[] = [
+    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/app/approvals", tone: "var(--warn)" }] : []),
+    ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/app/audit", tone: "var(--brand)" })),
+    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · money is always yours", href: "/app/approvals", tone: "var(--err)" },
+    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/app/approvals", tone: "var(--warn)" },
+  ];
+  const unread = Math.max(items.length - seen, 0);
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        type="button"
+        aria-label={`Notifications${unread ? ` (${unread} new)` : ""}`}
+        aria-expanded={open}
+        onClick={() => {
+          setOpen((o) => !o);
+          setSeen(items.length);
+        }}
+        style={{
+          font: "inherit",
+          width: "32px",
+          height: "32px",
+          border: 0,
+          borderRadius: "6px",
+          background: open ? "var(--sub)" : "transparent",
+          color: "var(--ink2)",
+          cursor: "pointer",
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />
+        </svg>
+        {unread > 0 && (
+          <span
+            style={{
+              position: "absolute",
+              top: "3px",
+              right: "3px",
+              minWidth: "15px",
+              height: "15px",
+              padding: "0 4px",
+              borderRadius: "99px",
+              background: "var(--brand)",
+              color: "#fff",
+              fontSize: "10px",
+              fontWeight: 700,
+              lineHeight: "15px",
+            }}
+          >
+            {unread}
+          </span>
+        )}
+      </button>
+      {open && (
+        <>
+          <Away onClose={() => setOpen(false)} />
+          <div role="menu" className="ham-in" style={{ ...menuBox, width: "340px" }}>
+            <div style={{ display: "flex", alignItems: "center", padding: "6px 10px 8px" }}>
+              <b style={{ flex: 1 }}>Notifications</b>
+              <button
+                type="button"
+                onClick={() => (setOpen(false), showToast("All notifications marked as read"))}
+                style={{ font: "inherit", fontSize: "12px", border: 0, background: "none", color: "var(--brandInk)", cursor: "pointer" }}
+              >
+                Mark all read
+              </button>
+            </div>
+            {items.map((n, i) => (
+              <Link key={i} href={n.href} role="menuitem" onClick={() => setOpen(false)} style={{ ...menuItem, height: "auto", padding: "8px 10px", alignItems: "flex-start" }}>
+                <span style={{ width: "8px", height: "8px", borderRadius: "99px", background: n.tone, marginTop: "5px", flex: "none" }} />
+                <span style={{ minWidth: 0 }}>
+                  <span style={{ display: "block", fontWeight: 500 }}>{n.title}</span>
+                  <span style={{ display: "block", fontSize: "12px", color: "var(--mute)" }}>{n.sub}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+/** Maria's avatar: account menu. */
+function AccountMenu() {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const maria = PEOPLE.find((p) => p.key === "maria")!;
+  const item = (label: string, run: () => void, hint?: string) => (
+    <button type="button" role="menuitem" style={menuItem} className="ham-menuitem" onClick={() => (setOpen(false), run())}>
+      <span style={{ flex: 1 }}>{label}</span>
+      {hint && <span style={{ fontFamily: "var(--mono)", fontSize: "11px", color: "var(--mute)" }}>{hint}</span>}
+    </button>
+  );
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        type="button"
+        aria-label="Account: Maria Santos"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        style={{
+          font: "inherit",
+          width: "30px",
+          height: "30px",
+          flex: "none",
+          border: 0,
+          borderRadius: "99px",
+          background: "#344054",
+          color: "#fff",
+          fontSize: "11px",
+          fontWeight: 600,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          boxShadow: open ? "0 0 0 2px var(--panel), 0 0 0 4px var(--brand)" : undefined,
+        }}
+      >
+        MS
+      </button>
+      {open && (
+        <>
+          <Away onClose={() => setOpen(false)} />
+          <div role="menu" className="ham-in" style={menuBox}>
+            <div style={{ padding: "8px 10px 10px", borderBottom: "1px solid var(--line)", marginBottom: "4px" }}>
+              <div style={{ fontWeight: 600 }}>Maria Santos</div>
+              <div style={{ fontSize: "12px", color: "var(--mute)" }}>Owner · Maria’s Flowers &amp; Gifts</div>
+            </div>
+            {item("Your profile", () => openPerson(maria))}
+            {item("Search", openPalette, "⌘K")}
+            {item("Autonomy policies", () => router.push("/app/autonomy"))}
+            {item("Team and drivers", () => router.push("/app/drivers"))}
+            {item("Billing", () => openSoon("Billing"))}
+            {item("Settings", () => openSoon("Settings"))}
+            <div style={{ borderTop: "1px solid var(--line)", margin: "4px 0" }} />
+            {item("Sign out", () => openSoon("Sign out"))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function Header({ crumbs }: { crumbs: string[] }) {
   return (
     <header
@@ -291,9 +479,13 @@ export function Header({ crumbs }: { crumbs: string[] }) {
         ))}
       </nav>
       <div style={{ flex: 1 }} />
-      <label
+      <button
+        type="button"
         className="ham-search"
+        onClick={openPalette}
+        aria-label="Search orders, drivers, addresses"
         style={{
+          font: "inherit",
           display: "flex",
           alignItems: "center",
           gap: "8px",
@@ -304,41 +496,25 @@ export function Header({ crumbs }: { crumbs: string[] }) {
           padding: "0 10px",
           color: "var(--mute)",
           background: "var(--panel)",
+          cursor: "text",
+          textAlign: "left",
         }}
       >
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <circle cx="11" cy="11" r="7" />
           <path d="M20 20l-4-4" />
         </svg>
-        <input
-          aria-label="Search orders, drivers, addresses"
-          placeholder="Search orders, drivers, addresses"
-          style={{ font: "inherit", border: 0, outline: 0, flex: 1, minWidth: 0, color: "var(--ink)" }}
-        />
+        <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Search orders, drivers, addresses</span>
         <span
           style={{ fontFamily: "var(--mono)", fontSize: "11px", border: "1px solid var(--line)", borderRadius: "4px", padding: "0 5px" }}
         >
           ⌘K
         </span>
-      </label>
-      <div
-        aria-label="Maria Santos"
-        style={{
-          width: "30px",
-          height: "30px",
-          flex: "none",
-          borderRadius: "99px",
-          background: "#344054",
-          color: "#fff",
-          fontSize: "11px",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        MS
-      </div>
+      </button>
+      <Hydrated>
+        <Bell />
+      </Hydrated>
+      <AccountMenu />
     </header>
   );
 }
@@ -347,6 +523,7 @@ export function Header({ crumbs }: { crumbs: string[] }) {
 export function Shell({ crumbs, children }: { crumbs: string[]; children: React.ReactNode }) {
   return (
     <div
+      className="ham-app"
       style={{
         fontFamily: "var(--font)",
         background: "var(--bg)",

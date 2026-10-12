@@ -126,7 +126,7 @@ export function OpenTickets() {
           <>
             <span style={mono}>HAM-414</span>
             <span>Intake</span>
-            <span>82% parsed</span>
+            <span>Address unclear</span>
           </>
         }
         age={age("10:15")}

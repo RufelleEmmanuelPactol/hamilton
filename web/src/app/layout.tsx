@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ScenarioRuntime } from "@/components/ScenarioRuntime";
+import { Overlays } from "@/components/Overlays";
 
 export const metadata: Metadata = {
   title: "Hamilton · Agentic delivery ops",
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ScenarioRuntime />
         {children}
+        <Overlays />
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ export function Phone({ children, caption }: { children: React.ReactNode; captio
         <Link href="/app">← Admin console</Link>
         {caption ? <span>· {caption}</span> : null}
       </div>
-      <div className="ham-phone">
+      <div className="ham-phone ham-app">
         <Hydrated>{children}</Hydrated>
       </div>
     </div>

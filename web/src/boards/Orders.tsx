@@ -242,7 +242,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
       {
         id: "WA-0912",
         ticket: "HAM-414",
-        tag: ["warn", "82% parsed"],
+        tag: ["warn", "Address unclear"],
         title: "Red roses (12) + chocolates for Rina Bautista",
         quote: "hi po! can i order the red roses 12pcs w/ chocolates… before 4pm pls",
         meta: "Makati · 13:00–16:00 · not paid yet",

@@ -23,3 +23,23 @@ button{font-family:inherit}
 @keyframes hamFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 @keyframes hamDots{0%,80%,100%{opacity:.25}40%{opacity:1}}
 .ham-in{animation:hamFade .25s ease-out both}
+
+/* Header menus */
+[role=menu] .ham-menuitem:hover,[role=menu] a[role=menuitem]:hover{background:var(--sub)}
+.ham-search:hover{border-color:var(--mute)!important}
+
+/* Hover and press feedback across the console and field apps. Boards use inline styles, so these
+   rules only add effects inline styles don't set (filter, shadow, transform) or use !important sparingly. */
+.ham-app :is(button,a,select,[role=button],[role=tab],tr,article,input,textarea){transition:background-color .12s,border-color .12s,box-shadow .15s,filter .12s,transform .12s,color .12s}
+.ham-app button:not(:disabled):hover,.ham-app [role=button]:hover{filter:brightness(.95)}
+.ham-app button:not(:disabled):active,.ham-app [role=button]:active{filter:brightness(.9);transform:translateY(1px)}
+.ham-app button:disabled{cursor:not-allowed}
+.ham-app a:hover{filter:brightness(.92)}
+.ham-app a[href]:not([style*="background"]):hover{text-decoration:underline;text-underline-offset:2px}
+.ham-app nav[aria-label=Main] a:not([aria-current]):hover{background:var(--sub)!important;color:var(--ink)!important;text-decoration:none;filter:none}
+.ham-app [role=tab]:not([aria-selected=true]):hover{color:var(--ink)!important}
+.ham-app tbody tr:hover>td{background-color:rgba(16,24,40,.025)}
+.ham-app article:hover{box-shadow:0 4px 12px -4px rgba(16,24,40,.14)!important}
+.ham-app :is(select,input,textarea):not(:disabled):hover{border-color:var(--mute)!important}
+.ham-app section[aria-label]>div[style*="border"]:hover{border-color:var(--line2)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
