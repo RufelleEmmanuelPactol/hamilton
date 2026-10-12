@@ -10,13 +10,6 @@ const REPO = "https://github.com/RufelleEmmanuelPactol/hamilton";
 const DOCS = `${REPO}/blob/HEAD/docs`;
 const DEMO = "/console/?reset=1";
 
-const DRV = {
-  j: { name: "Jun", color: "#2E90FA" },
-  c: { name: "Carlo", color: "#7A5AF8" },
-  a: { name: "Ana", color: "#E91E63" },
-  r: { name: "Rico", color: "#F79009" },
-} as const;
-type D = keyof typeof DRV;
 
 function Spark({ size = 14, color = "currentColor" }: { size?: number; color?: string }) {
   return (
@@ -35,120 +28,162 @@ function Check({ color = "currentColor" }: { color?: string }) {
 
 /* ================================================================== hero demo */
 
-/** Where each stop sits: [driver row, slot]. Approving HAM-417 moves Jun's last 3 stops. */
-const BEFORE: Record<string, [D, number, "done" | "risk" | "todo"]> = {
-  "1041": ["j", 0, "done"],
-  "1047": ["j", 1, "done"],
-  "1042": ["j", 2, "risk"],
-  "1050": ["j", 3, "todo"],
-  "1049": ["j", 4, "risk"],
-  "1045": ["c", 0, "done"],
-  "1046": ["c", 1, "done"],
-  "1051": ["c", 2, "todo"],
-  "1048": ["c", 3, "todo"],
-  "1043": ["a", 0, "todo"],
-  "1044": ["a", 1, "todo"],
-  "1039": ["r", 0, "done"],
-};
-const AFTER: Record<string, [D, number, "done" | "risk" | "todo"]> = {
-  ...BEFORE,
-  "1042": ["a", 0, "todo"],
-  "1050": ["a", 1, "todo"],
-  "1043": ["a", 2, "todo"],
-  "1044": ["a", 3, "todo"],
-  "1049": ["r", 1, "todo"],
-};
-const ROWS: D[] = ["j", "c", "a", "r"];
+const FONT = "IBM Plex Sans, sans-serif";
 
+/** A small map of the flat-tire morning. Approving moves Jun's 3 remaining stops to Ana and Rico; routes cross-fade. */
 function HeroDemo() {
   const [approved, setApproved] = useState(false);
-  const layout = approved ? AFTER : BEFORE;
-  const moved = new Set(["1042", "1050", "1049"]);
+  const show = (on: boolean): CSSProperties => ({ opacity: on ? 1 : 0, transition: "opacity .6s" });
+  const fill = (c: string): CSSProperties => ({ fill: c, transition: "fill .5s" });
+  const late = "#B42318";
+  const ok = "#067647";
   return (
-    <div className="lp-hero-card" aria-label="Try it: approve the Dispatch agent's fix">
-      <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "12px 16px", borderBottom: "1px solid var(--line)" }}>
-        <span style={{ width: 8, height: 8, borderRadius: 99, background: approved ? "#12B76A" : "#F04438" }} />
-        <span style={{ fontWeight: 600, fontSize: 13 }}>Today, 10:42</span>
-        <span style={{ color: "var(--mute)", fontSize: 13 }}>Maria’s Flowers &amp; Gifts</span>
-        <span style={{ flex: 1 }} />
-        <span className="lp-chip" style={approved ? { color: "var(--ok)", background: "var(--okBg)", borderColor: "var(--okLine)" } : undefined}>
-          {approved ? "0 at risk" : "2 at risk"}
+    <div className="lp-card" aria-label="Live example: a flat tire, and Hamilton's fix">
+      <div style={{ padding: "14px 16px 12px", borderBottom: "1px solid var(--line)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--mute)" }}>Live example</span>
+          <span style={{ color: "var(--mute)", fontSize: 12 }}>Maria’s Flowers &amp; Gifts · Monday 10:42</span>
+          <span style={{ flex: 1 }} />
+          <span
+            className="lp-chip"
+            style={approved ? { color: "var(--ok)", background: "var(--okBg)", borderColor: "var(--okLine)" } : undefined}
+          >
+            {approved ? "All on time" : "2 late"}
+          </span>
+        </div>
+        <div style={{ fontSize: 15, fontWeight: 600, lineHeight: 1.4, marginTop: 8 }} aria-live="polite">
+          {approved
+            ? "Fixed: Ana and Rico took Jun’s 3 deliveries. Nobody is late."
+            : "10:31: Jun’s van got a flat tire. He still has 3 deliveries, and 2 will now be late."}
+        </div>
+      </div>
+
+      <svg
+        viewBox="0 0 520 250"
+        width="100%"
+        role="img"
+        aria-label={
+          approved
+            ? "Map: Jun’s 3 remaining deliveries now on Ana’s and Rico’s routes, all on time"
+            : "Map: Jun stopped by a flat tire with 3 deliveries left, 2 of them late"
+        }
+        style={{ display: "block", background: "#F2F4F7" }}
+      >
+        <path d="M0 150 C 90 130, 150 170, 240 150 S 400 120, 520 140 L 520 158 C 400 140, 330 170, 240 168 S 90 150, 0 168 Z" fill="#D1E9FF" />
+        <text x="455" y="133" fontSize="10" fill="#175CD3" fontFamily={FONT}>
+          Pasig River
+        </text>
+        <path d="M195 0 L 230 250" stroke="#fff" strokeWidth="10" />
+        <path d="M0 60 L 520 85" stroke="#fff" strokeWidth="7" />
+        <path d="M0 225 L 520 200" stroke="#fff" strokeWidth="7" />
+        <text x="236" y="244" fontSize="10" fill="#667085" fontFamily={FONT} fontWeight="600">
+          EDSA
+        </text>
+
+        <g fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="70,205 110,175 165,118 212,104" stroke="#2E90FA" />
+          <polyline points="212,104 300,92 360,70 262,40" stroke="#F04438" strokeDasharray="6 6" style={show(!approved)} />
+          <polyline points="70,205 300,92 360,70 380,182 450,212" stroke="#E91E63" style={show(approved)} />
+          <polyline points="70,205 380,182 450,212" stroke="#E91E63" style={show(!approved)} />
+          <polyline points="70,205 110,236 262,40" stroke="#F79009" style={show(approved)} />
+          <polyline points="70,205 110,236" stroke="#F79009" style={show(!approved)} />
+          <polyline points="70,205 150,226 222,236 420,128 478,96" stroke="#7A5AF8" />
+        </g>
+
+        <g stroke="#fff" strokeWidth="2">
+          {[
+            [110, 175],
+            [165, 118],
+            [150, 226],
+            [222, 236],
+            [110, 236],
+          ].map(([x, y]) => (
+            <circle key={`${x}-${y}`} cx={x} cy={y} r="6" fill="#98A2B3" />
+          ))}
+          <circle cx="420" cy="128" r="6" fill="#7A5AF8" />
+          <circle cx="478" cy="96" r="6" fill="#7A5AF8" />
+          <circle cx="380" cy="182" r="6" fill="#E91E63" />
+          <circle cx="450" cy="212" r="6" fill="#E91E63" />
+          <circle cx="300" cy="92" r="8" style={fill(approved ? "#E91E63" : "#F04438")} />
+          <circle cx="360" cy="70" r="8" style={fill(approved ? "#E91E63" : "#2E90FA")} />
+          <circle cx="262" cy="40" r="8" style={fill(approved ? "#F79009" : "#F04438")} />
+        </g>
+        <g fontFamily={FONT} fontSize="11" fontWeight="600" fill="#101828">
+          <text x="312" y="104">Mark Tan</text>
+          <text x="312" y="117" fontWeight="500" style={fill(approved ? ok : late)}>
+            {approved ? "12:15 with Ana · on time" : "13:40 · 40 min late"}
+          </text>
+          <text x="372" y="66">Nicole Ramos</text>
+          <text x="372" y="79" fontWeight="500" fill="#344054">
+            {approved ? "12:40 with Ana · on time" : "14:05 · still on time"}
+          </text>
+          <text x="274" y="36">Sam Ocampo</text>
+          <text x="274" y="49" fontWeight="500" style={fill(approved ? ok : late)}>
+            {approved ? "11:05 with Rico · on time" : "13:55 · 55 min late"}
+          </text>
+        </g>
+
+        <rect x="60" y="195" width="20" height="20" rx="4" fill="#101828" />
+        <path d="M65 209 v-6 l5 -4 l5 4 v6 z" fill="#fff" />
+        <text x="50" y="232" fontSize="11" fontWeight="600" fill="#101828" fontFamily={FONT}>
+          Shop
+        </text>
+
+        <circle cx="212" cy="104" r="11" fill="#F04438" stroke="#fff" strokeWidth="2" />
+        <path d="M212 98 v7 M212 109 v1" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" />
+        <text x="128" y="96" fontSize="11" fontWeight="600" fill={late} fontFamily={FONT}>
+          Jun’s flat tire
+        </text>
+      </svg>
+
+      <div className="lp-legend">
+        {[
+          ["Jun", "#2E90FA"],
+          ["Ana", "#E91E63"],
+          ["Rico", "#F79009"],
+          ["Carlo", "#7A5AF8"],
+        ].map(([n, c]) => (
+          <span key={n}>
+            <span style={{ width: 14, height: 3, borderRadius: 2, background: c }} />
+            {n}
+          </span>
+        ))}
+        <span>
+          <span style={{ width: 9, height: 9, borderRadius: 99, background: "#98A2B3" }} />
+          Delivered
+        </span>
+        <span>
+          <span style={{ width: 9, height: 9, borderRadius: 99, background: "#F04438" }} />
+          Will be late
         </span>
       </div>
 
-      <div style={{ position: "relative", height: 4 * 46 + 16, margin: "8px 16px 0" }}>
-        {ROWS.map((d, i) => (
-          <div
-            key={d}
-            style={{
-              position: "absolute",
-              left: 0,
-              right: 0,
-              top: i * 46 + 8,
-              height: 38,
-              display: "flex",
-              alignItems: "center",
-              borderBottom: i < 3 ? "1px dashed var(--line)" : undefined,
-            }}
-          >
-            <span style={{ width: 9, height: 9, borderRadius: 99, background: DRV[d].color, marginRight: 8 }} />
-            <span style={{ fontSize: 13, fontWeight: 600, width: 50 }}>{DRV[d].name}</span>
-            {d === "j" && (
-              <span style={{ fontSize: 11, color: "var(--err)", fontWeight: 600, whiteSpace: "nowrap" }} className="lp-flat">
-                Flat tire
-              </span>
-            )}
-          </div>
-        ))}
-        {Object.entries(layout).map(([id, [d, slot, st]]) => {
-          const row = ROWS.indexOf(d);
-          const risk = st === "risk" && !approved;
-          return (
-            <span
-              key={id}
-              className="lp-stop"
-              style={{
-                top: row * 46 + 15,
-                left: `calc(var(--lp-lane) + ${slot} * var(--lp-slot))`,
-                background: st === "done" ? "var(--sub)" : "#fff",
-                color: st === "done" ? "var(--mute)" : risk ? "var(--err)" : "var(--ink)",
-                borderColor: risk ? "#F04438" : st === "done" ? "var(--line)" : DRV[d].color,
-                boxShadow: approved && moved.has(id) ? `0 0 0 3px ${DRV[d].color}33` : undefined,
-              }}
-            >
-              {st === "done" && <span className="lp-tick">✓ </span>}
-              {id}
-            </span>
-          );
-        })}
-      </div>
-
-      <div className="lp-ai" style={{ margin: "8px 16px 16px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--brandInk)", fontWeight: 600 }}>
-          <Spark size={12} /> Dispatch agent · HAM-417
-        </div>
+      <div style={{ padding: "14px 16px 16px" }}>
         {!approved ? (
-          <>
-            <div style={{ fontSize: 14, fontWeight: 600, margin: "6px 0 2px" }}>Move 3 of Jun’s stops to Ana and Rico?</div>
+          <div className="ham-in">
+            <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--brandInk)", fontWeight: 600 }}>
+              <Spark size={12} /> Hamilton suggests
+            </div>
+            <div style={{ fontSize: 14, fontWeight: 600, margin: "6px 0 2px" }}>Give Jun’s 3 remaining deliveries to Ana and Rico.</div>
             <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.5 }}>
-              Jun has a flat (about 1 hour). If you do nothing, #1042 and #1049 arrive 40–85 min late. With this change all 3 arrive on time.
+              Ana takes Mark and Nicole, Rico takes Sam. All 3 arrive on time. It waits for you because it changes 3 drivers’ routes.
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+            <div style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
               <button type="button" className="lp-btn lp-btn-primary lp-btn-sm" onClick={() => setApproved(true)}>
-                Approve
+                Approve the fix
               </button>
-              <span style={{ fontSize: 12, color: "var(--mute)", alignSelf: "center" }}>Held for you: 3 stops is over your 1-stop auto limit.</span>
+              <span style={{ fontSize: 12, color: "var(--mute)" }}>Try it. The map updates.</span>
             </div>
-          </>
+          </div>
         ) : (
           <div className="ham-in">
-            <div style={{ fontSize: 14, fontWeight: 600, margin: "6px 0 2px", color: "var(--ok)" }}>Done. Everyone is on time again.</div>
-            <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.5 }}>
-              Routes re-sequenced for Ana and Rico. 3 customers got new arrival times on WhatsApp. Logged in the audit trail.
+            <div style={{ fontSize: 14, fontWeight: 600, color: "var(--ok)" }}>Approved. All 3 customers get their flowers on time.</div>
+            <div style={{ fontSize: 13, color: "var(--ink2)", lineHeight: 1.5, marginTop: 2 }}>
+              Ana and Rico got new routes. Mark, Nicole and Sam got new arrival times on WhatsApp.
             </div>
-            <div style={{ display: "flex", gap: 12, marginTop: 10, flexWrap: "wrap", alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 12, marginTop: 12, flexWrap: "wrap", alignItems: "center" }}>
               <a className="lp-btn lp-btn-primary lp-btn-sm" href={DEMO}>
-                Play the full scenario →
+                Play the full day →
               </a>
               <button type="button" className="lp-link" onClick={() => setApproved(false)}>
                 Replay
@@ -167,8 +202,8 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
   {
     id: "dispatch",
     tab: "Dispatch",
-    title: "Plans the day. Re-plans it when the day breaks.",
-    body: "Builds tomorrow’s routes from your drivers, vans, history and address book. When a tire goes flat or a road closes, it finds the fix in seconds and shows you the before and after.",
+    title: "Plans routes, and fixes them.",
+    body: "Tomorrow’s routes, built from your drivers and orders. When a tire goes flat, it finds a fix in seconds.",
     bullets: ["Morning plan in one click", "Live re-planning with arrival times you can trust", "Holds a slot open for same-day orders"],
     demo: "/console/dispatch",
     visual: (
@@ -199,13 +234,13 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
   {
     id: "messages",
     tab: "Customer messages",
-    title: "Answers “where’s my order?” before you see it.",
-    body: "Reads every WhatsApp and SMS reply, understands “not home until 3pm”, reschedules, and answers from that order’s data only. Anything sensitive lands in your inbox instead.",
+    title: "Answers your customers.",
+    body: "Replies on WhatsApp and SMS, and reschedules when someone isn’t home. Anything sensitive comes to you.",
     bullets: ["Confirms risky deliveries before the driver leaves", "Reschedules from plain-language replies", "Never promises refunds"],
     demo: "/console/messages",
     visual: (
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <div className="lp-bubble">hi! not home until 3pm today, can you come later? 🙏</div>
+        <div className="lp-bubble">hi! not home until 3pm today, can you come later?</div>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--brandInk)", fontWeight: 600 }}>
           <Spark size={12} /> Assistant · reschedule · handled on its own
         </div>
@@ -218,8 +253,8 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
   {
     id: "proof",
     tab: "Proof & disputes",
-    title: "Checks proof at the door. Builds the case when it’s disputed.",
-    body: "Every proof-of-delivery photo is checked while the driver is still there, so a blurry shot gets retaken, not argued about later. Damage claims get an evidence pack, and a person decides.",
+    title: "Checks every delivery photo.",
+    body: "A blurry photo gets retaken while the driver is still there. If a delivery is disputed, you get the evidence.",
     bullets: ["Instant photo checks: blur, house number, package in frame", "Evidence packs with timestamps and GPS", "Money decisions are always yours"],
     demo: "/app/deliver/?o=1042",
     visual: (
@@ -386,27 +421,49 @@ function PolicyPlayground() {
           </div>
         </div>
         <p style={{ fontSize: 12, color: "var(--mute)", margin: "14px 0 0", lineHeight: 1.5 }}>
-          This box runs the same policy code as the demo. Agents can’t talk their way past it: the check is in code, not in a prompt.
+          Same rules as the demo.
         </p>
       </div>
     </div>
   );
 }
 
+
 /* ================================================================== page */
 
-const STATS = [
-  { n: "8%", t: "of last-mile deliveries fail on the first attempt" },
-  { n: "$17", t: "is the cost of each failed delivery" },
-  { n: "94%", t: "of customers blame the shop, not the courier" },
-  { n: "1.7 h", t: "a day goes to manual dispatch and follow-ups" },
+const BRANDS: { name: string; style: CSSProperties }[] = [
+  { name: "Maria’s Flowers", style: { fontFamily: "'Playfair Display', serif", fontStyle: "italic", fontSize: 26, fontWeight: 600, color: "#9F1239" } },
+  { name: "Dela Cruz Bakery", style: { fontFamily: "'Fraunces', serif", fontSize: 25, fontWeight: 800, color: "#92400E", letterSpacing: "-0.01em" } },
+  { name: "Café Morato", style: { fontFamily: "'DM Serif Display', serif", fontSize: 27, color: "#3F2A1E" } },
+  { name: "botika+lola", style: { fontFamily: "'Nunito', sans-serif", fontSize: 25, fontWeight: 800, color: "#047857" } },
+  { name: "KILOS EXPRESS", style: { fontFamily: "'Archivo Black', sans-serif", fontStyle: "italic", fontSize: 23, color: "#1D4ED8", letterSpacing: "-0.02em" } },
+  { name: "sari/supply", style: { fontFamily: "'Space Grotesk', sans-serif", fontSize: 25, fontWeight: 700, color: "#334155" } },
+];
+const BRAND_FONTS =
+  "https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&family=Fraunces:opsz,wght@9..144,800&family=DM+Serif+Display&family=Nunito:wght@800&family=Archivo+Black&family=Space+Grotesk:wght@700&display=swap";
+
+const DAY: [string, string, string][] = [
+  ["6:00", "Orders from Shopify, WhatsApp and email", "One list, ready to go"],
+  ["6:30", "Routes from memory", "Planned before you open"],
+  ["9:00", "“Where are my flowers?”", "Answered on WhatsApp"],
+  ["11:00", "Nobody home", "Confirmed before the van leaves"],
+  ["14:00", "“It never came.”", "Photo checked at the door"],
+  ["18:00", "Planning tomorrow", "Already done"],
 ];
 
-const ROADMAP = [
-  { phase: "Now", title: "Proof of concept", body: "Admin console, driver app and customer view on one scripted day. Policy engine in code." },
-  { phase: "0–3 months", title: "Design-partner pilot", body: "3–5 fleets in one city. Shopify, WhatsApp and tracking-tool integrations. Agents start in “Ask me”." },
-  { phase: "3–6 months", title: "Earned autonomy", body: "Approval rates suggest which rules can move from “Ask me” to “Auto”. Driver voice notes." },
-  { phase: "6–12 months", title: "Platform", body: "Weather and traffic in tomorrow’s plan, multi-depot fleets, and an MCP server for owners’ own assistants." },
+const FEATURES: { t: string; b: string; icon: ReactNode }[] = [
+  { t: "Live map", b: "See every van, and every delivery at risk.", icon: <><path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2z" /><path d="M9 4v14M15 6v14" /></> },
+  { t: "Route planning", b: "Tomorrow’s routes, drafted for you to approve.", icon: <><circle cx="6" cy="18" r="2" /><circle cx="18" cy="6" r="2" /><path d="M8 18h6a3 3 0 0 0 0-6h-4a3 3 0 0 1 0-6h6" /></> },
+  { t: "Live re-routing", b: "A van breaks down. Its stops move to free drivers.", icon: <path d="M4 7h11l-3-3M20 17H9l3 3" /> },
+  { t: "Decision inbox", b: "Everything that needs you, in one place.", icon: <><path d="M4 13l2-8h12l2 8v6H4z" /><path d="M4 13h5l1 2h4l1-2h5" /></> },
+  { t: "Orders from anywhere", b: "Shopify, WhatsApp and email orders become jobs.", icon: <><path d="M5 8h14l-1.5 11h-11z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></> },
+  { t: "Customer replies", b: "WhatsApp and SMS questions, answered for you.", icon: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /> },
+  { t: "Arrival updates", b: "Customers get live delivery times.", icon: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></> },
+  { t: "Driver app", b: "Next stop and one-tap reports. Nothing to install.", icon: <><rect x="7" y="3" width="10" height="18" rx="2" /><path d="M11 18h2" /></> },
+  { t: "Photo proof", b: "Checked at the door. Retaken if blurry.", icon: <><rect x="3" y="6" width="18" height="13" rx="2" /><circle cx="12" cy="12.5" r="3.5" /><path d="M8 6l1.5-2h5L16 6" /></> },
+  { t: "Address book", b: "Gate codes, best times, who can receive.", icon: <><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z" /><circle cx="12" cy="10" r="2.5" /></> },
+  { t: "Driver profiles", b: "Who knows which area, and how they’re doing.", icon: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7" /></> },
+  { t: "Rules and audit log", b: "Choose what runs alone. Undo anything.", icon: <><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z" /><path d="M9 12l2 2 4-4" /></> },
 ];
 
 export default function Landing() {
@@ -414,6 +471,7 @@ export default function Landing() {
   return (
     <div className="lp">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <link rel="stylesheet" href={BRAND_FONTS} />
 
       <header className="lp-nav">
         <div className="lp-wrap lp-nav-in">
@@ -422,10 +480,10 @@ export default function Landing() {
             Hamilton
           </Link>
           <nav aria-label="Sections" className={`lp-nav-links${menu ? " open" : ""}`} onClick={() => setMenu(false)}>
+            <a href="#features">Features</a>
             <a href="#agents">Agents</a>
             <a href="#control">Control</a>
             <a href="#how">How it works</a>
-            <a href="#roadmap">Roadmap</a>
             <a href={REPO}>GitHub</a>
           </nav>
           <span style={{ flex: 1 }} />
@@ -441,19 +499,14 @@ export default function Landing() {
       </header>
 
       <main>
-        {/* ---------------- hero */}
         <section className="lp-hero">
           <div className="lp-wrap lp-hero-grid">
             <div>
-              <div className="lp-eyebrow">
-                <Spark size={12} /> AI operations for small delivery fleets
-              </div>
               <h1 className="lp-h1">
-                Your deliveries run themselves. <span className="lp-accent">You stay in charge.</span>
+                Deliveries that run themselves. <span className="lp-accent">You stay in charge.</span>
               </h1>
               <p className="lp-lead">
-                Hamilton’s agents plan routes, fix them when the day breaks, answer customers and check every proof of delivery. Anything that
-                touches money or people waits for your OK.
+                Hamilton plans your routes, fixes them when something goes wrong, and keeps customers updated. You approve what matters.
               </p>
               <div className="lp-cta-row">
                 <a className="lp-btn lp-btn-primary" href={DEMO}>
@@ -463,88 +516,82 @@ export default function Landing() {
                   See how it works
                 </a>
               </div>
-              <ul className="lp-hero-ticks">
-                <li>
-                  <Check /> No sign-up
-                </li>
-                <li>
-                  <Check /> Runs in your browser
-                </li>
-                <li>
-                  <Check /> 2 minutes
-                </li>
-              </ul>
+              <p className="lp-hero-note">No sign-up · Runs in your browser · 2 minutes</p>
             </div>
-            <div>
-              <HeroDemo />
-              <p className="lp-hero-hint">↑ This is live. Approve the fix and watch the routes change.</p>
-            </div>
+            <HeroDemo />
           </div>
         </section>
 
-        {/* ---------------- who it's for */}
         <section className="lp-band">
-          <div className="lp-wrap lp-band-in">
-            <span className="lp-band-label">Built for fleets of 2–50 drivers</span>
-            {["Florists", "Bakeries", "Distributors", "Pharmacies", "Local couriers", "Gift shops"].map((s) => (
-              <span key={s} className="lp-band-item">
-                {s}
-              </span>
-            ))}
+          <div className="lp-wrap lp-band-label">For shops with 2–50 drivers</div>
+          <div className="lp-marquee" role="img" aria-label="Example shops (fictional): Maria’s Flowers, Dela Cruz Bakery, Café Morato, botika+lola, Kilos Express, sari/supply">
+            <div className="lp-marquee-track" aria-hidden="true">
+              {[...BRANDS, ...BRANDS].map((b, i) => (
+                <span key={i} style={{ ...b.style, whiteSpace: "nowrap", lineHeight: 1 }}>
+                  {b.name}
+                </span>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* ---------------- problem */}
-        <section className="lp-section">
+        <section className="lp-section lp-section-alt">
           <div className="lp-wrap">
-            <div className="lp-kicker">The problem</div>
-            <h2 className="lp-h2">In a small fleet, the owner is the dispatcher, the help desk and the claims team.</h2>
-            <p className="lp-p" style={{ maxWidth: 680 }}>
-              Routes get rebuilt from memory, “where’s my order?” arrives all day, and a disputed delivery turns into an argument about a blurry
-              photo. Enterprise tools are too heavy and too expensive. Tracking apps only track.
-            </p>
-            <div className="lp-stats">
-              {STATS.map((s) => (
-                <div key={s.n} className="lp-stat">
-                  <div className="lp-stat-n">{s.n}</div>
-                  <div className="lp-stat-t">{s.t}</div>
+            <h2 className="lp-h2">Your day, handled.</h2>
+            <ol className="lp-hd">
+              {DAY.map(([t, was, now]) => (
+                <li key={t}>
+                  <span className="lp-hd-t">{t}</span>
+                  <span className="lp-hd-was">{was}</span>
+                  <span className="lp-hd-now">
+                    <Check color="#067647" /> {now}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section id="features" className="lp-section">
+          <div className="lp-wrap">
+            <h2 className="lp-h2">Everything you need to run deliveries.</h2>
+            <div className="lp-feats">
+              {FEATURES.map((x) => (
+                <div key={x.t} className="lp-feat">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C2185B" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    {x.icon}
+                  </svg>
+                  <div style={{ fontSize: 16, fontWeight: 600, marginTop: 14 }}>{x.t}</div>
+                  <div style={{ fontSize: 14, color: "var(--ink2)", lineHeight: 1.5, marginTop: 4 }}>{x.b}</div>
                 </div>
               ))}
             </div>
-            <p className="lp-source">Sources: OneRail via FreightWaves; Microlise survey of 250 logistics managers. Full notes in the research doc.</p>
           </div>
         </section>
 
-        {/* ---------------- agents */}
         <section id="agents" className="lp-section lp-section-alt">
           <div className="lp-wrap">
-            <div className="lp-kicker">Three agents, one team</div>
-            <h2 className="lp-h2">They do the legwork. You make the calls.</h2>
+            <h2 className="lp-h2" style={{ marginBottom: 0 }}>
+              Three assistants. One team.
+            </h2>
             <AgentTabs />
           </div>
         </section>
 
-        {/* ---------------- control */}
         <section id="control" className="lp-section">
           <div className="lp-wrap">
-            <div className="lp-kicker">Autonomy you can dial in</div>
-            <h2 className="lp-h2">Agents propose. Your policies decide.</h2>
+            <h2 className="lp-h2">You decide what runs on its own.</h2>
             <p className="lp-p" style={{ maxWidth: 680 }}>
-              Every action goes through rules you set in plain language. Start with “Ask me” for everything, then let Hamilton earn more
-              autonomy as you approve its work. Try it:
+              Set a rule for each kind of action. Start with “Ask me”. Try it:
             </p>
             <PolicyPlayground />
           </div>
         </section>
 
-        {/* ---------------- how */}
         <section id="how" className="lp-section lp-section-dark">
           <div className="lp-wrap">
-            <div className="lp-kicker" style={{ color: "#F8BBD0" }}>
-              How it works
-            </div>
             <h2 className="lp-h2" style={{ color: "#fff" }}>
-              From a flat tire to a fixed route in under a minute.
+              A flat tire, fixed in under a minute.
             </h2>
             <ol className="lp-steps">
               {[
@@ -575,73 +622,14 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* ---------------- demo walkthrough */}
-        <section className="lp-section">
-          <div className="lp-wrap lp-split" style={{ alignItems: "center" }}>
-            <div>
-              <div className="lp-kicker">The 2-minute demo</div>
-              <h2 className="lp-h2">Live a Monday at Maria’s Flowers &amp; Gifts.</h2>
-              <p className="lp-p">
-                Four drivers, thirteen orders, Metro Manila. At 10:31 Jun gets a flat tire. Be the driver, be the owner, and see what the
-                customer sees.
-              </p>
-              <div className="lp-cta-row">
-                <a className="lp-btn lp-btn-primary" href={DEMO}>
-                  Start the demo
-                </a>
-                <Link className="lp-btn lp-btn-outline" href="/app/">
-                  Open the driver app
-                </Link>
-              </div>
-            </div>
-            <ol className="lp-timeline">
-              {[
-                ["10:30", "A calm morning", "Everyone on time.", "/console/"],
-                ["10:31", "Jun reports a flat tire", "One tap in the driver app.", "/app/report/"],
-                ["10:33", "The agent proposes a fix", "Held for you as HAM-417.", "/console/approvals/"],
-                ["10:44", "You approve", "Routes, ETAs and customers update.", "/console/audit/"],
-              ].map(([t, h, b, href]) => (
-                <li key={t}>
-                  <span className="lp-time">{t}</span>
-                  <div>
-                    <div style={{ fontWeight: 600 }}>{h}</div>
-                    <div style={{ color: "var(--mute)", fontSize: 14 }}>{b}</div>
-                  </div>
-                  <Link href={href} className="lp-link-arrow" style={{ marginLeft: "auto", fontSize: 13 }}>
-                    Open →
-                  </Link>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* ---------------- roadmap */}
-        <section id="roadmap" className="lp-section lp-section-alt">
-          <div className="lp-wrap">
-            <div className="lp-kicker">Roadmap</div>
-            <h2 className="lp-h2">Autonomy is earned, not switched on.</h2>
-            <div className="lp-roadmap">
-              {ROADMAP.map((r, i) => (
-                <div key={r.title} className={`lp-road${i === 0 ? " now" : ""}`}>
-                  <div className="lp-road-phase">{r.phase}</div>
-                  <div style={{ fontWeight: 600, fontSize: 16, margin: "6px 0" }}>{r.title}</div>
-                  <div style={{ color: "var(--ink2)", fontSize: 14, lineHeight: 1.55 }}>{r.body}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ---------------- final CTA */}
         <section className="lp-final">
           <div className="lp-wrap" style={{ textAlign: "center" }}>
-            <h2 className="lp-h2" style={{ color: "#fff", margin: "0 auto 12px", maxWidth: 720 }}>
-              Watch a morning go wrong, and get fixed, in two minutes.
+            <h2 className="lp-h2" style={{ color: "#fff", margin: "0 auto 12px" }}>
+              Get your day back.
             </h2>
-            <p style={{ color: "#FCE4EC", fontSize: 17, margin: "0 0 24px" }}>No sign-up. No API keys. Nothing to install.</p>
+            <p style={{ color: "#FCE4EC", fontSize: 17, margin: "0 0 24px" }}>No sign-up. Runs in your browser.</p>
             <a className="lp-btn lp-btn-white" href={DEMO}>
-              Try the live demo
+              Start the demo
             </a>
           </div>
         </section>
@@ -667,7 +655,6 @@ export default function Landing() {
           <div className="lp-footer-col">
             <div className="lp-footer-h">Case study</div>
             <a href={`${DOCS}/scope.md`}>Scope and top 3 agents</a>
-            <a href={`${DOCS}/roadmap.md`}>Roadmap</a>
             <a href={`${DOCS}/problem-research.md`}>Problem research</a>
             <a href={REPO}>Source on GitHub</a>
           </div>
@@ -684,18 +671,18 @@ const CSS = `
 .lp a{text-decoration:none}
 
 /* nav */
-.lp-nav{position:sticky;top:0;z-index:40;background:rgba(11,18,32,.92);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+.lp-nav{position:sticky;top:0;z-index:40;background:rgba(11,18,32,.92);border-bottom:1px solid rgba(255,255,255,.08)}
 .lp-nav-in{height:64px;display:flex;align-items:center;gap:28px}
 .lp-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:#fff!important;letter-spacing:-.01em}
 .lp-footer .lp-brand{color:var(--ink)!important}
 .lp-nav-links{display:flex;gap:24px}
 .lp-nav-links a{color:#D0D5DD;font-size:15px;font-weight:500}
 .lp-nav-links a:hover{color:#fff}
-.lp-burger{display:none;background:none;border:0;color:#fff;padding:6px;cursor:pointer}
+.lp-burger{display:none;background:none;border:0;color:#fff;width:44px;height:44px;align-items:center;justify-content:center;cursor:pointer}
 
 /* buttons */
 .lp-btn{display:inline-flex;align-items:center;justify-content:center;height:48px;padding:0 22px;border-radius:8px;font-weight:600;font-size:16px;white-space:nowrap;border:1px solid transparent;cursor:pointer;font-family:inherit;transition:transform .12s,background .12s,box-shadow .12s}
-.lp-btn:hover{transform:translateY(-1px)}
+.lp-btn:active{transform:translateY(1px)}
 .lp-btn-sm{height:36px;padding:0 14px;font-size:14px}
 .lp-btn-primary{background:var(--brand);color:#fff!important}
 .lp-btn-primary:hover{background:#D81B60}
@@ -708,42 +695,46 @@ const CSS = `
 .lp-link-arrow:hover{text-decoration:underline}
 
 /* hero */
-.lp-hero{background:radial-gradient(1200px 600px at 85% -10%,rgba(233,30,99,.28),transparent 60%),var(--lp-ink);color:#fff;padding:72px 0 88px}
+.lp-hero{background:var(--lp-ink);color:#fff;padding:72px 0 88px}
 .lp-hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center}
-.lp-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:#F8BBD0;background:rgba(233,30,99,.14);border:1px solid rgba(248,187,208,.25);padding:6px 12px;border-radius:99px}
-.lp-h1{font-size:60px;line-height:1.04;letter-spacing:-.035em;font-weight:700;margin:20px 0 20px}
+.lp-h1{font-size:60px;line-height:1.04;letter-spacing:-.035em;font-weight:700;margin:0 0 20px}
 .lp-accent{color:#F48FB1}
 .lp-lead{font-size:19px;line-height:1.55;color:#D0D5DD;max-width:560px;margin:0 0 30px}
 .lp-cta-row{display:flex;gap:12px;flex-wrap:wrap}
-.lp-hero-ticks{list-style:none;display:flex;gap:22px;flex-wrap:wrap;padding:0;margin:26px 0 0;color:#98A2B3;font-size:14px}
-.lp-hero-ticks li{display:flex;align-items:center;gap:6px}
-.lp-hero-card{--lp-lane:118px;--lp-slot:min(58px,calc((100% - 118px)/6));background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 0 0 1px rgba(255,255,255,.08);overflow:hidden;font-size:13px}
-.lp-hero-hint{color:#98A2B3;font-size:13px;margin:12px 0 0;text-align:center}
+.lp-hero-note{margin:22px 0 0;color:#98A2B3;font-size:14px}
+.lp-card{background:#fff;color:var(--ink);border:1px solid #D0D5DD;border-radius:14px;overflow:hidden;font-size:13px}
 .lp-chip{font-size:12px;font-weight:600;color:var(--err);background:var(--errBg);border:1px solid var(--errLine);border-radius:99px;padding:2px 10px;transition:all .3s}
-.lp-stop{position:absolute;height:24px;min-width:50px;padding:0 6px;display:flex;align-items:center;justify-content:center;border:1.5px solid;border-radius:6px;font-family:var(--mono);font-size:11px;font-weight:500;transition:top .7s cubic-bezier(.2,.8,.2,1),left .7s cubic-bezier(.2,.8,.2,1),border-color .4s,color .4s,box-shadow .4s;white-space:nowrap}
-.lp-ai{background:var(--aiBg);border:1px solid var(--aiLine);border-radius:10px;padding:12px 14px}
+.lp-legend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 16px;border-bottom:1px solid var(--line);font-size:12px;color:var(--ink2)}
+.lp-legend>span{display:flex;align-items:center;gap:6px}
 
 /* band */
-.lp-band{border-bottom:1px solid var(--line);background:#fff}
-.lp-band-in{display:flex;align-items:center;gap:12px 36px;flex-wrap:wrap;padding-top:22px;padding-bottom:22px}
-.lp-band-label{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
-.lp-band-item{font-size:18px;font-weight:600;color:#98A2B3;letter-spacing:-.01em}
+.lp-band{border-bottom:1px solid var(--line);background:#fff;padding:28px 0}
+.lp-band-label{font-size:14px;color:var(--mute);margin-bottom:18px}
+.lp-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.lp-marquee-track{display:flex;align-items:center;gap:72px;width:max-content;padding-right:72px;animation:lpMarquee 36s linear infinite}
+.lp-marquee:hover .lp-marquee-track{animation-play-state:paused}
+@keyframes lpMarquee{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@media (prefers-reduced-motion:reduce){.lp-marquee-track{animation:none}}
+
+/* day + features */
+.lp-hd{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.lp-hd li{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px}
+.lp-hd-t{font-family:var(--mono);font-size:13px;color:var(--mute)}
+.lp-hd-was{font-size:14px;color:var(--mute);text-decoration:line-through;text-decoration-color:#98A2B3;line-height:1.4}
+.lp-hd-now{font-size:16px;font-weight:600;line-height:1.35;display:flex;gap:6px;align-items:flex-start}
+.lp-hd-now svg{margin-top:3px}
+.lp-feats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.lp-feat{padding:24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);transition:background .15s}
+.lp-feat:hover{background:var(--sub)}
 
 /* sections */
 .lp-section{padding:96px 0}
 .lp-section-alt{background:var(--bg)}
 .lp-section-dark{background:var(--lp-ink);color:#fff}
-.lp-kicker{font-size:14px;font-weight:700;color:var(--brandInk);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
-.lp-h2{font-size:42px;line-height:1.12;letter-spacing:-.025em;font-weight:700;margin:0 0 18px;max-width:860px}
+.lp-h2{font-size:42px;line-height:1.12;letter-spacing:-.025em;font-weight:700;margin:0 0 36px;max-width:860px}
 .lp-h3{font-size:26px;line-height:1.2;letter-spacing:-.015em;font-weight:700;margin:0 0 12px}
 .lp-p{font-size:17px;line-height:1.6;color:var(--ink2);margin:0 0 20px}
-.lp-source{font-size:12px;color:var(--mute);margin:16px 0 0}
 
-.lp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:40px;border-top:1px solid var(--line)}
-.lp-stat{padding:28px 24px 0 0}
-.lp-stat+.lp-stat{padding-left:24px;border-left:1px solid var(--line)}
-.lp-stat-n{font-size:52px;font-weight:700;letter-spacing:-.03em;color:var(--brandInk);line-height:1}
-.lp-stat-t{font-size:15px;color:var(--ink2);margin-top:10px;line-height:1.45}
 
 /* agents tabs */
 .lp-tabs{display:flex;gap:8px;margin:36px 0 28px;border-bottom:1px solid var(--line);overflow-x:auto}
@@ -797,21 +788,10 @@ const CSS = `
 .lp-step-b{color:#98A2B3;font-size:15px;line-height:1.55}
 .lp-trust{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;margin-top:48px;padding-top:36px;border-top:1px solid rgba(255,255,255,.1)}
 
-/* timeline */
-.lp-timeline{list-style:none;margin:0;padding:0;border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.lp-timeline li{display:flex;align-items:center;gap:18px;padding:18px 20px;background:#fff}
-.lp-timeline li+li{border-top:1px solid var(--line)}
-.lp-time{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--brandInk);background:var(--brandTint);border-radius:6px;padding:4px 8px}
 
-/* roadmap */
-.lp-roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:36px}
-.lp-road{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px;border-top:4px solid var(--line2)}
-.lp-road.now{border-top-color:var(--brand)}
-.lp-road-phase{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mute)}
-.lp-road.now .lp-road-phase{color:var(--brandInk)}
 
 /* final */
-.lp-final{background:linear-gradient(120deg,#C2185B,#E91E63);padding:88px 0}
+.lp-final{background:#C2185B;padding:88px 0}
 
 /* footer */
 .lp-footer{background:#fff;border-top:1px solid var(--line);color:var(--mute);font-size:14px}
@@ -826,15 +806,15 @@ const CSS = `
   .lp-hero-grid,.lp-split,.lp-play{grid-template-columns:1fr}
   .lp-play-result{border-left:0;border-top:1px solid var(--line)}
   .lp-h1{font-size:48px}
-  .lp-steps,.lp-roadmap{grid-template-columns:repeat(2,1fr)}
-  .lp-stats{grid-template-columns:repeat(2,1fr)}
-  .lp-stat:nth-child(3){border-left:0;padding-left:0}
+  .lp-steps{grid-template-columns:repeat(2,1fr)}
+  .lp-hd{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lp-feats{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:760px){
   .lp-nav-links{display:none;position:absolute;top:64px;left:0;right:0;flex-direction:column;gap:0;background:var(--lp-ink);border-bottom:1px solid rgba(255,255,255,.1)}
   .lp-nav-links.open{display:flex}
   .lp-nav-links a{padding:14px 16px;border-top:1px solid rgba(255,255,255,.06)}
-  .lp-burger{display:block}
+  .lp-burger{display:inline-flex}
   .lp-hide-sm{display:none}
   .lp-wrap{padding:0 16px}
   .lp-hero{padding:48px 0 64px}
@@ -842,11 +822,8 @@ const CSS = `
   .lp-lead{font-size:17px}
   .lp-h2{font-size:30px}
   .lp-section{padding:64px 0}
-  .lp-steps,.lp-roadmap,.lp-trust{grid-template-columns:1fr}
-  .lp-stat-n{font-size:40px}
-  .lp-hero-card{--lp-lane:72px;--lp-slot:46px}
-  .lp-hero-card .lp-flat,.lp-tick{display:none}
-  .lp-stop{min-width:40px;font-size:10px;padding:0 4px}
-  .lp-timeline li{flex-wrap:wrap}
+  .lp-steps,.lp-trust{grid-template-columns:1fr}
+  .lp-hd,.lp-feats{grid-template-columns:1fr 1fr}
+  .lp-feat{padding:18px}
 }
 `;
