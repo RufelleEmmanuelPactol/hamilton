@@ -13,6 +13,7 @@ export default function Me() {
   const router = useRouter();
   const [onShift, setOnShift] = useState(true);
   const [switching, setSwitching] = useState(false);
+  const [notify, setNotify] = useState(true);
   const other: Account = driver.id === "jun" ? "ana" : "jun";
 
   const stat = (label: string, value: string) => (
@@ -21,10 +22,10 @@ export default function Me() {
       <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>{label}</div>
     </div>
   );
-  const row = (label: string, value: string, onClick?: () => void) => (
+  const row = (label: string, value: string, onClick: () => void) => (
     <button
       key={label}
-      onClick={onClick ?? (() => showToast(`${label} can't be changed in the prototype yet`))}
+      onClick={onClick}
       className="drv-row"
       style={{ font: "inherit", width: "100%", border: "0", borderBottom: "1px solid var(--line)", background: "none", textAlign: "left", cursor: "pointer" }}
     >
@@ -77,10 +78,10 @@ export default function Me() {
 
         <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--mute)", padding: "8px 18px" }}>Settings</div>
         <div style={{ borderTop: "1px solid var(--line)" }}>
-          {row("Navigation app", "Google Maps")}
-          {row("Language", "English")}
-          {row("Notifications", "On")}
-          {row("Phone", driver.phone)}
+          {row("Navigation app", "Google Maps", () => showToast("Google Maps is the only navigation app for now."))}
+          {row("Language", "English", () => showToast("English is the only language for now."))}
+          {row("Notifications", notify ? "On" : "Off", () => setNotify((v) => !v))}
+          {row("Phone", driver.phone, () => showToast("To change your number, ask Maria."))}
         </div>
 
         <div style={{ fontSize: "12px", fontWeight: 600, color: "var(--mute)", padding: "18px 18px 8px" }}>Account</div>

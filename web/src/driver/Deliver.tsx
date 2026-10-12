@@ -137,7 +137,7 @@ export default function Deliver() {
 
         {step === 1 && shot === "none" && (
           <div style={{ fontSize: "13px", color: "var(--ink2)", lineHeight: 1.4 }}>
-            Take a photo of the {stop.item.toLowerCase()} where you left it. It&#39;s checked on the spot, so you won&#39;t be asked about it later.
+            Take a photo of the {stop.item.toLowerCase()} where you left it. It&#39;s checked on the spot.
           </div>
         )}
         {step === 1 && shot === "blurry" && (

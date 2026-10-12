@@ -4,6 +4,8 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { useScenarioFacts } from "@/lib/scenario";
 import { check } from "@/lib/policy";
 import type { Phase } from "@/lib/store";
+import { findPerson } from "@/lib/people";
+import { AgentLink, Chip, OrderLink, PersonLink, PolicyLink, TicketLink } from "@/components/Entity";
 
 type Handling = "needs" | "assistant" | "auto";
 type Tone = "info" | "ok" | "err" | "mute";
@@ -29,7 +31,9 @@ interface Convo {
   label?: string;
   item: string;
   window: ReactNode;
-  driver: ReactNode;
+  driver: string;
+  /** First name of the driver it moved from, if it moved. */
+  driverWas?: string;
   status: { text: string; tone: Tone };
   address: string;
   tags: { text: string; warn?: boolean }[];
@@ -40,6 +44,43 @@ interface Convo {
 
 const mono: CSSProperties = { fontFamily: "'IBM Plex Mono', monospace" };
 const mute: CSSProperties = { color: "var(--mute)" };
+
+/** Orders and tickets that have a page to open. Others (yesterday's #1038, a simulated ticket) stay plain. */
+const OPEN_ORDERS = new Set(["#1039", "#1041", "#1042", "#1043", "#1044", "#1045", "#1046", "#1047", "#1048", "#1049", "#1050", "#1051"]);
+const OPEN_TICKETS = new Set(["HAM-414", "HAM-416", "HAM-417", "HAM-418"]);
+
+function Order({ id, look = "inline" }: { id: string; look?: "inline" | "chip" }) {
+  if (OPEN_ORDERS.has(id)) return <OrderLink id={id} look={look} k={look === "chip" ? "Order" : undefined} />;
+  return look === "chip" ? (
+    <Chip k="Order">
+      <span style={mono}>{id}</span>
+    </Chip>
+  ) : (
+    <span style={mono}>{id}</span>
+  );
+}
+function Ticket({ id }: { id: string }) {
+  return OPEN_TICKETS.has(id) ? <TicketLink id={id} /> : <span style={{ ...mono, whiteSpace: "nowrap" }}>{id}</span>;
+}
+const Maria = () => <PersonLink name="Maria Santos">Maria</PersonLink>;
+
+/** Turns order numbers (#1042), tickets (HAM-417) and a leading "Policy:" in a plain sentence into links. */
+function linkify(text: string): ReactNode {
+  const policy = text.startsWith("Policy: ");
+  const body = policy ? text.slice(8) : text;
+  const parts = body
+    .split(/(#10\d\d|HAM-\d{3})/g)
+    .map((part, i) =>
+      /^#10\d\d$/.test(part) ? <Order key={i} id={part} /> : /^HAM-\d{3}$/.test(part) ? <Ticket key={i} id={part} /> : part,
+    );
+  return policy ? (
+    <>
+      <PolicyLink label="Policy" />: {parts}
+    </>
+  ) : (
+    <>{parts}</>
+  );
+}
 
 function minutesSince(from: string, to: string) {
   const m = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
@@ -87,7 +128,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     topic: "Damage claim",
     handling: "needs",
     label: `Waiting on you · ${minutesSince("10:27", clock)} min`,
-    item: "Table centerpieces (6)",
+    item: "Table posies",
     window: "08:30–11:00",
     driver: "Carlo Mendoza",
     status: { text: "Delivered 09:02", tone: "ok" },
@@ -96,11 +137,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     memory: "Deliver to the banquet office, 2nd floor",
     why: (
       <>
-        Refunds are never automated. Holding reply and photo request sent, no refund promised.{" "}
-        <a href="/console/approvals?t=HAM-416" style={{ textDecoration: "none", fontWeight: 500 }}>
-          HAM-416
-        </a>{" "}
-        is in Approvals.
+        Refunds are never automated. Holding reply and photo request sent, no refund promised. <TicketLink id="HAM-416" /> is in Approvals.
       </>
     ),
     messages: [
@@ -165,7 +202,8 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
               clock: true,
               text: (
                 <>
-                  #1044 rescheduled to 15:00–17:00 · Ana&#39;s route re-sequenced · <b style={{ color: "var(--ink2)" }}>Auto</b>
+                  <Order id="#1044" /> rescheduled to 15:00–17:00 · <PersonLink name="Ana Villanueva">Ana</PersonLink>&#39;s route
+                  re-sequenced · <b style={{ color: "var(--ink2)" }}>Auto</b>
                 </>
               ),
             },
@@ -218,13 +256,8 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     label: "Assistant replied",
     item: "Anniversary box",
     window: "10:00–13:00",
-    driver: moved ? (
-      <>
-        Ana Villanueva <span style={mute}>(was Jun)</span>
-      </>
-    ) : (
-      "Jun Reyes"
-    ),
+    driver: moved ? "Ana Villanueva" : "Jun Reyes",
+    driverWas: moved ? "Jun" : undefined,
     status: late
       ? { text: "Late · ETA 13:40", tone: "err" }
       : moved
@@ -254,7 +287,9 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
           clock: true,
           text: (
             <>
-              #1042 moved from Jun to Ana · HAM-417 approved by Maria · <b style={{ color: "var(--ink2)" }}>10:44</b>
+              <Order id="#1042" /> moved from <PersonLink name="Jun Reyes">Jun</PersonLink> to{" "}
+              <PersonLink name="Ana Villanueva">Ana</PersonLink> · <TicketLink id="HAM-417" /> approved by <Maria /> ·{" "}
+              <b style={{ color: "var(--ink2)" }}>10:44</b>
             </>
           ),
         },
@@ -279,11 +314,8 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
         label: "Automatic",
         item: "Orchid pot",
         window: "11:00–15:00",
-        driver: (
-          <>
-            Ana Villanueva <span style={mute}>(was Jun)</span>
-          </>
-        ),
+        driver: "Ana Villanueva",
+        driverWas: "Jun",
         status: { text: "On time · ETA 12:40", tone: "ok" },
         address: "One Serendra, BGC",
         tags: [],
@@ -295,7 +327,9 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
             clock: true,
             text: (
               <>
-                #1050 moved from Jun to Ana · HAM-417 approved by Maria · <b style={{ color: "var(--ink2)" }}>10:44</b>
+                <Order id="#1050" /> moved from <PersonLink name="Jun Reyes">Jun</PersonLink> to{" "}
+                <PersonLink name="Ana Villanueva">Ana</PersonLink> · <TicketLink id="HAM-417" /> approved by <Maria /> ·{" "}
+                <b style={{ color: "var(--ink2)" }}>10:44</b>
               </>
             ),
           },
@@ -319,11 +353,8 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
         label: "Automatic",
         item: "Balloons + roses",
         window: "09:00–13:00",
-        driver: (
-          <>
-            Rico Santos <span style={mute}>(was Jun)</span>
-          </>
-        ),
+        driver: "Rico Santos",
+        driverWas: "Jun",
         status: { text: "On time · ETA 11:05", tone: "ok" },
         address: "Salcedo Village, Makati",
         tags: [],
@@ -335,7 +366,9 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
             clock: true,
             text: (
               <>
-                #1049 moved from Jun to Rico · HAM-417 approved by Maria · <b style={{ color: "var(--ink2)" }}>10:44</b>
+                <Order id="#1049" /> moved from <PersonLink name="Jun Reyes">Jun</PersonLink> to{" "}
+                <PersonLink name="Rico Santos">Rico</PersonLink> · <TicketLink id="HAM-417" /> approved by <Maria /> ·{" "}
+                <b style={{ color: "var(--ink2)" }}>10:44</b>
               </>
             ),
           },
@@ -418,9 +451,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
       { k: "bot", time: "10:12", text: "Hi Anna! Carlo is on the way with your get-well basket. He should arrive around 10:35am." },
       ...(before
         ? []
-        : ([
-            { k: "bot", time: "10:36", text: "Delivered at 10:36 and left at the ward 4B info desk. Here's the photo: [proof photo]" },
-          ] as Msg[])),
+        : ([{ k: "bot", time: "10:36", text: "Delivered at 10:36 and left at the ward 4B info desk. Proof photo attached." }] as Msg[])),
     ],
   };
   const shangri: Convo = {
@@ -438,7 +469,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     window: "10:00–12:00",
     driver: "Jun Reyes",
     status: { text: "Delivered 10:08", tone: "ok" },
-    address: "Shangri-La The Fort, BGC",
+    address: "Loading bay B, Shangri-La Plaza, Mandaluyong",
     tags: [{ text: "Corporate" }],
     memory: "Oversized: loading bay B, ask for events team",
     why: "Policy: delivery updates run on their own (Auto).",
@@ -462,7 +493,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     window: "09:00–12:00",
     driver: "Jun Reyes",
     status: { text: "Delivered 09:24", tone: "ok" },
-    address: "Valle Verde 2, Pasig",
+    address: "The Salcedo Park, Makati",
     tags: [],
     memory: "Housekeeper (Ate Nena) can receive",
     why: "Policy: delivery updates run on their own (Auto).",
@@ -583,11 +614,7 @@ function simConvo(sim: Sim): Convo {
     memory: "No notes yet",
     why: (
       <>
-        Refunds are never automated. Holding reply and photo request sent, no refund promised.{" "}
-        <a href="/console/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
-          HAM-418
-        </a>{" "}
-        is in Approvals.
+        Refunds are never automated. Holding reply and photo request sent, no refund promised. <Ticket id="HAM-419" /> is in Approvals.
       </>
     ),
     messages: [
@@ -599,7 +626,7 @@ function simConvo(sim: Sim): Convo {
               time: t,
               text: "We're so sorry, Joy. Could you send a photo of the box and the cake? Maria will look at it personally and get back to you today.",
             },
-            { k: "blocked", ticket: "HAM-418", order: "#1038", amount: 2400 },
+            { k: "blocked", ticket: "HAM-419", order: "#1038", amount: 2400 },
           ] as Msg[])
         : triaging),
     ],
@@ -698,9 +725,11 @@ function BotAvatar() {
   );
 }
 
-function PersonAvatar({ initials, maria }: { initials: string; maria?: boolean }) {
+function PersonAvatar({ initials, name, maria }: { initials: string; name: string; maria?: boolean }) {
   return (
     <div
+      role="img"
+      aria-label={name}
       style={{
         width: "26px",
         height: "26px",
@@ -728,7 +757,9 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
         <div style={{ flex: "1", minWidth: "0" }}>
           <div style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
             <b>Delivery Assistant</b>
-            <span style={{ fontSize: "11px", color: "var(--mute)", whiteSpace: "nowrap" }}>{m.time} · Assurance agent</span>
+            <span style={{ fontSize: "11px", color: "var(--mute)", whiteSpace: "nowrap" }}>
+              {m.time} · <AgentLink name="Messages agent" />
+            </span>
           </div>
           <div style={{ ...bubble, color: "var(--ink2)" }}>{m.text}</div>
         </div>
@@ -739,10 +770,12 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
     const maria = m.k === "maria";
     return (
       <div className="ham-in" style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
-        <PersonAvatar initials={maria ? "MS" : convo.initials} maria={maria} />
+        <PersonAvatar initials={maria ? "MS" : convo.initials} name={maria ? "Maria Santos" : convo.name} maria={maria} />
         <div style={{ flex: "1", minWidth: "0" }}>
           <div style={{ display: "flex", gap: "8px", alignItems: "baseline" }}>
-            <b>{maria ? "Maria Santos" : convo.name}</b>
+            <b>
+              <PersonLink name={maria ? "Maria Santos" : convo.name} />
+            </b>
             <span style={{ fontSize: "11px", color: "var(--mute)", whiteSpace: "nowrap" }}>
               {m.time}
               {maria ? " · you" : ""}
@@ -772,6 +805,7 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
   }
   if (m.k === "blocked") {
     const v = check({ kind: "refund", order: m.order, amount: m.amount });
+    const rule = v.outcome === "block" ? "never automatic" : v.outcome;
     return (
       <div
         className="ham-in"
@@ -791,11 +825,7 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
         </span>
         <div style={{ flex: "1", minWidth: "0" }}>
           <div style={{ fontWeight: 500 }}>
-            Refund requested → blocked by policy ({v.outcome === "block" ? "Never" : v.outcome}). Opened{" "}
-            <a href={m.ticket === "HAM-416" ? "/console/approvals?t=HAM-416" : "/console/approvals"} style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
-              {m.ticket}
-            </a>
-            .
+            Refund requested · blocked by the <PolicyLink label="refunds policy" /> ({rule}). Opened <Ticket id={m.ticket} />.
           </div>
           <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "2px" }}>{v.reason}</div>
           <div style={{ fontSize: "11px", color: "var(--mute)", marginTop: "4px" }}>
@@ -1037,16 +1067,22 @@ export default function MessagesBoard() {
               )}
             </div>
           </div>
-          {visible.length === 0 && (
-            <div style={{ padding: "18px 14px", color: "var(--mute)", fontSize: "13px" }}>No conversations</div>
-          )}
+          {visible.length === 0 && <div style={{ padding: "18px 14px", color: "var(--mute)", fontSize: "13px" }}>No conversations</div>}
           {visible.map((c, i) => {
             const active = c.id === selected.id;
             const last = i === visible.length - 1;
             return (
-              <button
+              // A row, not a <button>: the name and order inside it are links of their own.
+              <div
                 key={c.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => setSelectedId(c.id)}
+                onKeyDown={(e) => {
+                  if (e.target !== e.currentTarget || (e.key !== "Enter" && e.key !== " ")) return;
+                  e.preventDefault();
+                  setSelectedId(c.id);
+                }}
                 aria-current={active ? "true" : undefined}
                 className={c.id.startsWith("sim-") || c.time === "10:44" ? "ham-in" : undefined}
                 style={{
@@ -1070,8 +1106,12 @@ export default function MessagesBoard() {
                       title="Needs you"
                     ></span>
                   )}
-                  <span style={{ fontWeight: c.handling === "needs" || active ? 600 : 500, whiteSpace: "nowrap" }}>{c.name}</span>
-                  <span style={{ ...mono, fontSize: "11px", color: "var(--mute)" }}>{c.order}</span>
+                  <span style={{ fontWeight: c.handling === "needs" || active ? 600 : 500, whiteSpace: "nowrap" }}>
+                    <PersonLink name={c.name} />
+                  </span>
+                  <span style={{ fontSize: "11px", color: "var(--mute)" }}>
+                    <Order id={c.order} />
+                  </span>
                   <span style={{ marginLeft: "auto", fontSize: "11px", color: "var(--mute)" }}>{c.time}</span>
                 </div>
                 <div
@@ -1110,7 +1150,7 @@ export default function MessagesBoard() {
                     </>
                   )}
                 </div>
-              </button>
+              </div>
             );
           })}
         </section>
@@ -1129,9 +1169,11 @@ export default function MessagesBoard() {
             }}
           >
             <div style={{ flex: "1 1 200px" }}>
-              <div style={{ fontWeight: "600", fontSize: "14px" }}>{selected.name}</div>
+              <div style={{ fontWeight: "600", fontSize: "14px" }}>
+                <PersonLink name={selected.name} />
+              </div>
               <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                {selected.phone} · WhatsApp · {selected.order} {selected.item}
+                {selected.phone} · WhatsApp · {selected.item}
               </div>
             </div>
             <button
@@ -1195,6 +1237,20 @@ export default function MessagesBoard() {
             >
               {assistantOn ? "Take over" : "Hand back"}
             </button>
+            <span className="ham-chips" style={{ flex: "1 1 100%" }}>
+              {findPerson(selected.name) ? (
+                <PersonLink name={selected.name} look="chip" label="Customer" />
+              ) : (
+                <Chip k="Customer">{selected.name}</Chip>
+              )}
+              <Order id={selected.order} look="chip" />
+              <Chip k="Topic">{selected.topic}</Chip>
+              {!assistantOn || selected.handling === "needs" ? (
+                <PersonLink name="Maria Santos" look="chip" label={assistantOn ? "Waiting on" : "Handled by"} />
+              ) : (
+                <AgentLink name="Messages agent" look="chip" k="Handled by" />
+              )}
+            </span>
           </div>
           <div style={{ flex: "1", padding: "16px 20px", display: "flex", flexDirection: "column", gap: "14px", background: "var(--sub)" }}>
             <div style={{ alignSelf: "center", fontSize: "11px", color: "var(--mute)" }}>
@@ -1279,13 +1335,18 @@ export default function MessagesBoard() {
             <div style={sectionLabel}>Order</div>
             <dl style={{ margin: "8px 0 0", display: "grid", gridTemplateColumns: "76px 1fr", gap: "6px 8px" }}>
               <dt style={mute}>Order</dt>
-              <dd style={{ margin: "0", ...mono }}>{selected.order}</dd>
+              <dd style={{ margin: "0" }}>
+                <Order id={selected.order} />
+              </dd>
               <dt style={mute}>Item</dt>
               <dd style={{ margin: "0" }}>{selected.item}</dd>
               <dt style={mute}>Window</dt>
               <dd style={{ margin: "0" }}>{selected.window}</dd>
               <dt style={mute}>Driver</dt>
-              <dd style={{ margin: "0" }}>{selected.driver}</dd>
+              <dd style={{ margin: "0" }}>
+                <PersonLink name={selected.driver} />
+                {selected.driverWas && <span style={mute}> (was {selected.driverWas})</span>}
+              </dd>
               <dt style={mute}>Status</dt>
               <dd style={{ margin: "0" }}>
                 <StatusTag s={selected.status} />
@@ -1327,7 +1388,11 @@ export default function MessagesBoard() {
           <div style={{ padding: "12px 14px" }}>
             <div style={sectionLabel}>Why the assistant {selected.handling === "needs" ? "stopped" : "messaged"}</div>
             <p style={{ margin: "8px 0 0", color: "var(--ink2)", lineHeight: "1.5" }}>
-              {selected.handling === null ? "Triage is reading the message…" : selected.why}
+              {selected.handling === null
+                ? "Triage is reading the message…"
+                : typeof selected.why === "string"
+                  ? linkify(selected.why)
+                  : selected.why}
             </p>
             <p style={{ margin: "8px 0 0", fontSize: "12px", color: "var(--mute)" }}>
               Answers only from this order&#39;s data · never poses as a person

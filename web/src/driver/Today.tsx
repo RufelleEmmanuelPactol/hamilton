@@ -104,7 +104,7 @@ export default function Today() {
             height: "48px",
             background: "var(--panel)",
             borderRadius: "12px",
-            boxShadow: "0 2px 8px rgba(16,24,40,0.12)",
+            border: "1px solid var(--line)",
             display: "flex",
             alignItems: "center",
             gap: "10px",
@@ -148,7 +148,7 @@ export default function Today() {
               bottom: "12px",
               background: "var(--panel)",
               borderRadius: "10px",
-              boxShadow: "0 2px 8px rgba(16,24,40,0.12)",
+              border: "1px solid var(--line)",
               padding: "6px 10px",
               fontSize: "12px",
             }}

@@ -57,7 +57,7 @@ export interface Stop {
   movedTo?: string;
   from?: string;
   phone: string;
-  /** Instructions the Assurance agent pulled from the customer chat. The first can be a confirmed one. */
+  /** Instructions the Messages agent pulled from the customer chat. The first can be a confirmed one. */
   confirmed?: string;
   instructions: string[];
   /** Who can sign for it, most likely first. */
@@ -74,7 +74,7 @@ const S: Record<string, Base> = {
     name: "Liza Santos",
     address: "Unit 1203, The Salcedo Park, H.V. dela Costa St, Makati",
     area: "Makati",
-    item: "Sunflower bouquet",
+    item: "Pink roses",
     window: "09:00–12:00",
     phone: "+63 917 222 1041",
     instructions: ["Leave with the front desk if she's out."],
@@ -85,7 +85,7 @@ const S: Record<string, Base> = {
     name: "Shangri-La events",
     address: "Loading bay B, Shangri-La Plaza, EDSA, Mandaluyong",
     area: "Mandaluyong",
-    item: "Event centerpieces × 6",
+    item: "Event arch",
     window: "10:00–12:00",
     phone: "+63 2 8633 0000",
     instructions: ["Oversized, needs the van.", "Use loading bay B and ask for the events team."],
@@ -141,9 +141,9 @@ const S: Record<string, Base> = {
   "#1044": {
     order: "#1044",
     name: "Ben Cruz",
-    address: "28 Caruncho Ave, San Nicolas, Pasig",
+    address: "8 East Capitol Dr, Kapitolyo, Pasig",
     area: "Pasig",
-    item: "Birthday bouquet",
+    item: "Sunflower bundle",
     window: "15:00–17:00",
     phone: "+63 917 222 1044",
     confirmed: "Home 15:00–17:00, confirmed on WhatsApp",

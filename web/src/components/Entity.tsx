@@ -15,8 +15,8 @@ const MONO = "'IBM Plex Mono', monospace";
 
 const CSS = `
 .ham-ent{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:inherit;
-  text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--line2);text-underline-offset:3px;transition:color .12s,text-decoration-color .12s}
-.ham-ent:hover,.ham-ent:focus-visible{color:var(--brandInk);text-decoration-color:currentColor}
+  text-decoration:underline;text-decoration-style:dotted;text-decoration-color:#98A2B3;text-decoration-thickness:1.5px;text-underline-offset:3px;border-radius:3px;transition:color .12s,text-decoration-color .12s,background .12s}
+.ham-ent:hover,.ham-ent:focus-visible{color:var(--brandInk);text-decoration-color:currentColor;text-decoration-style:solid;background:var(--brandTint)}
 .ham-chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--panel);
   font:inherit;font-size:12px;color:var(--ink2);white-space:nowrap;flex:none;max-width:100%;cursor:pointer;text-decoration:none;transition:border-color .12s,background .12s,color .12s}
 .ham-chip:hover,.ham-chip:focus-visible{border-color:var(--line2);background:var(--sub);color:var(--ink)}

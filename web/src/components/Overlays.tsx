@@ -254,6 +254,8 @@ function FragmentRow({ k, v }: { k: string; v: string }) {
 }
 
 function SoonModal({ label, onClose }: { label: string; onClose: () => void }) {
+  // Drivers and customers are never sent into the admin console.
+  const inConsole = typeof location !== "undefined" && location.pathname.startsWith("/console");
   const router = useRouter();
   return (
     <Backdrop onClose={onClose} dim>
@@ -282,19 +284,23 @@ function SoonModal({ label, onClose }: { label: string; onClose: () => void }) {
         </div>
         <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: 6 }}>“{label}” is coming soon</div>
         <p style={{ margin: "0 0 18px", color: "var(--ink2)", lineHeight: 1.55 }}>
-          Not built in this prototype. Working end to end: Overview, Driver app, Approvals and Audit log.
+          {inConsole
+            ? "Not built in this prototype. Working end to end: Overview, Driver app, Approvals and Audit log."
+            : "Not available yet."}
         </p>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-          <button
-            type="button"
-            style={btn}
-            onClick={() => {
-              onClose();
-              router.push("/console/approvals");
-            }}
-          >
-            Go to Approvals
-          </button>
+          {inConsole && (
+            <button
+              type="button"
+              style={btn}
+              onClick={() => {
+                onClose();
+                router.push("/console/approvals");
+              }}
+            >
+              Go to Approvals
+            </button>
+          )}
           <button type="button" autoFocus style={primary} onClick={onClose}>
             Got it
           </button>
@@ -551,7 +557,7 @@ export function Overlays() {
   return (
     <>
       <EntityStyles />
-      <style>{`.ham-person{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--line2);text-underline-offset:3px;transition:color .12s,text-decoration-color .12s}.ham-person:hover{color:var(--brandInk);text-decoration-color:currentColor}.ham-person.ham-avatar{text-decoration:none;transition:box-shadow .12s}.ham-person.ham-avatar:hover{color:#fff;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--brand)}`}</style>
+      <style>{`.ham-person{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:#98A2B3;text-decoration-thickness:1.5px;text-underline-offset:3px;border-radius:3px;transition:color .12s,text-decoration-color .12s,background .12s}.ham-person:hover{color:var(--brandInk);text-decoration-color:currentColor;text-decoration-style:solid;background:var(--brandTint)}.ham-person.ham-avatar{text-decoration:none;transition:box-shadow .12s}.ham-person.ham-avatar:hover{color:#fff;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--brand)}`}</style>
       {s.person && <PersonCard key={s.person.p.key} p={s.person.p} rect={s.person.rect} onClose={close} />}
       {s.palette && <Palette onClose={close} />}
       {s.soon && <SoonModal label={s.soon} onClose={close} />}

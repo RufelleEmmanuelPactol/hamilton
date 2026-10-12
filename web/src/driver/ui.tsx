@@ -11,7 +11,7 @@ export function AppFrame({ children, tabs = false }: { children: React.ReactNode
     <div className="drv-page">
       <style>{`
         .drv-page{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;background:#E4E7EC}
-        .drv-device{font-size:14px;color:var(--ink);width:390px;height:844px;border-radius:32px;overflow:hidden;background:var(--panel);box-shadow:0 0 0 1px var(--line2),0 24px 48px rgba(16,24,40,.18);display:flex;flex-direction:column;position:relative}
+        .drv-device{font-size:14px;color:var(--ink);width:390px;height:844px;border-radius:32px;overflow:hidden;background:var(--panel);box-shadow:0 0 0 1px var(--line2);display:flex;flex-direction:column;position:relative}
         .drv-screen{flex:1;min-height:0;position:relative;display:flex;flex-direction:column}
         .drv-row{display:flex;align-items:center;gap:12px;padding:12px 16px;text-decoration:none;color:inherit;border-bottom:1px solid var(--line)}
         .drv-row:hover{background:var(--sub)}

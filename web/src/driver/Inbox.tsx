@@ -54,7 +54,7 @@ export default function Inbox() {
         title="Inbox"
         sub={
           <span style={{ display: "inline-flex", alignItems: "center", gap: "4px" }}>
-            <Sparkle /> Dispatch · replies in seconds, Maria sees everything
+            <Sparkle /> Dispatch assistant · Maria&#39;s Flowers &amp; Gifts
           </span>
         }
       />

@@ -153,7 +153,7 @@ export default function Report() {
   const sent = (scenario && f.phase !== "before") || localSent;
   const [issue, setIssue] = useState<Issue>("flat");
   const [estimate, setEstimate] = useState<Estimate | null>(null);
-  const [note, setNote] = useState("Flat on EDSA near Guadalupe");
+  const [note, setNote] = useState(scenario ? "Flat on EDSA near Guadalupe" : "");
 
   const shownIssue: Issue = sent && !localSent ? "flat" : issue;
   const shownEstimate = sent && !localSent ? (f.report?.estimate ?? "hour") : estimate;
