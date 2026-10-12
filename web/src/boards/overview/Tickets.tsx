@@ -1,13 +1,16 @@
 "use client";
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
+import { useFlip } from "@/lib/flip";
 import { useScenarioFacts } from "@/lib/scenario";
 import { AgentWorking, minutesBetween } from "./ui";
+import { ticketHref } from "@/lib/links";
 
-function Ticket({ icon, title, meta, age, last }: { icon: ReactNode; title: string; meta: ReactNode; age: number; last?: boolean }) {
+function Ticket({ id, icon, title, meta, age, last }: { id: string; icon: ReactNode; title: string; meta: ReactNode; age: number; last?: boolean }) {
   return (
     <a
-      href="/app/approvals"
-      className="ham-in"
+      href={ticketHref(id)}
+      data-flip={id}
+      className="ham-in ham-ticket"
       style={{
         display: "grid",
         gridTemplateColumns: "16px 1fr auto",
@@ -54,8 +57,11 @@ export function OpenTickets() {
   const age = (created: string) => minutesBetween(created, f.clock);
   const SLA = 15; // minutes Maria has to answer an urgent dispatch ticket
 
+  const ref = useRef<HTMLElement>(null);
+  useFlip(ref);
   return (
     <section
+      ref={ref}
       aria-label="Open tickets"
       style={{
         flex: "1 1 300px",
@@ -96,6 +102,7 @@ export function OpenTickets() {
       )}
       {f.ticketOpen && (
         <Ticket
+          id="HAM-417"
           icon={
             <svg width="14" height="14" viewBox="0 0 16 16" aria-label="Urgent priority" role="img">
               <rect width="16" height="16" rx="3" fill="#F04438" />
@@ -114,6 +121,7 @@ export function OpenTickets() {
         />
       )}
       <Ticket
+          id="HAM-414"
         icon={
           <svg width="14" height="14" viewBox="0 0 16 16" aria-label="Medium priority" role="img">
             <rect x="1" y="9" width="3" height="5" rx="1" fill="#344054" />
@@ -132,6 +140,7 @@ export function OpenTickets() {
         age={age("10:15")}
       />
       <Ticket
+          id="HAM-416"
         icon={
           <svg width="14" height="14" viewBox="0 0 16 16" aria-label="High priority" role="img">
             <rect x="1" y="9" width="3" height="5" rx="1" fill="#344054" />

@@ -98,7 +98,7 @@ function Metrics() {
   if (f.ticketOpen)
     riskNote = (
       <a
-        href="/app/approvals"
+        href="/app/approvals?t=HAM-417"
         style={{
           fontWeight: 600,
           textDecoration: "none",

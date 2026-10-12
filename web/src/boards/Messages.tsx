@@ -97,7 +97,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     why: (
       <>
         Refunds are never automated. Holding reply and photo request sent, no refund promised.{" "}
-        <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
+        <a href="/app/approvals?t=HAM-416" style={{ textDecoration: "none", fontWeight: 500 }}>
           HAM-416
         </a>{" "}
         is in Approvals.
@@ -792,7 +792,7 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
         <div style={{ flex: "1", minWidth: "0" }}>
           <div style={{ fontWeight: 500 }}>
             Refund requested → blocked by policy ({v.outcome === "block" ? "Never" : v.outcome}). Opened{" "}
-            <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
+            <a href={m.ticket === "HAM-416" ? "/app/approvals?t=HAM-416" : "/app/approvals"} style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
               {m.ticket}
             </a>
             .
@@ -999,7 +999,6 @@ export default function MessagesBoard() {
                     background: "var(--panel)",
                     border: "1px solid var(--line)",
                     borderRadius: "8px",
-                    boxShadow: "0 12px 24px rgba(16,24,40,.14)",
                     padding: "6px",
                   }}
                 >

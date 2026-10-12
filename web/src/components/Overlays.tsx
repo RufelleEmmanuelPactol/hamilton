@@ -71,7 +71,6 @@ const panel: CSSProperties = {
   background: "var(--panel)",
   border: "1px solid var(--line)",
   borderRadius: "10px",
-  boxShadow: "0 24px 48px -12px rgba(16,24,40,0.28)",
   color: "var(--ink)",
   fontSize: "13px",
 };
@@ -342,13 +341,13 @@ function Palette({ onClose }: { onClose: () => void }) {
         ["HAM-417", "Reassign 3 stops from Jun Reyes"],
         ["HAM-414", "Create order WA-0912 from WhatsApp"],
         ["HAM-416", "Café Morato refund request"],
-      ].map(([id, t]) => ({ id, group: "Tickets", label: `${id} · ${t}`, run: go("/app/approvals") })),
+      ].map(([id, t]) => ({ id, group: "Tickets", label: `${id} · ${t}`, run: go(`/app/approvals?t=${id}`) })),
       ...["#1039", "#1041", "#1042", "#1043", "#1044", "#1045", "#1046", "#1047", "#1048", "#1049", "#1050", "#1051"].map((id) => ({
         id,
         group: "Orders",
         label: id,
         hint: PEOPLE.find((p) => p.facts.some(([, v]) => v === id))?.name,
-        run: go("/app/orders"),
+        run: go(`/app/orders?o=${encodeURIComponent(id)}`),
       })),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -459,7 +458,6 @@ function Toast({ text, onDone }: { text: string; onDone: () => void }) {
         color: "#fff",
         borderRadius: 8,
         padding: "10px 14px",
-        boxShadow: "0 12px 24px -6px rgba(16,24,40,0.3)",
         fontSize: 13,
         maxWidth: "calc(100vw - 32px)",
       }}

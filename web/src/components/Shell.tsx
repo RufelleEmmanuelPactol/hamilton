@@ -258,7 +258,6 @@ const menuBox: React.CSSProperties = {
   background: "var(--panel)",
   border: "1px solid var(--line)",
   borderRadius: "10px",
-  boxShadow: "0 24px 48px -12px rgba(16,24,40,0.28)",
   padding: "6px",
 };
 const menuItem: React.CSSProperties = {
@@ -288,10 +287,10 @@ function Bell() {
   const [seen, setSeen] = useState(0);
   const events = scenarioEvents(f.phase, f.notifyCustomers).slice(0, 4);
   const items: { title: string; sub: string; href: string; tone: string }[] = [
-    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/app/approvals", tone: "var(--warn)" }] : []),
+    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/app/approvals?t=HAM-417", tone: "var(--warn)" }] : []),
     ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/app/audit", tone: "var(--brand)" })),
-    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · #1045", href: "/app/approvals", tone: "var(--err)" },
-    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/app/approvals", tone: "var(--warn)" },
+    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · #1045", href: "/app/approvals?t=HAM-416", tone: "var(--err)" },
+    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/app/approvals?t=HAM-414", tone: "var(--warn)" },
   ];
   const unread = Math.max(items.length - seen, 0);
   return (

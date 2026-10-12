@@ -349,7 +349,7 @@ export function LiveProgress() {
                         Re-planning 3 stops…
                       </Label>
                     ) : (
-                      <Label at={60} color="var(--err)" href="/app/approvals">
+                      <Label at={60} color="var(--err)" href="/app/approvals?t=HAM-417">
                         3 stops → Approvals
                       </Label>
                     ))}

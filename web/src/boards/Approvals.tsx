@@ -1,7 +1,8 @@
 "use client";
 // Converted from design/project/Approvals.dc.html, wired to the scenario store.
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useScenario, type Estimate } from "@/lib/store";
+import { useFlip } from "@/lib/flip";
 import { useScenarioFacts, scenarioEvents } from "@/lib/scenario";
 import { check, HAM_417 } from "@/lib/policy";
 
@@ -193,7 +194,7 @@ function QueueRow(p: {
   );
   if (p.href)
     return (
-      <a href={p.href} style={rowBase}>
+      <a href={p.href} data-flip={p.title} style={rowBase}>
         {inner}
       </a>
     );
@@ -201,6 +202,7 @@ function QueueRow(p: {
     <button
       type="button"
       onClick={p.onClick}
+      data-flip={p.title}
       aria-current={p.selected ? "true" : undefined}
       style={{ ...rowBase, ...(p.selected ? rowSelected : {}) }}
     >
@@ -278,7 +280,6 @@ function Toggle({ value, onChange }: { value: "before" | "after"; onChange: (v: 
     background: on ? "var(--panel)" : "none",
     color: on ? "var(--ink)" : "var(--ink2)",
     borderRadius: "5px",
-    boxShadow: on ? "0 1px 2px rgba(16,24,40,.12)" : undefined,
     cursor: "pointer",
     whiteSpace: "nowrap",
   });
@@ -606,7 +607,7 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
           <span>·</span>
           <span>Created 09:58 by Dispatch agent</span>
           <span>·</span>
-          <span>Policy: Orders from messages · 82% sure, auto needs 95%</span>
+          <span>Policy: Orders from messages · Ask me when the address is unclear</span>
         </div>
         <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Create order WA-0912 from WhatsApp</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
@@ -934,6 +935,18 @@ export default function ApprovalsBoard() {
   const [d414, setD414] = useState<Local414>(null);
   const [pick416, setPick416] = useState("redeliver");
   const [rec416, setRec416] = useState<string | null>(null);
+  const queueRef = useRef<HTMLElement>(null);
+  useFlip(queueRef);
+
+  // Deep link: /app/approvals?t=HAM-416 opens that ticket (on its tab).
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get("t") as TicketId | null;
+    if (!t || !(t in TICKETS)) return;
+    setSelected(t);
+    const done = t === "HAM-417" && (useScenario.getState().phase === "approved" || useScenario.getState().phase === "rejected");
+    setTab(done ? "decided" : "pending");
+    requestAnimationFrame(() => document.querySelector("[data-ticket-detail]")?.scrollIntoView({ block: "nearest", behavior: "smooth" }));
+  }, []);
 
   const decided417 = f.phase === "approved" || f.phase === "rejected";
   const pending: TicketId[] = [...(f.ticketOpen ? (["HAM-417"] as TicketId[]) : []), "HAM-414", "HAM-416"];
@@ -1069,6 +1082,7 @@ export default function ApprovalsBoard() {
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "16px", alignItems: "flex-start" }}>
         <section
+          ref={queueRef}
           aria-label="Queue"
           style={{
             flex: "1 1 320px",
@@ -1123,6 +1137,9 @@ export default function ApprovalsBoard() {
           </div>
         </section>
         <section
+          key={current}
+          className="ham-in"
+          data-ticket-detail
           aria-label="Request details"
           style={{
             flex: "999 1 460px",

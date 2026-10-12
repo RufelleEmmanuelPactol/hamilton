@@ -39,7 +39,7 @@ button{font-family:inherit}
 .ham-app nav[aria-label=Main] a:not([aria-current]):hover{background:var(--sub)!important;color:var(--ink)!important;text-decoration:none;filter:none}
 .ham-app [role=tab]:not([aria-selected=true]):hover{color:var(--ink)!important}
 .ham-app tbody tr:hover>td{background-color:rgba(16,24,40,.025)}
-.ham-app article:hover{box-shadow:0 4px 12px -4px rgba(16,24,40,.14)!important}
+.ham-app article:hover{border-color:var(--line2)!important}
 .ham-app :is(select,input,textarea):not(:disabled):hover{border-color:var(--mute)!important}
 .ham-app section[aria-label]>div[style*="border"]:hover{border-color:var(--line2)}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}

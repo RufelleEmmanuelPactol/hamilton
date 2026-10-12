@@ -37,7 +37,6 @@ function Callout({ children }: { children: ReactNode }) {
         background: "var(--panel)",
         border: "1px solid var(--line)",
         borderRadius: "8px",
-        boxShadow: "0 4px 12px rgba(16,24,40,0.08)",
         padding: "10px 12px",
       }}
     >
@@ -309,7 +308,7 @@ export function FleetMap() {
               {f.thinking ? "EDSA near Guadalupe · re-planning his 3 stops" : "EDSA near Guadalupe · 3 stops awaiting reassignment"}
             </div>
             {f.ticketOpen && (
-              <a href="/app/approvals" style={{ display: "inline-block", marginTop: "8px", fontWeight: 600, textDecoration: "none" }}>
+              <a href="/app/approvals?t=HAM-417" style={{ display: "inline-block", marginTop: "8px", fontWeight: 600, textDecoration: "none" }}>
                 Review reassignment
               </a>
             )}

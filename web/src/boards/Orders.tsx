@@ -9,6 +9,10 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { useScenarioFacts } from "@/lib/scenario";
 import { useScenario, type BoardEdits, type ColId, type DriverId } from "@/lib/store";
 import { Dots, Sparkle } from "@/boards/overview/ui";
+import { ticketHref } from "@/lib/links";
+import { useFlip } from "@/lib/flip";
+import { PEOPLE } from "@/lib/people";
+import { openPerson } from "@/components/Overlays";
 
 const MONO = "'IBM Plex Mono', monospace";
 /** How long the Dispatch agent appears to work before it assigns a driver to a new order. */
@@ -164,7 +168,6 @@ const menuBox: CSSProperties = {
   background: "var(--panel)",
   border: "1px solid var(--line)",
   borderRadius: "8px",
-  boxShadow: "0 12px 24px -6px rgba(16,24,40,0.18)",
   padding: "4px",
 };
 const menuHead: CSSProperties = {
@@ -246,7 +249,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         title: "Red roses (12) + chocolates for Rina Bautista",
         quote: "hi po! can i order the red roses 12pcs w/ chocolates… before 4pm pls",
         meta: "Makati · 13:00–16:00 · not paid yet",
-        link: ["Review in Approvals", "/app/approvals"],
+        link: ["Review in Approvals", "/app/approvals?t=HAM-414"],
       },
     ],
     scheduled: [
@@ -273,7 +276,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         border: "var(--errLine)",
         title: "Table posies · Café Morato",
         meta: "Delivered 08:52 · 2 arrived wilted",
-        link: ["Handle in Approvals", "/app/approvals"],
+        link: ["Handle in Approvals", "/app/approvals?t=HAM-416"],
       },
     ],
   };
@@ -290,6 +293,7 @@ function OrderCard({
   onMenu,
   onMove,
   onAssign,
+  onOpen,
 }: {
   c: Card;
   dragging?: boolean;
@@ -299,11 +303,22 @@ function OrderCard({
   onMenu: (open: boolean) => void;
   onMove: (to: ColId) => void;
   onAssign: (d: DriverId) => void;
+  onOpen?: () => void;
 }) {
   return (
     <article
       data-card={c.id}
+      data-flip={onOpen ? c.id : undefined}
       onPointerDown={onPointerDown}
+      onClick={(e) => {
+        if (!onOpen || menuOpen || (e.target as HTMLElement).closest("a,button,[role=menu]")) return;
+        onOpen();
+      }}
+      onKeyDown={(e) => {
+        if (onOpen && e.key === "Enter" && e.target === e.currentTarget) onOpen();
+      }}
+      tabIndex={onOpen ? 0 : undefined}
+      aria-label={onOpen ? `${c.id} · ${c.title}. Press Enter for details.` : undefined}
       className="ord-card"
       aria-roledescription="Draggable order"
       style={{
@@ -315,8 +330,7 @@ function OrderCard({
         display: dragging ? "none" : "flex",
         flexDirection: "column",
         gap: "6px",
-        boxShadow: "0 1px 2px rgba(16,24,40,0.04)",
-        cursor: "grab",
+        cursor: "pointer",
         touchAction: "manipulation",
         userSelect: "none",
         WebkitUserSelect: "none",
@@ -326,7 +340,7 @@ function OrderCard({
       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>
         <span style={{ fontFamily: MONO }}>{c.id}</span>
         {c.ticket && (
-          <a href="/app/approvals" style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
+          <a href={ticketHref(c.ticket)} style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
             {c.ticket}
           </a>
         )}
@@ -455,6 +469,15 @@ export default function OrdersBoard() {
   const [menu, setMenu] = useState<string | null>(null);
   const [showAllDelivered, setShowAllDelivered] = useState(false);
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  useFlip(gridRef, { paused: !!drag });
+
+  // Deep link: /app/orders?o=%231045 opens that order's details.
+  useEffect(() => {
+    const o = new URLSearchParams(window.location.search).get("o");
+    if (o) setOpenId(o);
+  }, []);
   const [toast, setToast] = useState<{ text: string; undo: BoardEdits } | null>(null);
   const [now, setNow] = useState(() => Date.now());
   const pending = useRef<Pending | null>(null);
@@ -659,6 +682,13 @@ export default function OrdersBoard() {
         .ord-card .ord-more:hover>span,.ord-card .ord-more[aria-expanded=true]>span{box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--brand)}
         .ord-lane-over{background:var(--brandTint)!important;outline:1px dashed var(--aiLine)}
         @keyframes ordToast{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+        @keyframes ordSlide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+        @keyframes ordFade{from{opacity:0}to{opacity:1}}
+        .ord-drawer{animation:ordSlide .24s cubic-bezier(.2,.8,.2,1)}
+        .ord-scrim{animation:ordFade .2s ease-out}
+        .ord-card{transition:border-color .15s,background .15s}
+        .ord-card:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+        @media (prefers-reduced-motion:reduce){.ord-drawer,.ord-scrim{animation:none}}
       `}</style>
       <Toolbar
         total={total}
@@ -676,6 +706,7 @@ export default function OrdersBoard() {
       ) : (
         <div style={{ flex: "1", overflowX: "auto", padding: "14px 16px" }}>
           <div
+            ref={gridRef}
             style={{
               display: "grid",
               gridTemplateColumns: `repeat(${lanes.length}, minmax(212px, 1fr))`,
@@ -707,6 +738,7 @@ export default function OrdersBoard() {
                     assign(id, d);
                   }}
                   onPointerDown={onPointerDown(id)}
+                  onOpen={() => (setMenu(null), setOpenId(id))}
                 />
               ));
               if (placeholder >= 0)
@@ -786,12 +818,22 @@ export default function OrdersBoard() {
             zIndex: 50,
             pointerEvents: "none",
             transform: "rotate(2deg)",
-            boxShadow: "0 18px 32px -8px rgba(16,24,40,0.28)",
             borderRadius: "8px",
+            outline: "2px solid var(--brand)",
           }}
         >
           <OrderCard c={dragged} col={colOf[drag.id]} menuOpen={false} onMenu={() => {}} onMove={() => {}} onAssign={() => {}} />
         </div>
+      )}
+
+      {openId && cards[openId] && (
+        <OrderDrawer
+          c={cards[openId]}
+          col={colOf[openId]}
+          onClose={() => setOpenId(null)}
+          onMove={(to) => move(openId, to)}
+          onAssign={(d) => assign(openId, d)}
+        />
       )}
 
       {toast && (
@@ -810,7 +852,6 @@ export default function OrdersBoard() {
             display: "flex",
             alignItems: "center",
             gap: "14px",
-            boxShadow: "0 12px 24px -6px rgba(16,24,40,0.3)",
             animation: "ordToast .18s ease-out",
             maxWidth: "calc(100vw - 32px)",
           }}
@@ -1079,7 +1120,7 @@ function ListView({
                   <td style={{ ...td, fontFamily: MONO, whiteSpace: "nowrap" }}>
                     {id}
                     {c.ticket && (
-                      <a href="/app/approvals" style={{ marginLeft: "8px", color: "var(--brandInk)", textDecoration: "none" }}>
+                      <a href={ticketHref(c.ticket)} style={{ marginLeft: "8px", color: "var(--brandInk)", textDecoration: "none" }}>
                         {c.ticket}
                       </a>
                     )}
@@ -1117,5 +1158,172 @@ function ListView({
         </table>
       </div>
     </div>
+  );
+}
+
+/* ------------------------------------------------------------------ order details */
+
+const STEPS: ColId[] = ["review", "scheduled", "out", "delivered"];
+
+function OrderDrawer({
+  c,
+  col,
+  onClose,
+  onMove,
+  onAssign,
+}: {
+  c: Card;
+  col: ColId;
+  onClose: () => void;
+  onMove: (to: ColId) => void;
+  onAssign: (d: DriverId) => void;
+}) {
+  const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    closeRef.current?.focus();
+    const key = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", key);
+    return () => window.removeEventListener("keydown", key);
+  }, [onClose]);
+  const customer = PEOPLE.find((p) => p.kind === "customer" && p.facts.some(([, v]) => v === c.id));
+  const [item, who] = c.title.includes(" · ") ? c.title.split(" · ") : [c.title, customer?.name];
+  const reached = col === "exceptions" ? 3 : STEPS.indexOf(col);
+  const label: CSSProperties = { fontSize: "12px", color: "var(--mute)", marginBottom: "4px" };
+  const select: CSSProperties = { ...btn, height: "34px", fontSize: "13px", width: "100%" };
+
+  return (
+    <>
+      <div onClick={onClose} aria-hidden="true" className="ord-scrim" style={{ position: "fixed", inset: 0, zIndex: 70, background: "rgba(16,24,40,0.18)" }} />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Order ${c.id}`}
+        data-overlay
+        className="ord-drawer"
+        style={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          zIndex: 71,
+          width: "min(420px, 100vw)",
+          background: "var(--panel)",
+          borderLeft: "1px solid var(--line)",
+          display: "flex",
+          flexDirection: "column",
+          overflowY: "auto",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "14px 18px", borderBottom: "1px solid var(--line)" }}>
+          <span style={{ fontFamily: MONO, fontWeight: 600 }}>{c.id}</span>
+          {c.ticket && (
+            <a href={ticketHref(c.ticket)} style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
+              {c.ticket}
+            </a>
+          )}
+          {c.tag && <Tag tone={c.tag[0]}>{c.tag[1]}</Tag>}
+          <span style={{ flex: 1 }} />
+          <button ref={closeRef} type="button" aria-label="Close" onClick={onClose} style={{ ...btn, width: "32px", padding: 0, fontSize: "16px" }}>
+            ×
+          </button>
+        </div>
+
+        <div style={{ padding: "18px", display: "flex", flexDirection: "column", gap: "18px" }}>
+          <div>
+            <div style={{ fontSize: "18px", fontWeight: 600, lineHeight: 1.35 }}>{item}</div>
+            <div style={{ color: "var(--mute)", marginTop: "4px" }}>{c.meta}</div>
+          </div>
+
+          {c.quote && (
+            <div style={{ fontSize: "13px", color: "var(--ink2)", background: "var(--sub)", border: "1px solid var(--line)", borderRadius: "8px", padding: "10px 12px", lineHeight: 1.5 }}>
+              &#34;{c.quote}&#34;
+            </div>
+          )}
+
+          <div>
+            <div style={label}>Customer</div>
+            {customer ? (
+              <button
+                type="button"
+                onClick={(e) => openPerson(customer, e.currentTarget)}
+                style={{ ...btn, height: "auto", padding: "8px 10px", display: "flex", alignItems: "center", gap: "10px", width: "100%", textAlign: "left", fontSize: "13px" }}
+              >
+                <span style={{ ...avatarBase, width: "28px", height: "28px", background: customer.color, color: "#fff", fontSize: "10px" }}>{customer.initials}</span>
+                <span style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                  <span style={{ fontWeight: 600, color: "var(--ink)" }}>{customer.name}</span>
+                  <span style={{ color: "var(--mute)", fontSize: "12px" }}>{customer.phone}</span>
+                </span>
+              </button>
+            ) : (
+              <div style={{ fontWeight: 500 }}>{who ?? "—"}</div>
+            )}
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            <label>
+              <div style={label}>Status</div>
+              <select value={col} onChange={(e) => onMove(e.target.value as ColId)} style={select}>
+                {COLS.map((k) => (
+                  <option key={k.id} value={k.id}>
+                    {k.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <div style={label}>Driver</div>
+              <select value={c.driver ?? ""} onChange={(e) => onAssign(e.target.value as DriverId)} style={select}>
+                {!c.driver && <option value="">Not assigned</option>}
+                {DRIVER_IDS.map((d) => (
+                  <option key={d} value={d}>
+                    {DRIVERS[d].name}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div>
+            <div style={label}>Progress</div>
+            <ol style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column" }}>
+              {STEPS.map((k, i) => {
+                const done = i <= reached;
+                const failed = col === "exceptions" && i === 3;
+                return (
+                  <li key={k} style={{ display: "flex", alignItems: "center", gap: "10px", height: "32px", color: done ? "var(--ink)" : "var(--mute)" }}>
+                    <span
+                      style={{
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "99px",
+                        flex: "none",
+                        transition: "background .3s, border-color .3s",
+                        background: failed ? "var(--err)" : done ? "var(--brand)" : "var(--panel)",
+                        border: `2px solid ${failed ? "var(--err)" : done ? "var(--brand)" : "var(--line2)"}`,
+                      }}
+                    />
+                    {failed ? "Delivered · problem reported" : COL_LABEL[k]}
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {c.ticket && (
+              <a href={ticketHref(c.ticket)} style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none", background: "var(--brand)", borderColor: "var(--brand)", color: "#fff", fontWeight: 600 }}>
+                Open {c.ticket}
+              </a>
+            )}
+            <a href="/app/messages" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+              Message customer
+            </a>
+            <a href="/app/dispatch" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+              See on route
+            </a>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

@@ -272,7 +272,7 @@ function Proposal() {
             <button onClick={approve} style={btnPrimary}>
               Approve
             </button>
-            <a href="/app/approvals" style={btnSecondary}>
+            <a href="/app/approvals?t=HAM-417" style={btnSecondary}>
               Edit
             </a>
             <button onClick={reject} style={btnSecondary}>

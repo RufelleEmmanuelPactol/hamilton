@@ -259,7 +259,6 @@ export default function AutonomyBoard() {
                           background: "var(--panel)",
                           color: "var(--ink)",
                           borderRadius: "5px",
-                          boxShadow: "0 1px 2px rgba(16,24,40,.12)",
                           cursor: "pointer",
                         }}
                       >
@@ -303,7 +302,6 @@ export default function AutonomyBoard() {
                           background: "var(--panel)",
                           color: "var(--ink)",
                           borderRadius: "5px",
-                          boxShadow: "0 1px 2px rgba(16,24,40,.12)",
                           cursor: "pointer",
                         }}
                       >
@@ -347,7 +345,6 @@ export default function AutonomyBoard() {
                           background: "var(--panel)",
                           color: "var(--ink)",
                           borderRadius: "5px",
-                          boxShadow: "0 1px 2px rgba(16,24,40,.12)",
                           cursor: "pointer",
                         }}
                       >
@@ -391,7 +388,6 @@ export default function AutonomyBoard() {
                         background: "var(--panel)",
                         border: "1px solid var(--line)",
                         borderRadius: "8px",
-                        boxShadow: "0 12px 24px rgba(16,24,40,.14)",
                         padding: "14px 16px",
                         fontSize: "13px",
                       }}
@@ -699,7 +695,7 @@ export default function AutonomyBoard() {
                           {showHeld && (
                             <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
                               Held{" "}
-                              <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
+                              <a href="/app/approvals?t=HAM-417" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
                                 HAM-417
                               </a>{" "}
                               today at 10:33. {held.reason}

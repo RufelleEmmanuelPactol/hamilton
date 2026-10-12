@@ -304,7 +304,6 @@ export default function DriverRouteBoard() {
             height: "44px",
             background: "var(--panel)",
             borderRadius: "10px",
-            boxShadow: "0 2px 8px rgba(16,24,40,0.12)",
             display: "flex",
             alignItems: "center",
             gap: "10px",
@@ -345,7 +344,6 @@ export default function DriverRouteBoard() {
               border: "0",
               borderRadius: "10px",
               background: "var(--panel)",
-              boxShadow: "0 2px 8px rgba(16,24,40,0.12)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -369,7 +367,6 @@ export default function DriverRouteBoard() {
                 background: "var(--panel)",
                 border: "1px solid var(--line)",
                 borderRadius: "10px",
-                boxShadow: "0 8px 24px rgba(16,24,40,0.16)",
                 padding: "6px",
                 fontSize: "13px",
               }}
@@ -404,7 +401,6 @@ export default function DriverRouteBoard() {
           minHeight: "min(470px, calc(100% - 70px))",
           background: "var(--panel)",
           borderRadius: "16px 16px 0 0",
-          boxShadow: "0 -4px 16px rgba(16,24,40,0.10)",
           display: "flex",
           flexDirection: "column",
         }}
@@ -417,7 +413,6 @@ export default function DriverRouteBoard() {
               bottom: "calc(100% + 16px)",
               background: "var(--panel)",
               borderRadius: "10px",
-              boxShadow: "0 2px 8px rgba(16,24,40,0.12)",
               padding: "6px 10px",
               fontSize: "12px",
             }}

@@ -1,5 +1,6 @@
 "use client";
 // Converted from design/project/Plan.dc.html, then wired to the scenario store.
+import { useFlip } from "@/lib/flip";
 import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
 import { useScenario } from "@/lib/store";
@@ -235,7 +236,7 @@ function todayPlan(phase: Phase, ticketOpen: boolean, backOnRoad: boolean): Grou
     ];
   } else if (phase === "incident") {
     const st = (to: string): Stop["status"] =>
-      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: "/app/approvals" } : { label: "Re-planning", tone: "neutral" };
+      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: "/app/approvals?t=HAM-417" } : { label: "Re-planning", tone: "neutral" };
     junRest = [
       { ...upcoming("#1042", "Mark Tan", "BGC", "10:00–13:00", null, "j", false, m1042), status: st("Ana") },
       { ...upcoming("#1050", "Nicole Ramos", "BGC", "11:00–15:00", null, "j", false), status: st("Ana") },
@@ -685,7 +686,6 @@ function Chip({ d, on, detail, onClick }: { d: DriverKey; on: boolean; detail: s
         border: "1px solid var(--line2)",
         background: "var(--panel)",
         color: "var(--ink)",
-        boxShadow: "0 1px 2px rgba(16,24,40,.06)",
       }}
     >
       <span style={{ width: "10px", height: "10px", borderRadius: "3px", background: DRIVERS[d].color }}></span>
@@ -942,6 +942,7 @@ function RouteTable({
   const started = useRef(false);
   const tableRef = useRef<HTMLDivElement>(null);
   const pointerY = useRef(0);
+  useFlip(tableRef, { paused: !!drag });
 
   // Auto-scroll while dragging near the top or bottom edge, so stops can move to drivers further down.
   useEffect(() => {
@@ -1101,6 +1102,7 @@ function RouteTable({
                       <tr
                         data-driver={g.d}
                         data-stop={s.done ? undefined : s.order}
+                        data-flip={s.order}
                         className={draggable ? "rt-drag" : undefined}
                         onPointerDown={draggable ? onPointerDown(s) : undefined}
                         title={draggable ? "Drag to reorder or move to another driver" : undefined}
@@ -1226,7 +1228,6 @@ function RouteTable({
             borderRadius: "6px",
             padding: "6px 10px",
             fontWeight: 500,
-            boxShadow: "0 12px 24px -6px rgba(16,24,40,0.25)",
             whiteSpace: "nowrap",
           }}
         >
@@ -1362,7 +1363,7 @@ export default function PlanBoard() {
               </button>
             )}
             {f.ticketOpen && (
-              <a href="/app/approvals" style={btnPrimary}>
+              <a href="/app/approvals?t=HAM-417" style={btnPrimary}>
                 Review HAM-417
               </a>
             )}
@@ -1567,7 +1568,6 @@ export default function PlanBoard() {
             display: "flex",
             alignItems: "center",
             gap: "14px",
-            boxShadow: "0 12px 24px -6px rgba(16,24,40,0.3)",
             maxWidth: "calc(100vw - 32px)",
           }}
         >

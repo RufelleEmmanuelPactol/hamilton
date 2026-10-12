@@ -1,4 +1,5 @@
 "use client";
+import { orderHref, ticketHref } from "@/lib/links";
 // Converted from design/project/Activity.dc.html. Scenario events (scenario.ts) go above the seed rows;
 // seed rows later than the scenario clock are hidden so the log never shows the future.
 import { Fragment, useMemo, useState } from "react";
@@ -57,7 +58,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Verify proof photos",
     ref: "#1046",
-    href: "/app/orders",
+    href: "/app/orders?o=%231046",
   },
   {
     id: "seed-416",
@@ -67,7 +68,7 @@ const SEED: Row[] = [
     outcome: "Blocked by policy",
     policy: "Refunds, credits and discounts",
     ref: "HAM-416",
-    href: "/app/approvals",
+    href: "/app/approvals?t=HAM-416",
   },
   {
     id: "seed-1041",
@@ -77,7 +78,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Ask the driver to retake a photo",
     ref: "#1041",
-    href: "/app/orders",
+    href: "/app/orders?o=%231041",
   },
   {
     id: "seed-1042-note",
@@ -97,7 +98,7 @@ const SEED: Row[] = [
     outcome: "Asked you",
     policy: "Turn WhatsApp and email requests into orders",
     ref: "HAM-414",
-    href: "/app/approvals",
+    href: "/app/approvals?t=HAM-414",
   },
   {
     id: "seed-plan",
@@ -140,8 +141,8 @@ const AGENT_OF: Record<string, string> = {
 };
 
 function hrefFor(ref: string) {
-  if (ref.startsWith("HAM-")) return "/app/approvals";
-  if (ref.startsWith("#")) return "/app/orders";
+  if (ref.startsWith("HAM-")) return ticketHref(ref);
+  if (ref.startsWith("#")) return orderHref(ref);
   if (ref === "Jun Reyes") return "/app/drivers";
   return "/app/audit";
 }
@@ -164,7 +165,7 @@ function toRow(e: AuditEvent, i: number): Row {
       decisionSub: isProposal ? `Policy mode: Ask me · ${check(HAM_417).reason}` : undefined,
       effects: e.detail.effects,
       effectsSub: isProposal ? "Cost ₱0.04 · 2.4 s" : undefined,
-      link: isProposal ? { label: "Open ticket", href: "/app/approvals" } : undefined,
+      link: isProposal ? { label: "Open ticket", href: ticketHref("HAM-417") } : undefined,
     },
   };
 }
@@ -256,7 +257,6 @@ function Menu({
             background: "var(--panel)",
             border: "1px solid var(--line)",
             borderRadius: "8px",
-            boxShadow: "0 8px 24px rgba(16,24,40,0.12)",
           }}
         >
           {["All", ...options].map((o) => (
