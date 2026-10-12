@@ -1,10 +1,10 @@
-import { Phone } from "@/components/Phone";
-import Board from "@/boards/DriverPOD";
+"use client";
+import { useEffect } from "react";
 
+/** The driver app moved to /app. Keeps old links working. */
 export default function Page() {
-  return (
-    <Phone caption="Driver app · proof of delivery">
-      <Board />
-    </Phone>
-  );
+  useEffect(() => {
+    window.location.replace("/app/deliver/?o=1042");
+  }, []);
+  return null;
 }

@@ -246,7 +246,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         title: "Red roses (12) + chocolates for Rina Bautista",
         quote: "hi po! can i order the red roses 12pcs w/ chocolates… before 4pm pls",
         meta: "Makati · 13:00–16:00 · not paid yet",
-        link: ["Review in Approvals", "/app/approvals"],
+        link: ["Review in Approvals", "/console/approvals"],
       },
     ],
     scheduled: [
@@ -273,7 +273,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         border: "var(--errLine)",
         title: "Table posies · Café Morato",
         meta: "Delivered 08:52 · 2 arrived wilted",
-        link: ["Handle in Approvals", "/app/approvals"],
+        link: ["Handle in Approvals", "/console/approvals"],
       },
     ],
   };
@@ -326,7 +326,7 @@ function OrderCard({
       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>
         <span style={{ fontFamily: MONO }}>{c.id}</span>
         {c.ticket && (
-          <a href="/app/approvals" style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
+          <a href="/console/approvals" style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
             {c.ticket}
           </a>
         )}
@@ -1079,7 +1079,7 @@ function ListView({
                   <td style={{ ...td, fontFamily: MONO, whiteSpace: "nowrap" }}>
                     {id}
                     {c.ticket && (
-                      <a href="/app/approvals" style={{ marginLeft: "8px", color: "var(--brandInk)", textDecoration: "none" }}>
+                      <a href="/console/approvals" style={{ marginLeft: "8px", color: "var(--brandInk)", textDecoration: "none" }}>
                         {c.ticket}
                       </a>
                     )}

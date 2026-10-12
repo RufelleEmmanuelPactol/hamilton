@@ -291,7 +291,7 @@ function SoonModal({ label, onClose }: { label: string; onClose: () => void }) {
             style={btn}
             onClick={() => {
               onClose();
-              router.push("/app/approvals");
+              router.push("/console/approvals");
             }}
           >
             Go to Approvals
@@ -319,16 +319,16 @@ function Palette({ onClose }: { onClose: () => void }) {
   const all: Item[] = useMemo(
     () => [
       ...[
-        ["Overview", "/app"],
-        ["Dispatch", "/app/dispatch"],
-        ["Orders", "/app/orders"],
-        ["Approvals", "/app/approvals"],
-        ["Customer messages", "/app/messages"],
-        ["Drivers", "/app/drivers"],
-        ["Address book", "/app/addresses"],
-        ["Autonomy policies", "/app/autonomy"],
-        ["Audit log", "/app/audit"],
-        ["Driver app", "/driver"],
+        ["Overview", "/console"],
+        ["Dispatch", "/console/dispatch"],
+        ["Orders", "/console/orders"],
+        ["Approvals", "/console/approvals"],
+        ["Customer messages", "/console/messages"],
+        ["Drivers", "/console/drivers"],
+        ["Address book", "/console/addresses"],
+        ["Autonomy policies", "/console/autonomy"],
+        ["Audit log", "/console/audit"],
+        ["Driver app", "/app"],
         ["Customer view", "/customer"],
       ].map(([label, href]) => ({ id: href, group: "Pages", label, hint: href, run: go(href) })),
       ...PEOPLE.map((p) => ({
@@ -343,13 +343,13 @@ function Palette({ onClose }: { onClose: () => void }) {
         ["HAM-417", "Reassign 3 stops from Jun Reyes"],
         ["HAM-414", "Create order WA-0912 from WhatsApp"],
         ["HAM-416", "Café Morato refund request"],
-      ].map(([id, t]) => ({ id, group: "Tickets", label: `${id} · ${t}`, run: go("/app/approvals") })),
+      ].map(([id, t]) => ({ id, group: "Tickets", label: `${id} · ${t}`, run: go("/console/approvals") })),
       ...["#1039", "#1041", "#1042", "#1043", "#1044", "#1045", "#1046", "#1047", "#1048", "#1049", "#1050", "#1051"].map((id) => ({
         id,
         group: "Orders",
         label: id,
         hint: PEOPLE.find((p) => p.facts.some(([, v]) => v === id))?.name,
-        run: go("/app/orders"),
+        run: go("/console/orders"),
       })),
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -479,7 +479,7 @@ export function Overlays() {
 
   useEffect(() => {
     // Profile cards only in the admin console; the driver app and customer view are end-user screens.
-    const inConsole = () => location.pathname.startsWith("/app");
+    const inConsole = () => location.pathname.startsWith("/console");
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0) return;
       const t = e.target as Element | null;
@@ -508,8 +508,8 @@ export function Overlays() {
       const typing = (e.target as HTMLElement)?.closest?.("input,textarea,select,[contenteditable=true]");
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
-        if (location.pathname.startsWith("/app")) openPalette();
-      } else if (e.key === "/" && !typing && location.pathname.startsWith("/app")) {
+        if (location.pathname.startsWith("/console")) openPalette();
+      } else if (e.key === "/" && !typing && location.pathname.startsWith("/console")) {
         e.preventDefault();
         openPalette();
       } else if (e.key === "Escape") close();

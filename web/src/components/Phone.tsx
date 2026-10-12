@@ -13,7 +13,7 @@ export function Phone({ children, caption }: { children: React.ReactNode; captio
         @media (max-width:480px){.ham-phone-page{padding:0;gap:0;background:var(--panel)}.ham-phone{width:100%;height:100vh;min-height:640px;border-radius:0;box-shadow:none}.ham-phone-bar{display:none}}
       `}</style>
       <div className="ham-phone-bar">
-        <Link href="/app">← Admin console</Link>
+        <Link href="/console">← Admin console</Link>
         {caption ? <span>· {caption}</span> : null}
       </div>
       <div className="ham-phone ham-app">

@@ -546,11 +546,11 @@ function Ham417Detail({
             <b>Approved by Maria at 10:44</b> · Ana and Rico&#39;s routes updated ·{" "}
             {notify ? "3 customers notified" : "customers not notified"}
           </span>
-          <a href="/app/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
+          <a href="/console/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             See routes
           </a>
           <span style={{ color: "var(--mute)" }}>·</span>
-          <a href="/app/audit" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
+          <a href="/console/audit" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             Audit log
           </a>
         </DecidedBar>
@@ -560,11 +560,11 @@ function Ham417Detail({
             <b>Rejected by Maria at 10:44</b> · Jun keeps his 3 stops ·{" "}
             {notify ? "#1042 and #1049 get a late-delivery apology" : "customers not told"}
           </span>
-          <a href="/app/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
+          <a href="/console/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             See routes
           </a>
           <span style={{ color: "var(--mute)" }}>·</span>
-          <a href="/app/audit" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
+          <a href="/console/audit" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             Audit log
           </a>
         </DecidedBar>
@@ -899,7 +899,7 @@ function Ham416Detail(p: {
           <span style={{ flex: "1 1 320px" }}>
             <b>Decision recorded by Maria at {clock}</b> · {chosen.label}
           </span>
-          <a href="/app/messages" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
+          <a href="/console/messages" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             Reply to Paolo
           </a>
         </DecidedBar>
@@ -1019,7 +1019,7 @@ export default function ApprovalsBoard() {
           </div>
         </div>
         <a
-          href="/app/autonomy"
+          href="/console/autonomy"
           style={{
             height: "34px",
             padding: "0 12px",
@@ -1098,17 +1098,17 @@ export default function ApprovalsBoard() {
                   when="07:52"
                   title="Publish today's route plan"
                   sub="Approved by Maria 07:52 · 12 stops across 4 drivers"
-                  href="/app/dispatch"
+                  href="/console/dispatch"
                 />
               </>
             )}
             {tab === "auto" && (
               <>
                 {autoRows.map((r) => (
-                  <QueueRow key={r.time + r.event} tag={null} who={r.agent} when={r.time} title={r.event} sub={r.ref} href="/app/audit" />
+                  <QueueRow key={r.time + r.event} tag={null} who={r.agent} when={r.time} title={r.event} sub={r.ref} href="/console/audit" />
                 ))}
                 <a
-                  href="/app/audit"
+                  href="/console/audit"
                   style={{
                     display: "block",
                     padding: "10px 14px",

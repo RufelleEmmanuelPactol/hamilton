@@ -6,7 +6,7 @@ import { AgentWorking, minutesBetween } from "./ui";
 function Ticket({ icon, title, meta, age, last }: { icon: ReactNode; title: string; meta: ReactNode; age: number; last?: boolean }) {
   return (
     <a
-      href="/app/approvals"
+      href="/console/approvals"
       className="ham-in"
       style={{
         display: "grid",
@@ -85,7 +85,7 @@ export function OpenTickets() {
           1 escalated
         </span>
         <span style={{ flex: "1" }} />
-        <a href="/app/approvals" style={{ fontWeight: 500, textDecoration: "none" }}>
+        <a href="/console/approvals" style={{ fontWeight: 500, textDecoration: "none" }}>
           View queue
         </a>
       </div>

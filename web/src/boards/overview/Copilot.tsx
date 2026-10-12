@@ -272,7 +272,7 @@ function Proposal() {
             <button onClick={approve} style={btnPrimary}>
               Approve
             </button>
-            <a href="/app/approvals" style={btnSecondary}>
+            <a href="/console/approvals" style={btnSecondary}>
               Edit
             </a>
             <button onClick={reject} style={btnSecondary}>
@@ -322,11 +322,11 @@ function Carlo() {
       </div>
       <div style={{ fontSize: "12px", color: "var(--ink2)" }}>Next: #1051 Prof. Diaz, UP Diliman · ETA 11:05 · on time</div>
       <div style={{ display: "flex", gap: "6px" }}>
-        <a href="/app/drivers" style={{ fontWeight: 500, textDecoration: "none" }}>
+        <a href="/console/drivers" style={{ fontWeight: 500, textDecoration: "none" }}>
           Profile
         </a>
         <span style={{ color: "var(--line2)" }}>·</span>
-        <a href="/app/dispatch" style={{ fontWeight: 500, textDecoration: "none" }}>
+        <a href="/console/dispatch" style={{ fontWeight: 500, textDecoration: "none" }}>
           Route
         </a>
       </div>
@@ -429,7 +429,7 @@ export function Copilot() {
             Draft a fix
           </button>
         )}
-        <a href="/app/dispatch" style={{ marginLeft: f.ticketOpen && !hasProposal ? "6px" : 0, textDecoration: "none", fontWeight: 500 }}>
+        <a href="/console/dispatch" style={{ marginLeft: f.ticketOpen && !hasProposal ? "6px" : 0, textDecoration: "none", fontWeight: 500 }}>
           Open in dispatch
         </a>
       </>
@@ -513,7 +513,7 @@ export function Copilot() {
           </svg>
           <h2 style={{ margin: "0", fontSize: "14px", fontWeight: 600, flex: "1" }}>Copilot</h2>
           <a
-            href="/app/autonomy"
+            href="/console/autonomy"
             style={{
               fontSize: "11px",
               color: "var(--mute)",

@@ -33,8 +33,8 @@ const driver = (
   phone,
   facts,
   links: [
-    { label: "See route", href: "/app/dispatch" },
-    { label: "Driver profile", href: "/app/drivers" },
+    { label: "See route", href: "/console/dispatch" },
+    { label: "Driver profile", href: "/console/drivers" },
   ],
 });
 
@@ -51,8 +51,8 @@ const customer = (name: string, initials: string, order: string, area: string, n
     ["Notes", note],
   ],
   links: [
-    { label: "Open conversation", href: "/app/messages" },
-    { label: "Address book", href: "/app/addresses" },
+    { label: "Open conversation", href: "/console/messages" },
+    { label: "Address book", href: "/console/addresses" },
   ],
 });
 
@@ -90,8 +90,8 @@ export const PEOPLE: Person[] = [
       ["Plan", "Pilot · 4 drivers"],
     ],
     links: [
-      { label: "Autonomy policies", href: "/app/autonomy" },
-      { label: "Audit log", href: "/app/audit" },
+      { label: "Autonomy policies", href: "/console/autonomy" },
+      { label: "Audit log", href: "/console/audit" },
     ],
   },
   customer("Mark Tan", "MT", "#1042", "BGC", "Can leave with the lobby concierge"),

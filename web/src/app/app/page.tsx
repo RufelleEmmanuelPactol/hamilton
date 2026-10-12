@@ -1,10 +1,14 @@
-import { Shell } from "@/components/Shell";
-import Board from "@/boards/Main";
+"use client";
+import { Suspense } from "react";
+import { AppFrame } from "@/driver/ui";
+import Screen from "@/driver/Today";
 
 export default function Page() {
   return (
-    <Shell crumbs={["Overview"]}>
-      <Board />
-    </Shell>
+    <AppFrame tabs>
+      <Suspense fallback={null}>
+        <Screen />
+      </Suspense>
+    </AppFrame>
   );
 }

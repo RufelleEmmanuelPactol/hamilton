@@ -40,7 +40,7 @@ export function ScenarioRuntime() {
         useScenario.getState().reset();
       }
     };
-    // Board markup uses plain <a href="/app/...">. Route those client-side so state and scroll feel instant.
+    // Board markup uses plain <a href="/console/...">. Route those client-side so state and scroll feel instant.
     const onClick = (e: MouseEvent) => {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement).closest("a");

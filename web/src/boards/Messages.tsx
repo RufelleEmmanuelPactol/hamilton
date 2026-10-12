@@ -97,7 +97,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     why: (
       <>
         A refund request moves money, so the assistant only sent a holding reply and asked for a photo. It never promises a refund.{" "}
-        <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
+        <a href="/console/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
           HAM-416
         </a>{" "}
         is waiting for you in Approvals.
@@ -584,7 +584,7 @@ function simConvo(sim: Sim): Convo {
     why: (
       <>
         A refund request moves money, so the assistant only sent a holding reply and asked for a photo. It never promises a refund.{" "}
-        <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
+        <a href="/console/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
           HAM-418
         </a>{" "}
         is waiting for you in Approvals.
@@ -792,7 +792,7 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
         <div style={{ flex: "1", minWidth: "0" }}>
           <div style={{ fontWeight: 500 }}>
             Refund requested → blocked by policy ({v.outcome === "block" ? "Never" : v.outcome}). Opened{" "}
-            <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
+            <a href="/console/approvals" style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
               {m.ticket}
             </a>{" "}
             for you.
@@ -1296,7 +1296,7 @@ export default function MessagesBoard() {
           <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <div style={{ ...sectionLabel, flex: "1" }}>Address memory</div>
-              <a href="/app/addresses" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
+              <a href="/console/addresses" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
                 Open
               </a>
             </div>

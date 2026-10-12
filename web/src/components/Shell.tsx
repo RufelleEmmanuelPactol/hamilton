@@ -81,7 +81,7 @@ function Nav() {
       label: "Operations",
       items: [
         {
-          href: "/app",
+          href: "/console",
           label: "Overview",
           exact: true,
           icon: (
@@ -94,7 +94,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/dispatch",
+          href: "/console/dispatch",
           label: "Dispatch",
           icon: (
             <I>
@@ -105,7 +105,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/orders",
+          href: "/console/orders",
           label: "Orders",
           count: f.totalOrders,
           icon: (
@@ -116,7 +116,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/approvals",
+          href: "/console/approvals",
           label: "Approvals",
           badge: f.approvalsCount,
           icon: (
@@ -127,7 +127,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/messages",
+          href: "/console/messages",
           label: "Customer messages",
           icon: (
             <I>
@@ -141,7 +141,7 @@ function Nav() {
       label: "Memory",
       items: [
         {
-          href: "/app/drivers",
+          href: "/console/drivers",
           label: "Drivers",
           icon: (
             <I>
@@ -153,7 +153,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/addresses",
+          href: "/console/addresses",
           label: "Address book",
           icon: (
             <I>
@@ -168,7 +168,7 @@ function Nav() {
       label: "Governance",
       items: [
         {
-          href: "/app/autonomy",
+          href: "/console/autonomy",
           label: "Autonomy policies",
           icon: (
             <I>
@@ -179,7 +179,7 @@ function Nav() {
           ),
         },
         {
-          href: "/app/audit",
+          href: "/console/audit",
           label: "Audit log",
           icon: (
             <I>
@@ -195,7 +195,7 @@ function Nav() {
       label: "Field apps",
       items: [
         {
-          href: "/driver",
+          href: "/app",
           label: "Driver app",
           icon: (
             <I>
@@ -288,10 +288,10 @@ function Bell() {
   const [seen, setSeen] = useState(0);
   const events = scenarioEvents(f.phase, f.notifyCustomers).slice(0, 4);
   const items: { title: string; sub: string; href: string; tone: string }[] = [
-    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/app/approvals", tone: "var(--warn)" }] : []),
-    ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/app/audit", tone: "var(--brand)" })),
-    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · money is always yours", href: "/app/approvals", tone: "var(--err)" },
-    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/app/approvals", tone: "var(--warn)" },
+    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/console/approvals", tone: "var(--warn)" }] : []),
+    ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/console/audit", tone: "var(--brand)" })),
+    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · money is always yours", href: "/console/approvals", tone: "var(--err)" },
+    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/console/approvals", tone: "var(--warn)" },
   ];
   const unread = Math.max(items.length - seen, 0);
   return (
@@ -421,8 +421,8 @@ function AccountMenu() {
             </div>
             {item("Your profile", () => openPerson(maria))}
             {item("Search", openPalette, "⌘K")}
-            {item("Autonomy policies", () => router.push("/app/autonomy"))}
-            {item("Team and drivers", () => router.push("/app/drivers"))}
+            {item("Autonomy policies", () => router.push("/console/autonomy"))}
+            {item("Team and drivers", () => router.push("/console/drivers"))}
             {item("Billing", () => openSoon("Billing"))}
             {item("Settings", () => openSoon("Settings"))}
             <div style={{ borderTop: "1px solid var(--line)", margin: "4px 0" }} />
@@ -452,7 +452,7 @@ export function Header({ crumbs }: { crumbs: string[] }) {
       }}
     >
       <Link
-        href="/app"
+        href="/console"
         style={{ display: "flex", alignItems: "center", gap: "9px", width: "204px", color: "var(--ink)", textDecoration: "none" }}
       >
         <Logo />

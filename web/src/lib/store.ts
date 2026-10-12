@@ -36,6 +36,14 @@ export interface BoardEdits {
   added: AddedOrder[];
 }
 
+/** A delivery the driver completed in the driver app. */
+export interface Proof {
+  recipient: string;
+  name: string;
+  at: string;
+  photo: "checked" | "skipped";
+}
+
 export interface ScenarioState {
   phase: Phase;
   /** Jun's flat-tire report. Set when he taps "Send report" in the driver app. */
@@ -50,6 +58,10 @@ export interface ScenarioState {
   board: BoardEdits;
   /** Stops the person moved on the Dispatch plan: driver key → upcoming order ids. Only applies in the phase it was made in. */
   dispatch: { phase: Phase; routes: Record<string, string[]> } | null;
+  /** Whose phone the driver app is signed in as. */
+  driverAccount: "jun" | "ana";
+  /** Order id → proof, for deliveries completed in the driver app. */
+  proofs: Record<string, Proof>;
 
   setBoard: (board: BoardEdits) => void;
   setDispatch: (dispatch: ScenarioState["dispatch"]) => void;
@@ -58,6 +70,8 @@ export interface ScenarioState {
   reject: () => void;
   setNotifyCustomers: (v: boolean) => void;
   backOnRoad: () => void;
+  setDriverAccount: (d: "jun" | "ana") => void;
+  completeDelivery: (order: string, proof: Proof) => void;
   /** Jump straight to a phase (used by ?step= for recording). */
   jumpTo: (phase: Phase) => void;
   reset: () => void;
@@ -72,6 +86,8 @@ export const INITIAL = {
   junBackOnRoad: false,
   board: { cols: null, drivers: {}, added: [] } as BoardEdits,
   dispatch: null as ScenarioState["dispatch"],
+  driverAccount: "jun" as "jun" | "ana",
+  proofs: {} as Record<string, Proof>,
 };
 
 export const useScenario = create<ScenarioState>()(
@@ -94,6 +110,8 @@ export const useScenario = create<ScenarioState>()(
       },
       setNotifyCustomers: (v) => set({ notifyCustomers: v }),
       backOnRoad: () => set({ junBackOnRoad: true }),
+      setDriverAccount: (driverAccount) => set({ driverAccount }),
+      completeDelivery: (order, proof) => set({ proofs: { ...get().proofs, [order]: proof } }),
       jumpTo: (phase) =>
         set({
           ...INITIAL,
@@ -117,6 +135,8 @@ export const useScenario = create<ScenarioState>()(
         junBackOnRoad: s.junBackOnRoad,
         board: s.board,
         dispatch: s.dispatch,
+        driverAccount: s.driverAccount,
+        proofs: s.proofs,
       }),
     },
   ),

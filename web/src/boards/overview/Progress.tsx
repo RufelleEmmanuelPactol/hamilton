@@ -238,7 +238,7 @@ export function LiveProgress() {
           {proposed && <LegendItem dot={{ border: "2px dashed var(--brand)" }}>Proposed</LegendItem>}
           {f.junIncident && <LegendItem dot={{ background: "var(--err)" }}>Incident</LegendItem>}
         </span>
-        <a href="/app/dispatch" style={{ fontWeight: 500, textDecoration: "none" }}>
+        <a href="/console/dispatch" style={{ fontWeight: 500, textDecoration: "none" }}>
           Open dispatch
         </a>
       </div>
@@ -349,7 +349,7 @@ export function LiveProgress() {
                         Re-planning 3 stops…
                       </Label>
                     ) : (
-                      <Label at={60} color="var(--err)" href="/app/approvals">
+                      <Label at={60} color="var(--err)" href="/console/approvals">
                         3 stops → Approvals
                       </Label>
                     ))}
