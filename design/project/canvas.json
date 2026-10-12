@@ -1,126 +1,144 @@
 {
   "v": 3,
-  "createdOnFiles": {
-    "v": 1,
-    "at": "2026-10-12T09:30:00Z"
+  "attachments": {},
+  "boards": {
+    "Activity.dc.html": {
+      "expand": "fill",
+      "h": 1000,
+      "is_interactive": true,
+      "title": "Admin · Audit log",
+      "w": 1440,
+      "x": 3040,
+      "y": 3260
+    },
+    "AddressBook.dc.html": {
+      "expand": "fill",
+      "h": 1040,
+      "is_interactive": true,
+      "title": "Admin · Address book",
+      "w": 1440,
+      "x": 0,
+      "y": 3260
+    },
+    "Approvals.dc.html": {
+      "expand": "fill",
+      "h": 1080,
+      "is_interactive": true,
+      "title": "Admin · Needs you",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "Autonomy.dc.html": {
+      "expand": "fill",
+      "h": 1320,
+      "is_interactive": true,
+      "title": "Admin · Autonomy rules",
+      "w": 1440,
+      "x": 1520,
+      "y": 3260
+    },
+    "CustomerThread.dc.html": {
+      "h": 844,
+      "title": "Customer · WhatsApp thread",
+      "w": 390,
+      "x": 1410,
+      "y": 4800
+    },
+    "DriverIncident.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Driver · Flat tire reported",
+      "w": 390,
+      "x": 940,
+      "y": 4800
+    },
+    "DriverPOD.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Driver · Proof of delivery",
+      "w": 390,
+      "x": 470,
+      "y": 4800
+    },
+    "DriverRoute.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Driver · Next stop",
+      "w": 390,
+      "x": 0,
+      "y": 4800
+    },
+    "Drivers.dc.html": {
+      "expand": "fill",
+      "h": 1180,
+      "is_interactive": true,
+      "title": "Admin · Driver profile",
+      "w": 1440,
+      "x": 3040,
+      "y": 1960
+    },
+    "Main.dc.html": {
+      "expand": "fill",
+      "h": 1240,
+      "is_interactive": true,
+      "title": "Admin · Today",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Messages.dc.html": {
+      "expand": "fill",
+      "h": 960,
+      "is_interactive": true,
+      "title": "Admin · Customer messages",
+      "w": 1440,
+      "x": 1520,
+      "y": 1960
+    },
+    "Orders.dc.html": {
+      "expand": "fill",
+      "h": 1120,
+      "is_interactive": true,
+      "title": "Admin · Orders inbox",
+      "w": 1440,
+      "x": 0,
+      "y": 1960
+    },
+    "Plan.dc.html": {
+      "expand": "fill",
+      "h": 1760,
+      "is_interactive": true,
+      "title": "Admin · Plan & routes",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    }
   },
-  "title": "Hamilton — Agentic Delivery Ops",
+  "createdOnFiles": {
+    "at": "2026-10-12T09:30:00Z",
+    "v": 1
+  },
+  "designSystems": [],
   "launch": {
     "view": "canvas"
   },
-  "pages": [],
-  "boards": {
-    "Main.dc.html": {
+  "notes": {
+    "adminTitle": {
+      "kind": "title1",
+      "maxW": 4480,
+      "text": "Admin console — Maria (owner / dispatcher)",
+      "w": 240,
       "x": 0,
-      "y": 0,
-      "w": 1440,
-      "h": 1240,
-      "title": "Admin · Today",
-      "expand": "fill",
-      "is_interactive": true
+      "y": -300
     },
-    "Plan.dc.html": {
-      "x": 1520,
-      "y": 0,
-      "w": 1440,
-      "h": 1760,
-      "title": "Admin · Plan & routes",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Approvals.dc.html": {
-      "x": 3040,
-      "y": 0,
-      "w": 1440,
-      "h": 1080,
-      "title": "Admin · Needs you",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Orders.dc.html": {
-      "x": 0,
-      "y": 1960,
-      "w": 1440,
-      "h": 1120,
-      "title": "Admin · Orders inbox",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Messages.dc.html": {
-      "x": 1520,
-      "y": 1960,
-      "w": 1440,
-      "h": 960,
-      "title": "Admin · Customer messages",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Drivers.dc.html": {
-      "x": 3040,
-      "y": 1960,
-      "w": 1440,
-      "h": 1180,
-      "title": "Admin · Driver profile",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "AddressBook.dc.html": {
-      "x": 0,
-      "y": 3260,
-      "w": 1440,
-      "h": 1040,
-      "title": "Admin · Address book",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Autonomy.dc.html": {
-      "x": 1520,
-      "y": 3260,
-      "w": 1440,
-      "h": 1320,
-      "title": "Admin · Autonomy rules",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "Activity.dc.html": {
-      "x": 3040,
-      "y": 3260,
-      "w": 1440,
-      "h": 1000,
-      "title": "Admin · Audit log",
-      "expand": "fill",
-      "is_interactive": true
-    },
-    "DriverRoute.dc.html": {
-      "x": 0,
-      "y": 4800,
-      "w": 390,
-      "h": 844,
-      "title": "Driver · Next stop",
-      "is_interactive": true
-    },
-    "DriverPOD.dc.html": {
-      "x": 470,
-      "y": 4800,
-      "w": 390,
-      "h": 844,
-      "title": "Driver · Proof of delivery",
-      "is_interactive": true
-    },
-    "DriverIncident.dc.html": {
-      "x": 940,
-      "y": 4800,
-      "w": 390,
-      "h": 844,
-      "title": "Driver · Flat tire reported",
-      "is_interactive": true
-    },
-    "CustomerThread.dc.html": {
-      "x": 1410,
-      "y": 4800,
-      "w": 390,
-      "h": 844,
-      "title": "Customer · WhatsApp thread"
+    "phoneTitle": {
+      "kind": "title1",
+      "maxW": 1800,
+      "text": "Driver app (mobile web) & what the customer sees",
+      "w": 240,
+      "x": -27,
+      "y": 3115
     }
   },
   "order": [
@@ -138,21 +156,6 @@
     "DriverIncident.dc.html",
     "CustomerThread.dc.html"
   ],
-  "notes": {
-    "adminTitle": {
-      "x": 0,
-      "y": -300,
-      "text": "Admin console — Maria (owner / dispatcher)",
-      "kind": "title1",
-      "maxW": 4480
-    },
-    "phoneTitle": {
-      "x": 0,
-      "y": 3900,
-      "text": "Driver app (mobile web) & what the customer sees",
-      "kind": "title1",
-      "maxW": 1800
-    }
-  },
-  "designSystems": []
+  "pages": [],
+  "title": "Hamilton — Agentic Delivery Ops"
 }

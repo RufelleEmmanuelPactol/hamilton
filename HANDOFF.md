@@ -2,21 +2,36 @@
 
 This is a handoff for the next working session (Claude Code or a person). Read this file first, then `README.md`.
 
+_Last updated: Mon 12 Oct 2026. See §9 for the session log and the agreed deliverable plan._
+
 ---
 
 ## 1. What this is
 
 - **Case study:** "AI-First Agentic Logistics App" for **Teoh Capital** (recruiter: Jobail Betinol).
-- **Received:** Fri 9 Oct 2026, with a 2–3 day window, so it is **due now**.
+- **Received:** Fri 9 Oct 2026, with a 2–3 day window, so it is **due now** (as of Mon 12 Oct).
 - **Likely portfolio fit:** Detrack (SME delivery tracking and proof of delivery). Hamilton is pitched as the agentic layer on top of a tool like that.
+
+**The brief, verbatim (from Jobail's email, Fri 9 Oct 10:29):**
+
+> AI-First Agentic Logistics App
+>
+> The goal is to assess your Product Management and Engineering capabilities.
+>
+> Please scope and create a POC of an AI-first, agentic logistics app. We'd like you to:
+> - Define the product roadmap.
+> - Identify the top 3 agentic functions the app should have.
+> - Provide a scoping pack in PPT format.
+> - Create a basic prototype, ideally interactive.
+> - Include a GitHub repository if applicable.
 
 | Deliverable | Status |
 |---|---|
 | Product roadmap | ✅ `docs/roadmap.md` |
 | Top 3 agentic functions | ✅ `README.md`, `docs/scope.md` |
 | Scoping pack (PPT) | ❌ **Not started** |
-| Basic interactive prototype | 🟡 The Claude Design canvas is clickable. The coded prototype is stale (see §5). |
-| GitHub repo | 🟡 Exists, but the latest commits are **not pushed** (see §6) |
+| Basic interactive prototype | 🟡 The Claude Design canvas is clickable. The coded website is not started (plan in §9.2). |
+| GitHub repo | ✅ Pushed on Mon 12 Oct to branch `claude/funny-gates-6b2di5` (see §6) |
 
 ## 2. Product in one paragraph
 
@@ -84,19 +99,26 @@ The old Tangerine V2 tokens were removed from the repo. The owner's original Tan
 ## 6. Repo and git state
 
 - Remote: `https://github.com/RufelleEmmanuelPactol/hamilton` (public).
-- **Pushing from the Cowork session failed** (403: the repo isn't in that session's authorized sources). The local commits include the design-system replacement, the canvas sync and this handoff. Push from a machine with access, or download the zip and commit it.
+- **Pushed on Mon 12 Oct** from a Claude Code cloud session, after the earlier Cowork push failed with a 403. All content is on branch **`claude/funny-gates-6b2di5`**. The remote was empty before that, so this branch is the only one and probably GitHub's default. Rename it to `main` in the repo settings before sending the link, if you want.
+- `design/project/` mirrors the live canvas: the board files are byte-identical, and `canvas.json` was re-synced on 12 Oct.
+- No secrets are in the repo (checked before pushing). Keys belong in env only.
 
 ## 7. Open work, in priority order
 
-1. **Scoping pack (PPT).** Problem → users → top 3 agents → autonomy model → architecture (Decisions API + Claude) → roadmap → risks → metrics. Reuse the canvas screenshots.
-2. **Push the repo** and share the canvas link with the recruiter.
-3. **Coded prototype** of the flat-tire flow (§5), with real model calls if time allows.
-4. **Canvas polish backlog:**
+1. **Scoping pack (PPT).** Problem → users → top 3 agents → autonomy model → architecture (Decisions API + Claude) → roadmap → risks → metrics. Reuse the canvas screenshots. It must be an actual .pptx, because the brief names the format.
+2. **Coded website prototype:** the flat-tire flow, per the plan in §9.2.
+3. **Share the canvas link** with the recruiter. The owner has to do this from their account.
+4. **Submission email:** links to the deck, the website, the repo and the walkthrough video.
+5. **Canvas polish backlog:**
    - Orders kanban cards don't use HAM IDs yet.
    - The Overview map and tracker numbers don't exactly match the Dispatch table (sample data drift).
    - Dark mode isn't designed.
    - The Tomorrow · Draft tab has no content yet.
-5. **Open comment threads on the canvas:** `4395f51b` ("looks bad and fake") is waiting for the owner's reference screenshot, and `b7276fb0` is still open.
+   - _Offered, not yet approved:_ put the "at risk" definition (§9.3) behind a (?) on the Overview "At risk" card, and maybe add a "tight" threshold (under 15 min to spare).
+6. **Open comment threads on the canvas:**
+   - `4395f51b` ("looks bad and fake") is waiting for the owner's reference screenshot.
+   - `b7276fb0` is still open.
+   - `ac427828` ("what constitutes as at risk") was answered on 12 Oct and left open because it ends with the offer above.
 
 ## 8. Where things are
 
@@ -108,3 +130,73 @@ design/              README.md + project/ (Claude Design canvas source)
 design-system/       Pink Console tokens, rules, component reference
 prototype-legacy/    early Next.js prototype (reference only)
 ```
+
+## 9. Session log and memory (Mon 12 Oct 2026)
+
+### 9.1 What happened this session
+
+- The repo zip was imported and pushed (see §6).
+- The Claude Code session can read and edit the canvas because it's under the owner's account. Comments the owner sends to Claude from the canvas wake the session. Claude makes the change, replies in the thread, and resolves it.
+- The canvas has 48 comment threads so far, nearly all resolved. Past feedback themes, which are already in `design-system/RULES.md`:
+  - copy too dense
+  - duplicate controls
+  - abstract KPI and timeline visuals instead of a plain before/after table
+  - pills used as explanations instead of a (?) popover
+  - be realistic about uncertainty (e.g. tire-repair time shown as a range from the driver's estimate plus history)
+- Answered: "how do we handle damage claims?" The answer is the flow in §4: detect → one holding reply (no refund promise) → evidence pack → HAM-416 blocked by the Never policy → a person picks the outcome.
+
+### 9.2 Agreed deliverable plan (recommended to the owner, not yet confirmed)
+
+Send four things, with the website as the centerpiece:
+
+1. **The PPT scoping pack.** The brief names the format, so it has to be a real .pptx.
+2. **A deployed website** (e.g. on Vercel) that runs the prototype, linked from the deck and the README.
+3. **The GitHub repo:** code, a README with the architecture and run steps, plus the existing docs.
+4. **A 2–3 minute walkthrough video**, because reviewers often won't click through the site.
+
+The canvas shows the design process, but it isn't the prototype. The brief tests **engineering** as well as PM, so a code-free mockup leaves the engineering half unproven.
+
+**How interactive:** one scripted story, with real model calls at two or three agent steps. Don't build a general-purpose app.
+
+| Level | Verdict |
+|---|---|
+| Clickable mockup (the canvas) | Already have it. It shows nothing about engineering. |
+| Scripted, all canned AI | Weak, because "agentic" is the point. |
+| **Scripted plus real agents at decision points** | **Recommended.** |
+| Full app (auth, real maps, general routing) | Too big for the time left. |
+
+**The demo flow:**
+
+1. **Overview:** a "Play scenario" button moves the clock to 10:31.
+2. **Driver app:** Jun reports a flat tire and picks "about 1 hour".
+3. **Dispatch agent:** Claude, in a tool-use loop, proposes reassigning 3 stops. A **server-side policy check** blocks it ("3 stops is over the 1-stop auto limit") and turns the proposal into ticket HAM-417.
+4. **Approvals:** "If you do nothing" vs "If you approve" → Approve. Routes, ETAs and the At-risk count update, and WhatsApp messages are drafted.
+5. **Messages:** type any customer message, and triage (Decisions API) tags it live. A damage claim goes to "Needs you", and the money action is blocked as Never.
+6. **Audit log:** every step above appears in it.
+
+**Rules for a safe demo:**
+
+- Every live model call falls back to a **cached response**, so the demo works without keys or if a call fails.
+- The autonomy policy is enforced **in code, not in the prompt** ("the AI proposes, the policy decides"). This is the main engineering point.
+- Keys stay server-side in env vars.
+
+**Other screens:** Orders, Drivers, Address book and Autonomy are read-only pages with sample data, ported from the canvas.
+
+**Timing:**
+
+- Option A: send the deck, the repo and the canvas link today, with a note that the live prototype follows within about a day.
+- Option B: if everything has to go at once, cut the site to steps 1–4.
+
+The owner hasn't chosen yet, and also hasn't chosen whether the deck or the website comes first.
+
+### 9.3 Definitions settled this session
+
+- **At risk** (Overview metric, caption "ETA past window"): not delivered yet **and** the current ETA is later than the end of the customer's delivery window.
+  - The ETA comes from the planned route, live driver position and any reported delay.
+  - When a delay is a range (e.g. Jun's "about 1 hour" flat), the order counts if even the earliest end of the range misses the window.
+  - Not counted: "tight" stops, failed deliveries (they have their own card) and orders not yet dispatched.
+  - In the demo: **#1042 Mark Tan** (ETA 13:40, window ends 13:00) and **#1049 Sam Ocampo** (ETA 13:55, window ends 13:00), both on Jun's route. #1050 is also on Jun's route, but still fits its window.
+
+### 9.4 Starting a new conversation
+
+Open a new session on this repo and say "read HANDOFF.md". Canvas link (private to the owner): https://claude.ai/code/artifact/40339063-e6e3-46ea-b06b-3332386432b2. A new session has to re-watch the canvas before canvas comments will wake it.
