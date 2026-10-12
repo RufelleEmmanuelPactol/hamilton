@@ -542,7 +542,7 @@ export default function AutonomyBoard() {
                           </div>
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                          <AgentLink name="Assurance" />
+                          <AgentLink name="Messages" />
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[0]} onChange={(m) => setMode(0, m)} />
@@ -577,7 +577,7 @@ export default function AutonomyBoard() {
                           </div>
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                          <AgentLink name="Assurance" />
+                          <AgentLink name="Messages" />
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[1]} onChange={(m) => setMode(1, m)} />
@@ -614,7 +614,7 @@ export default function AutonomyBoard() {
                           </div>
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                          <AgentLink name="Assurance" />
+                          <AgentLink name="Messages" />
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[2]} onChange={(m) => setMode(2, m)} />
@@ -649,7 +649,7 @@ export default function AutonomyBoard() {
                           <div style={{ fontSize: "12px", color: "var(--mute)" }}>Instead of failing the delivery when nobody is home</div>
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                          <AgentLink name="Assurance" />
+                          <AgentLink name="Messages" />
                         </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[3]} onChange={(m) => setMode(3, m)} />

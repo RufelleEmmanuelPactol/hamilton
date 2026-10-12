@@ -1,7 +1,11 @@
 "use client";
 // Converted from design/project/Drivers.dc.html, then wired to the scenario store.
-import type { CSSProperties, ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
+import { findPerson } from "@/lib/people";
+import { openPerson } from "@/components/Overlays";
+import { AgentLink, Chip, OrderLink, PersonLink, TicketLink } from "@/components/Entity";
+import { Sparkle } from "@/boards/overview/ui";
 
 type Tone = "ok" | "warn" | "err" | "info" | "neutral";
 const toneStyle = (t: Tone): CSSProperties =>
@@ -9,7 +13,33 @@ const toneStyle = (t: Tone): CSSProperties =>
     ? { color: "var(--ink2)", background: "#F2F4F7", border: "1px solid var(--line2)" }
     : { color: `var(--${t})`, background: `var(--${t}Bg)`, border: `1px solid var(--${t}Line)` };
 const MONO = "'IBM Plex Mono', monospace";
-const link: CSSProperties = { textDecoration: "none", fontWeight: "500", whiteSpace: "nowrap" };
+const pill: CSSProperties = { fontSize: "11px", fontWeight: "500", borderRadius: "4px", padding: "0 5px", whiteSpace: "nowrap" };
+const avatar = (color: string): CSSProperties => ({
+  width: "26px",
+  height: "26px",
+  flex: "none",
+  borderRadius: "99px",
+  background: color,
+  color: "#fff",
+  fontSize: "10px",
+  fontWeight: "600",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+});
+
+interface Note {
+  by: "agent" | "owner";
+  text: string;
+  evidence?: string;
+  when: string;
+}
+const NOTES: Note[] = [
+  { by: "agent", text: "Fastest at BGC condo drop-offs; knows lobby and guard routines at Uptown and Serendra.", evidence: "312 BGC deliveries, 99% success", when: "5 Oct" },
+  { by: "agent", text: "On-time drops about 12 pts on Friday afternoons (EDSA). Plan a buffer after 3pm.", evidence: "last 8 Fridays", when: "3 Oct" },
+  { by: "owner", text: "Most trusted with fragile arrangements and weddings.", when: "3 Sep" },
+  { by: "owner", text: "Prefers to finish by 5pm on Mondays (night class).", when: "28 Sep" },
+];
 
 export default function DriversBoard() {
   const f = useScenarioFacts();
@@ -23,11 +53,44 @@ export default function DriversBoard() {
           ? { short: "Stops moved", long: "Incident · stops moved", tone: "warn" }
           : { short: "Incident", long: "Incident · flat tire 10:31", tone: "err" };
   const rico: { label: string; tone: Tone } = f.moved ? { label: "En route", tone: "info" } : { label: "Available", tone: "neutral" };
+  const roster: { name: string; initials: string; color: string; sub: string; status: string; tone: Tone }[] = [
+    { name: "Jun Reyes", initials: "JR", color: "#2E90FA", sub: "Van · 97% success (30d)", status: jun.short, tone: jun.tone },
+    { name: "Carlo Mendoza", initials: "CM", color: "#7A5AF8", sub: "Motorcycle · 94% success (30d)", status: "En route", tone: "info" },
+    { name: "Ana Villanueva", initials: "AV", color: "#E91E63", sub: "Sedan · 95% success (30d)", status: "En route", tone: "info" },
+    { name: "Rico Santos", initials: "RS", color: "#F79009", sub: "Motorcycle · new, 3 wks · no score yet", status: rico.label, tone: rico.tone },
+  ];
+  const [query, setQuery] = useState("");
+  const shown = roster.filter((d) => d.name.toLowerCase().includes(query.trim().toLowerCase()));
+
+  const [source, setSource] = useState<"all" | "agent" | "owner">("all");
+  const [added, setAdded] = useState<Note[]>([]);
+  const [draft, setDraft] = useState("");
+  const notesRef = useRef<HTMLElement>(null);
+  const notes: Note[] = [
+    ...added,
+    ...(f.junIncident
+      ? [{ by: "agent" as const, text: "Second tire incident in 6 weeks on the L300. Suggest a tire check this week.", evidence: "incidents 31 Aug, 12 Oct", when: "Today 10:32" }]
+      : []),
+    ...NOTES,
+  ];
+  const visibleNotes = notes.filter((n) => source === "all" || n.by === source);
+  const addNote = () => {
+    if (!draft.trim()) return;
+    setAdded((a) => [{ by: "owner", text: draft.trim(), when: `Today ${f.clock}` }, ...a]);
+    setDraft("");
+  };
 
   // Today's timeline on Jun's profile, newest first.
   const today: { time: string; text: ReactNode }[] = [];
   if (f.phase === "before") {
-    today.push({ time: "Now", text: "On the way to #1042 Mark Tan, BGC · ETA 10:50" });
+    today.push({
+      time: "Now",
+      text: (
+        <>
+          On the way to <OrderLink id="#1042" /> <PersonLink name="Mark Tan" />, BGC · ETA 10:50
+        </>
+      ),
+    });
   } else {
     if (f.junBackOnRoad) {
       today.push({
@@ -40,10 +103,7 @@ export default function DriversBoard() {
         time: "10:44",
         text: (
           <>
-            3 remaining stops moved to Ana and Rico{" "}
-            <a href="/console/approvals?t=HAM-417" style={link}>
-              HAM-417 approved
-            </a>
+            3 remaining stops moved to <PersonLink name="Ana Villanueva">Ana</PersonLink> and <PersonLink name="Rico Santos">Rico</PersonLink> · <TicketLink id="HAM-417" /> approved
           </>
         ),
       });
@@ -52,10 +112,7 @@ export default function DriversBoard() {
         time: "10:44",
         text: (
           <>
-            Keeps his 3 stops; #1042 and #1049 will be late{" "}
-            <a href="/console/approvals?t=HAM-417" style={link}>
-              HAM-417 rejected
-            </a>
+            Keeps his 3 stops; <OrderLink id="#1042" /> and <OrderLink id="#1049" /> will be late · <TicketLink id="HAM-417" /> rejected
           </>
         ),
       });
@@ -65,13 +122,11 @@ export default function DriversBoard() {
         time: "10:33",
         text: (
           <>
-            3 remaining stops proposed to Ana and Rico
+            <AgentLink name="Dispatch agent" /> proposed moving his 3 remaining stops to <PersonLink name="Ana Villanueva">Ana</PersonLink> and <PersonLink name="Rico Santos">Rico</PersonLink>
             {f.ticketOpen && (
               <>
                 {" "}
-                <a href="/console/approvals?t=HAM-417" style={link}>
-                  Pending
-                </a>
+                · <TicketLink id="HAM-417" /> waiting for you
               </>
             )}
           </>
@@ -82,7 +137,7 @@ export default function DriversBoard() {
         time: "Now",
         text: (
           <span style={{ color: "var(--brandInk)" }}>
-            Dispatch agent is re-planning his 3 stops
+            <AgentLink name="Dispatch agent" /> is re-planning his 3 stops
             <span aria-hidden="true" style={{ animation: "hamDots 1.2s infinite" }}>
               …
             </span>
@@ -102,8 +157,22 @@ export default function DriversBoard() {
       ),
     });
   }
-  today.push({ time: "10:08", text: "Delivered #1047 Shangri-La · proof verified" });
-  today.push({ time: "09:24", text: "Delivered #1041 · photo retake requested once" });
+  today.push({
+    time: "10:08",
+    text: (
+      <>
+        Delivered <OrderLink id="#1047" /> Shangri-La · proof verified
+      </>
+    ),
+  });
+  today.push({
+    time: "09:24",
+    text: (
+      <>
+        Delivered <OrderLink id="#1041" /> <PersonLink name="Liza Santos" /> · photo retake requested once
+      </>
+    ),
+  });
   today.push({ time: "08:02", text: "Shift started · vehicle check passed" });
   const progress = f.moved ? "2 of 2 delivered · 3 moved" : "2 of 5 delivered";
 
@@ -130,6 +199,8 @@ export default function DriversBoard() {
           <input
             aria-label="Filter drivers"
             placeholder="Filter drivers"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             style={{
               font: "inherit",
               width: "100%",
@@ -141,190 +212,55 @@ export default function DriversBoard() {
             }}
           />
         </div>{" "}
-        <a
-          href="/console/drivers"
-          style={{
+        {shown.map((d) => {
+          const selected = d.initials === "JR";
+          const row: CSSProperties = {
+            font: "inherit",
+            width: "100%",
+            textAlign: "left",
+            color: "inherit",
             display: "flex",
             alignItems: "center",
             gap: "10px",
             padding: "10px 14px",
-            textDecoration: "none",
-            color: "inherit",
+            border: 0,
             borderBottom: "1px solid var(--line)",
-            background: "var(--brandTint)",
-            boxShadow: "inset 3px 0 0 var(--brandInk)",
-          }}
-        >
-          <span
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "99px",
-              background: "#2E90FA",
-              color: "#fff",
-              fontSize: "10px",
-              fontWeight: "600",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            JR
-          </span>
-          <div style={{ flex: "1" }}>
-            <div style={{ fontWeight: "600" }}>Jun Reyes</div>
-            <div style={{ fontSize: "12px", color: "var(--mute)" }}>Van · 97% success (30d)</div>
-          </div>
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "500",
-              borderRadius: "4px",
-              padding: "0 5px",
-              whiteSpace: "nowrap",
-              ...toneStyle(jun.tone),
-            }}
-          >
-            {jun.short}
-          </span>
-        </a>{" "}
-        <a
-          href="/console/drivers"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 14px",
-            textDecoration: "none",
-            color: "inherit",
-            borderBottom: "1px solid var(--line)",
-          }}
-        >
-          <span
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "99px",
-              background: "#7A5AF8",
-              color: "#fff",
-              fontSize: "10px",
-              fontWeight: "600",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            CM
-          </span>
-          <div style={{ flex: "1" }}>
-            <div style={{ fontWeight: "500" }}>Carlo Mendoza</div>
-            <div style={{ fontSize: "12px", color: "var(--mute)" }}>Motorcycle · 94% success (30d)</div>
-          </div>
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "500",
-              color: "var(--info)",
-              background: "var(--infoBg)",
-              border: "1px solid var(--infoLine)",
-              borderRadius: "4px",
-              padding: "0 5px",
-            }}
-          >
-            En route
-          </span>
-        </a>{" "}
-        <a
-          href="/console/drivers"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 14px",
-            textDecoration: "none",
-            color: "inherit",
-            borderBottom: "1px solid var(--line)",
-          }}
-        >
-          <span
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "99px",
-              background: "#E91E63",
-              color: "#fff",
-              fontSize: "10px",
-              fontWeight: "600",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            AV
-          </span>
-          <div style={{ flex: "1" }}>
-            <div style={{ fontWeight: "500" }}>Ana Villanueva</div>
-            <div style={{ fontSize: "12px", color: "var(--mute)" }}>Sedan · 95% success (30d)</div>
-          </div>
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "500",
-              color: "var(--info)",
-              background: "var(--infoBg)",
-              border: "1px solid var(--infoLine)",
-              borderRadius: "4px",
-              padding: "0 5px",
-            }}
-          >
-            En route
-          </span>
-        </a>{" "}
-        <a
-          href="/console/drivers"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 14px",
-            textDecoration: "none",
-            color: "inherit",
-            borderBottom: "1px solid var(--line)",
-          }}
-        >
-          <span
-            style={{
-              width: "26px",
-              height: "26px",
-              borderRadius: "99px",
-              background: "#F79009",
-              color: "#fff",
-              fontSize: "10px",
-              fontWeight: "600",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            RS
-          </span>
-          <div style={{ flex: "1" }}>
-            <div style={{ fontWeight: "500" }}>Rico Santos</div>
-            <div style={{ fontSize: "12px", color: "var(--mute)" }}>Motorcycle · new, 3 wks · no score yet</div>
-          </div>
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "500",
-              borderRadius: "4px",
-              padding: "0 5px",
-              whiteSpace: "nowrap",
-              ...toneStyle(rico.tone),
-            }}
-          >
-            {rico.label}
-          </span>
-        </a>{" "}
+            background: selected ? "var(--brandTint)" : "var(--panel)",
+            boxShadow: selected ? "inset 3px 0 0 var(--brandInk)" : undefined,
+            cursor: selected ? "default" : "pointer",
+          };
+          const body = (
+            <>
+              <span style={avatar(d.color)}>{d.initials}</span>
+              <span style={{ flex: "1", minWidth: 0, display: "flex", flexDirection: "column" }}>
+                <span style={{ fontWeight: selected ? "600" : "500" }}>{d.name}</span>
+                <span style={{ fontSize: "12px", color: "var(--mute)" }}>{d.sub}</span>
+              </span>
+              <span style={{ ...pill, ...toneStyle(d.tone) }}>{d.status}</span>
+            </>
+          );
+          return selected ? (
+            <div key={d.initials} aria-current="true" style={row}>
+              {body}
+            </div>
+          ) : (
+            <button
+              key={d.initials}
+              type="button"
+              className="drv-row"
+              aria-label={`${d.name}: open profile`}
+              onClick={(e) => {
+                const p = findPerson(d.name);
+                if (p) openPerson(p, e.currentTarget);
+              }}
+              style={row}
+            >
+              {body}
+            </button>
+          );
+        })}
+        {shown.length === 0 && <div style={{ padding: "12px 14px", color: "var(--mute)" }}>No drivers match</div>}
+        <style>{`.drv-row:hover{background:var(--sub)!important}`}</style>
       </section>{" "}
       <main style={{ flex: "999 1 560px", minWidth: "0", display: "flex", flexDirection: "column" }}>
         {" "}
@@ -364,10 +300,18 @@ export default function DriversBoard() {
                   {jun.long}
                 </span>
               </div>
-              <div style={{ color: "var(--mute)", marginTop: "2px" }}>L300 van · NBC 4412 · +63 917 555 0141 · joined Sep 2024</div>
+              <span className="ham-chips" style={{ marginTop: "8px" }}>
+                <Chip k="Vehicle">L300 van · NBC 4412</Chip>
+                <Chip k="Phone">+63 917 555 0141</Chip>
+                <Chip k="Joined">Sep 2024</Chip>
+              </span>
             </div>{" "}
-            <button
+            <a
+              href="tel:+639175550141"
               style={{
+                display: "inline-flex",
+                alignItems: "center",
+                textDecoration: "none",
                 font: "inherit",
                 height: "32px",
                 padding: "0 12px",
@@ -379,7 +323,7 @@ export default function DriversBoard() {
               }}
             >
               Call
-            </button>{" "}
+            </a>{" "}
             <button
               style={{
                 font: "inherit",
@@ -400,6 +344,7 @@ export default function DriversBoard() {
             <button
               role="tab"
               aria-selected="true"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
               style={{
                 font: "inherit",
                 fontWeight: "600",
@@ -455,8 +400,9 @@ export default function DriversBoard() {
                 padding: "0 2px 10px",
                 cursor: "pointer",
               }}
+              onClick={() => notesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
             >
-              Notes <span style={{ fontSize: "11px", color: "var(--mute)" }}>{f.junIncident ? 5 : 4}</span>
+              Notes <span style={{ fontSize: "11px", color: "var(--mute)" }}>{notes.length}</span>
             </button>{" "}
           </div>{" "}
         </div>{" "}
@@ -473,7 +419,9 @@ export default function DriversBoard() {
               }}
             >
               <h3 style={{ margin: "0", fontSize: "14px", fontWeight: "600", flex: "1" }}>Performance</h3>
-              <span style={{ fontSize: "12px", color: "var(--mute)" }}>Time-weighted · last 8 weeks · used by Dispatch agent</span>
+              <span style={{ fontSize: "12px", color: "var(--mute)" }}>
+                Last 8 weeks · used by the <AgentLink name="Dispatch agent" />
+              </span>
             </div>{" "}
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))" }}>
               {" "}
@@ -636,12 +584,14 @@ export default function DriversBoard() {
             </section>{" "}
           </div>{" "}
           <section
+            ref={notesRef}
             aria-label="Notes"
             style={{
               background: "var(--panel)",
               border: "1px solid var(--line)",
               borderRadius: "8px",
               overflow: "hidden",
+              scrollMarginTop: "16px",
             }}
           >
             {" "}
@@ -660,56 +610,48 @@ export default function DriversBoard() {
                 aria-label="Note source"
                 style={{ display: "flex", border: "1px solid var(--line2)", borderRadius: "6px", overflow: "hidden" }}
               >
-                <button
-                  style={{
+                {(
+                  [
+                    ["all", "All"],
+                    ["agent", "Agent"],
+                    ["owner", "Owner"],
+                  ] as const
+                ).map(([k, label], i) => (
+                  <button
+                    key={k}
+                    type="button"
+                    aria-pressed={source === k}
+                    onClick={() => setSource(k)}
+                    style={{
                     font: "inherit",
                     fontSize: "12px",
                     height: "26px",
                     padding: "0 10px",
                     border: "0",
-                    background: "var(--sub)",
-                    fontWeight: "600",
+                    borderLeft: i ? "1px solid var(--line2)" : "0",
+                    background: source === k ? "var(--sub)" : "var(--panel)",
+                    color: source === k ? "var(--ink)" : "var(--ink2)",
+                    fontWeight: source === k ? "600" : undefined,
                     cursor: "pointer",
                   }}
-                >
-                  All
-                </button>
-                <button
-                  style={{
-                    font: "inherit",
-                    fontSize: "12px",
-                    height: "26px",
-                    padding: "0 10px",
-                    border: "0",
-                    borderLeft: "1px solid var(--line2)",
-                    background: "var(--panel)",
-                    color: "var(--ink2)",
-                    cursor: "pointer",
-                  }}
-                >
-                  Agent
-                </button>
-                <button
-                  style={{
-                    font: "inherit",
-                    fontSize: "12px",
-                    height: "26px",
-                    padding: "0 10px",
-                    border: "0",
-                    borderLeft: "1px solid var(--line2)",
-                    background: "var(--panel)",
-                    color: "var(--ink2)",
-                    cursor: "pointer",
-                  }}
-                >
-                  Owner
-                </button>
+                  >
+                    {label}
+                  </button>
+                ))}
               </div>
             </div>{" "}
-            <div style={{ display: "flex", gap: "8px", padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                addNote();
+              }}
+              style={{ display: "flex", gap: "8px", padding: "10px 14px", borderBottom: "1px solid var(--line)" }}
+            >
               <input
                 aria-label="Add a note"
                 placeholder="Add a note for agents and dispatchers…"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
                 style={{
                   font: "inherit",
                   flex: "1",
@@ -721,6 +663,8 @@ export default function DriversBoard() {
                 }}
               />
               <button
+                type="submit"
+                disabled={!draft.trim()}
                 style={{
                   font: "inherit",
                   fontWeight: "600",
@@ -730,180 +674,73 @@ export default function DriversBoard() {
                   borderRadius: "6px",
                   background: "var(--brandInk)",
                   color: "#fff",
-                  cursor: "pointer",
+                  cursor: draft.trim() ? "pointer" : "default",
+                  opacity: draft.trim() ? 1 : 0.5,
                 }}
               >
                 Add note
               </button>
-            </div>{" "}
+            </form>{" "}
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <tbody>
-                {f.junIncident && (
+                {visibleNotes.map((n, i) => {
+                  const last = i === visibleNotes.length - 1;
+                  const cell: CSSProperties = { borderBottom: last ? undefined : "1px solid var(--line)", verticalAlign: "top" };
+                  return (
+                    <tr key={`${n.when}-${n.text}`}>
+                      <td style={{ ...cell, padding: "10px 14px", width: "70px" }}>
+                        {n.by === "agent" ? (
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              color: "var(--brandInk)",
+                              background: "var(--brandTint)",
+                              borderRadius: "4px",
+                              padding: "1px 6px",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "3px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <Sparkle size={10} color="currentColor" /> Agent
+                          </span>
+                        ) : (
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "600",
+                              color: "var(--ink2)",
+                              background: "#F2F4F7",
+                              borderRadius: "4px",
+                              padding: "1px 6px",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            <PersonLink name="Maria Santos">Maria</PersonLink>
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ ...cell, padding: "10px 6px" }}>
+                        <div>{n.text}</div>
+                        {n.evidence && (
+                          <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                            Evidence: {n.evidence} · by the <AgentLink name="Dispatch agent" />
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ ...cell, padding: "10px 14px", textAlign: "right", color: "var(--mute)", whiteSpace: "nowrap" }}>{n.when}</td>
+                    </tr>
+                  );
+                })}
+                {visibleNotes.length === 0 && (
                   <tr>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        borderBottom: "1px solid var(--line)",
-                        width: "70px",
-                        verticalAlign: "top",
-                      }}
-                    >
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: "600",
-                          color: "var(--brandInk)",
-                          background: "var(--brandTint)",
-                          borderRadius: "4px",
-                          padding: "1px 6px",
-                        }}
-                      >
-                        Agent
-                      </span>
-                    </td>
-                    <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
-                      <div>Second tire incident in 6 weeks on the L300. Suggest a tire check this week.</div>
-                      <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Evidence: incidents 31 Aug, 12 Oct</div>
-                    </td>
-                    <td
-                      style={{
-                        padding: "10px 14px",
-                        borderBottom: "1px solid var(--line)",
-                        textAlign: "right",
-                        color: "var(--mute)",
-                        whiteSpace: "nowrap",
-                        verticalAlign: "top",
-                      }}
-                    >
-                      Today 10:32
+                    <td colSpan={3} style={{ padding: "12px 14px", color: "var(--mute)" }}>
+                      No notes from this source yet
                     </td>
                   </tr>
                 )}
-                <tr>
-                  <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", verticalAlign: "top" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--brandInk)",
-                        background: "var(--brandTint)",
-                        borderRadius: "4px",
-                        padding: "1px 6px",
-                      }}
-                    >
-                      Agent
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
-                    <div>Fastest at BGC condo drop-offs; knows lobby and guard routines at Uptown and Serendra.</div>
-                    <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
-                      Evidence: 312 BGC deliveries, 99% success
-                    </div>
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      textAlign: "right",
-                      color: "var(--mute)",
-                      whiteSpace: "nowrap",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    5 Oct
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", verticalAlign: "top" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--brandInk)",
-                        background: "var(--brandTint)",
-                        borderRadius: "4px",
-                        padding: "1px 6px",
-                      }}
-                    >
-                      Agent
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
-                    <div>On-time drops about 12 pts on Friday afternoons (EDSA). Plan a buffer after 3pm.</div>
-                    <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Evidence: last 8 Fridays</div>
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      textAlign: "right",
-                      color: "var(--mute)",
-                      whiteSpace: "nowrap",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    3 Oct
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", verticalAlign: "top" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--ink2)",
-                        background: "#F2F4F7",
-                        borderRadius: "4px",
-                        padding: "1px 6px",
-                      }}
-                    >
-                      Maria
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
-                    Most trusted with fragile arrangements and weddings.
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      textAlign: "right",
-                      color: "var(--mute)",
-                      whiteSpace: "nowrap",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    3 Sep
-                  </td>
-                </tr>
-                <tr>
-                  <td style={{ padding: "10px 14px", verticalAlign: "top" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--ink2)",
-                        background: "#F2F4F7",
-                        borderRadius: "4px",
-                        padding: "1px 6px",
-                      }}
-                    >
-                      Maria
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 6px" }}>Prefers to finish by 5pm on Mondays (night class).</td>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      textAlign: "right",
-                      color: "var(--mute)",
-                      whiteSpace: "nowrap",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    28 Sep
-                  </td>
-                </tr>
               </tbody>
             </table>{" "}
             <div

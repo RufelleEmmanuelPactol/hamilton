@@ -1,5 +1,7 @@
 "use client";
-import type { CSSProperties, ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
+import { PEOPLE } from "@/lib/people";
+import { AgentLink, OrderLink, PersonLink, TicketLink } from "@/components/Entity";
 
 /** Minutes between two "HH:MM" clock strings (b - a). */
 export function minutesBetween(a: string, b: string) {
@@ -63,12 +65,12 @@ export function AgentWorking({ style }: { style?: CSSProperties }) {
           <Sparkle />
         </span>
         <span>
-          Dispatch agent is re-planning Jun&#39;s 3 stops
+          {linkify("Dispatch agent is re-planning Jun’s 3 stops")}
           <Dots />
         </span>
       </div>
       <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "3px" }}>
-        Auto-generated from Jun&#39;s report at 10:31 and live ETAs
+        {linkify("Auto-generated from Jun’s report at 10:31 and live ETAs")}
       </div>
     </div>
   );
@@ -108,4 +110,51 @@ export function Tag({ tone, children }: { tone: "err" | "info" | "ok" | "neutral
   return (
     <span style={{ fontSize: "11px", fontWeight: 500, borderRadius: "4px", padding: "0 5px", whiteSpace: "nowrap", ...c }}>{children}</span>
   );
+}
+
+/* ---------- names and IDs inside sentences ---------- */
+
+const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+// Staff go by first name in sentences ("Jun", "Ana"); customers by full name.
+const FIRST: Record<string, string> = {};
+for (const p of PEOPLE) if (p.kind !== "customer") FIRST[p.name.split(" ")[0]] = p.name;
+const FULL = PEOPLE.map((p) => p.name).sort((a, b) => b.length - a.length);
+const AGENTS = ["Dispatch agent", "Intake agent", "Messages agent", "Proof agent"];
+const TOKEN = new RegExp(
+  [
+    "HAM-\\d{3}",
+    "#\\d{4}",
+    "WA-\\d{4}",
+    ...AGENTS.map(esc),
+    ...FULL.map(esc),
+    // A first name, but not "Maria’s Flowers" (the shop).
+    `\\b(?:${Object.keys(FIRST).map(esc).join("|")})\\b(?!['’]s Flowers)`,
+  ].join("|"),
+  "g",
+);
+
+/**
+ * Turns the ticket IDs, order IDs, agents and people in a sentence into links.
+ * `agents: false` leaves agent names as text (on the Audit log, where an agent link would point at the same page).
+ */
+export function linkify(text: string, { agents = true }: { agents?: boolean } = {}): ReactNode {
+  const out: ReactNode[] = [];
+  let last = 0;
+  for (const m of text.matchAll(TOKEN)) {
+    const t = m[0];
+    const i = m.index ?? 0;
+    let node: ReactNode = null;
+    if (t.startsWith("HAM-")) node = <TicketLink id={t} />;
+    else if (t.startsWith("#") || t.startsWith("WA-")) node = <OrderLink id={t} />;
+    else if (AGENTS.includes(t)) node = agents ? <AgentLink name={t} /> : null;
+    else if (FIRST[t]) node = <PersonLink name={FIRST[t]}>{t}</PersonLink>;
+    else node = <PersonLink name={t} />;
+    if (!node) continue;
+    if (i > last) out.push(text.slice(last, i));
+    out.push(<Fragment key={i}>{node}</Fragment>);
+    last = i + t.length;
+  }
+  if (last === 0) return text;
+  if (last < text.length) out.push(text.slice(last));
+  return <>{out}</>;
 }

@@ -9,10 +9,12 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNod
 import { useScenarioFacts } from "@/lib/scenario";
 import { useScenario, type BoardEdits, type ColId, type DriverId } from "@/lib/store";
 import { Dots, Sparkle } from "@/boards/overview/ui";
+import Link from "next/link";
 import { ticketHref } from "@/lib/links";
 import { useFlip } from "@/lib/flip";
-import { PEOPLE } from "@/lib/people";
+import { PEOPLE, findPerson } from "@/lib/people";
 import { openPerson } from "@/components/Overlays";
+import { AgentLink, PersonLink, TicketLink } from "@/components/Entity";
 
 const MONO = "'IBM Plex Mono', monospace";
 /** How long the Dispatch agent appears to work before it assigns a driver to a new order. */
@@ -42,6 +44,8 @@ interface Card {
   link?: [string, string];
   /** The Dispatch agent is still choosing a driver. */
   assigning?: boolean;
+  /** Added by a person; the Dispatch agent picked its driver. */
+  auto?: boolean;
 }
 
 const COLS: { id: ColId; label: string; icon: ReactNode }[] = [
@@ -212,6 +216,30 @@ function Backdrop({ onClose }: { onClose: () => void }) {
   return <div aria-hidden="true" onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 20 }} />;
 }
 
+/** "Anniversary box · Mark Tan" or "Red roses for Rina Bautista" → [item, separator, customer]. */
+function splitTitle(t: string): [string, string, string | undefined] {
+  const i = t.lastIndexOf(" · ");
+  if (i > 0) return [t.slice(0, i), " · ", t.slice(i + 3)];
+  const m = t.match(/^(.*) for (.+)$/);
+  if (m) return [m[1], " for ", m[2]];
+  return [t, "", undefined];
+}
+/** A card title with the customer's name as a link to their profile. */
+function Title({ t }: { t: string }) {
+  const [item, sep, who] = splitTitle(t);
+  return (
+    <>
+      {item}
+      {who && (
+        <>
+          {sep}
+          <PersonLink name={who} />
+        </>
+      )}
+    </>
+  );
+}
+
 /* ------------------------------------------------------------------ scripted cards */
 
 /** Jun's 3 remaining stops. Their driver, ETA and tag follow the scenario phase. */
@@ -339,11 +367,7 @@ function OrderCard({
     >
       <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>
         <span style={{ fontFamily: MONO }}>{c.id}</span>
-        {c.ticket && (
-          <a href={ticketHref(c.ticket)} style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
-            {c.ticket}
-          </a>
-        )}
+        {c.ticket && <TicketLink id={c.ticket} />}
         {c.tag && (
           <span style={{ minWidth: 0, overflow: "hidden", display: "flex" }}>
             <Tag tone={c.tag[0]}>{c.tag[1]}</Tag>
@@ -364,7 +388,9 @@ function OrderCard({
           </button>
         </span>
       </div>
-      <div style={{ fontWeight: "500", lineHeight: "1.4", color: c.done ? "var(--ink2)" : undefined }}>{c.title}</div>
+      <div style={{ fontWeight: "500", lineHeight: "1.4", color: c.done ? "var(--ink2)" : undefined }}>
+        <Title t={c.title} />
+      </div>
       {c.quote && (
         <div
           style={{
@@ -401,9 +427,9 @@ function OrderCard({
         <div style={{ fontSize: "12px", color: "var(--mute)" }}>{c.meta}</div>
       )}
       {c.link && (
-        <a href={c.link[1]} style={{ fontSize: "12px", fontWeight: "600", textDecoration: "none" }}>
+        <Link href={c.link[1]} onClick={(e) => e.stopPropagation()} style={{ fontSize: "12px", fontWeight: "600", textDecoration: "none", alignSelf: "flex-start" }}>
           {c.link[0]}
-        </a>
+        </Link>
       )}
       {menuOpen && (
         <>
@@ -513,6 +539,7 @@ export default function OrdersBoard() {
           title: a.title,
           driver: assigning ? undefined : "CM",
           assigning,
+          auto: true,
           tag: assigning
             ? ["neutral", "New"]
             : [
@@ -702,7 +729,7 @@ export default function OrdersBoard() {
       />
 
       {view === "list" ? (
-        <ListView cards={cards} layout={layout} filter={filter} onMove={move} onAssign={assign} />
+        <ListView cards={cards} layout={layout} filter={filter} onMove={move} onAssign={assign} onOpen={setOpenId} />
       ) : (
         <div style={{ flex: "1", overflowX: "auto", padding: "14px 16px" }}>
           <div
@@ -1086,12 +1113,14 @@ function ListView({
   filter,
   onMove,
   onAssign,
+  onOpen,
 }: {
   cards: Record<string, Card>;
   layout: Record<ColId, string[]>;
   filter: DriverId | "all";
   onMove: (id: string, to: ColId) => void;
   onAssign: (id: string, d: DriverId) => void;
+  onOpen: (id: string) => void;
 }) {
   const rows = COLS.flatMap((c) => layout[c.id].map((id) => ({ id, col: c.id }))).filter(
     (r) => filter === "all" || cards[r.id].driver === filter,
@@ -1117,15 +1146,19 @@ function ListView({
               const c = cards[id];
               return (
                 <tr key={id}>
-                  <td style={{ ...td, fontFamily: MONO, whiteSpace: "nowrap" }}>
-                    {id}
+                  <td style={{ ...td, whiteSpace: "nowrap" }}>
+                    <button type="button" className="ham-ent" onClick={() => onOpen(id)} aria-label={`${id}: open details`} style={{ fontFamily: MONO }}>
+                      {id}
+                    </button>
                     {c.ticket && (
-                      <a href={ticketHref(c.ticket)} style={{ marginLeft: "8px", color: "var(--brandInk)", textDecoration: "none" }}>
-                        {c.ticket}
-                      </a>
+                      <span style={{ marginLeft: "8px" }}>
+                        <TicketLink id={c.ticket} />
+                      </span>
                     )}
                   </td>
-                  <td style={{ ...td, fontWeight: 500 }}>{c.title}</td>
+                  <td style={{ ...td, fontWeight: 500 }}>
+                    <Title t={c.title} />
+                  </td>
                   <td style={{ ...td, color: "var(--mute)", fontSize: "12px" }}>{c.assigning ? "Assigning a driver…" : c.meta}</td>
                   <td style={td}>
                     <select aria-label={`Status of ${id}`} value={col} onChange={(e) => onMove(id, e.target.value as ColId)} style={sel}>
@@ -1185,8 +1218,11 @@ function OrderDrawer({
     window.addEventListener("keydown", key);
     return () => window.removeEventListener("keydown", key);
   }, [onClose]);
-  const customer = PEOPLE.find((p) => p.kind === "customer" && p.facts.some(([, v]) => v === c.id));
-  const [item, who] = c.title.includes(" · ") ? c.title.split(" · ") : [c.title, customer?.name];
+  const [item, , named] = splitTitle(c.title);
+  const customer = PEOPLE.find((p) => p.kind === "customer" && p.facts.some(([, v]) => v === c.id)) ?? findPerson(named) ?? undefined;
+  const who = named ?? customer?.name;
+  const autoAssigned = !!c.auto && !c.assigning;
+  const chips = !!c.driver || !!c.ticket || autoAssigned;
   const reached = col === "exceptions" ? 3 : STEPS.indexOf(col);
   const label: CSSProperties = { fontSize: "12px", color: "var(--mute)", marginBottom: "4px" };
   const select: CSSProperties = { ...btn, height: "34px", fontSize: "13px", width: "100%" };
@@ -1216,11 +1252,6 @@ function OrderDrawer({
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "14px 18px", borderBottom: "1px solid var(--line)" }}>
           <span style={{ fontFamily: MONO, fontWeight: 600 }}>{c.id}</span>
-          {c.ticket && (
-            <a href={ticketHref(c.ticket)} style={{ fontFamily: MONO, color: "var(--brandInk)", textDecoration: "none" }}>
-              {c.ticket}
-            </a>
-          )}
           {c.tag && <Tag tone={c.tag[0]}>{c.tag[1]}</Tag>}
           <span style={{ flex: 1 }} />
           <button ref={closeRef} type="button" aria-label="Close" onClick={onClose} style={{ ...btn, width: "32px", padding: 0, fontSize: "16px" }}>
@@ -1231,7 +1262,14 @@ function OrderDrawer({
         <div style={{ padding: "18px", display: "flex", flexDirection: "column", gap: "18px" }}>
           <div>
             <div style={{ fontSize: "18px", fontWeight: 600, lineHeight: 1.35 }}>{item}</div>
-            <div style={{ color: "var(--mute)", marginTop: "4px" }}>{c.meta}</div>
+            <div style={{ color: "var(--mute)", marginTop: "4px" }}>{c.assigning ? "Assigning a driver…" : c.meta}</div>
+            {chips && (
+              <span className="ham-chips" style={{ marginTop: "10px" }}>
+                {c.driver && <PersonLink name={DRIVERS[c.driver].name} look="chip" label="Driver" />}
+                {c.ticket && <TicketLink id={c.ticket} look="chip" k="Ticket" />}
+                {autoAssigned && <AgentLink name="Dispatch agent" look="chip" k="Assigned by" />}
+              </span>
+            )}
           </div>
 
           {c.quote && (
@@ -1311,16 +1349,16 @@ function OrderDrawer({
 
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {c.ticket && (
-              <a href={ticketHref(c.ticket)} style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none", background: "var(--brand)", borderColor: "var(--brand)", color: "#fff", fontWeight: 600 }}>
+              <Link href={ticketHref(c.ticket)} style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none", background: "var(--brand)", borderColor: "var(--brand)", color: "#fff", fontWeight: 600 }}>
                 Open {c.ticket}
-              </a>
+              </Link>
             )}
-            <a href="/console/messages" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            <Link href="/console/messages" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
               Message customer
-            </a>
-            <a href="/console/dispatch" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            </Link>
+            <Link href="/console/dispatch" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
               See on route
-            </a>
+            </Link>
           </div>
         </div>
       </aside>

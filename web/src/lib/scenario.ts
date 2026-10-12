@@ -100,7 +100,7 @@ export function scenarioEvents(phase: Phase, notify: boolean): AuditEvent[] {
       {
         time: "10:44",
         event: notify ? "Sent new arrival times to 3 customers on WhatsApp" : "Updated arrival times (customers not notified)",
-        agent: "Assurance agent",
+        agent: "Messages agent",
         outcome: notify ? "Sent" : "Auto",
         policy: "Customer ETA updates · Auto",
         ref: "#1042 #1050 #1049",

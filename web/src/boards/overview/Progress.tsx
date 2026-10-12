@@ -2,6 +2,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
 import { pct, Tag } from "./ui";
+import { OrderLink, PersonLink } from "@/components/Entity";
 
 const HOURS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00"];
 const GREY = "#D0D5DD";
@@ -157,7 +158,9 @@ function Row({
         </span>
         <div style={{ minWidth: "0" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>{name}</span>
+            <span style={{ fontWeight: 600, whiteSpace: "nowrap" }}>
+              <PersonLink name={name} />
+            </span>
             {tag}
           </div>
           <div style={{ fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>{sub}</div>
@@ -314,7 +317,7 @@ export function LiveProgress() {
                   <Dot at={J1049} kind="planned" title="#1049 Sam Ocampo · ETA 12:10" />
                   <Here at={now} color={JUN} ring="rgba(46,144,250,.35)" title="Jun · on time" />
                   <Label at={J1042} start color="var(--ink2)">
-                    #1042 · 10:50
+                    <OrderLink id="#1042" /> · 10:50
                   </Label>
                 </>
               ) : (
@@ -377,7 +380,7 @@ export function LiveProgress() {
               <Dot at={pct("11:50")} kind="planned" title="#1052 · ETA 11:50" />
               <Here at={now} color={CARLO} ring="rgba(122,90,248,.35)" title="Carlo · on time" />
               <Label at={pct("11:05")} start color="var(--ink2)">
-                #1051 · 11:05
+                <OrderLink id="#1051" /> · 11:05
               </Label>
             </Row>
 

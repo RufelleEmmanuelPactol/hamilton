@@ -6,6 +6,7 @@ import { LiveProgress } from "./overview/Progress";
 import { FleetMap } from "./overview/FleetMap";
 import { OpenTickets } from "./overview/Tickets";
 import { Copilot } from "./overview/Copilot";
+import { AgentLink, PersonLink } from "@/components/Entity";
 
 const segBtn: CSSProperties = {
   font: "inherit",
@@ -49,7 +50,8 @@ function GuideCard({ onDismiss }: { onDismiss: () => void }) {
         <path d="M12 11v5M12 8v.5" strokeLinecap="round" />
       </svg>
       <span style={{ flex: "1", color: "var(--ink2)" }}>
-        <b style={{ color: "var(--info)" }}>Try the scenario:</b> Jun is about to get a flat tire. Open the driver app and report it.
+        <b style={{ color: "var(--info)" }}>Try the scenario:</b> <PersonLink name="Jun Reyes">Jun</PersonLink> is about to get a flat
+        tire. Open the driver app and report it.
       </span>
       <a href="/app" style={{ fontWeight: 600, textDecoration: "none", color: "var(--info)", whiteSpace: "nowrap" }}>
         Open driver app
@@ -114,7 +116,12 @@ function Metrics() {
         Resolve
       </a>
     );
-  else if (f.thinking) riskNote = "Dispatch agent is drafting a fix…";
+  else if (f.thinking)
+    riskNote = (
+      <span>
+        <AgentLink name="Dispatch agent" /> is drafting a fix…
+      </span>
+    );
   else if (f.phase === "rejected") riskNote = "Both customers got an apology";
   else if (f.moved) riskNote = "3 stops moved at 10:44";
 
@@ -183,6 +190,23 @@ export default function MainBoard() {
   const f = useScenarioFacts();
   const [guideDismissed, setGuideDismissed] = useState(false);
 
+  const exportCsv = () => {
+    const csv = [
+      "Metric,Value",
+      `Delivered,${f.delivered} of ${f.totalOrders}`,
+      "On-time rate,100%",
+      `At risk,${f.atRisk}`,
+      "Failed deliveries,0",
+      `Updated,12 Oct ${f.clock}`,
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "overview-12-oct.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       <main style={{ flex: "999 1 640px", minWidth: "0", padding: "20px 24px", display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -209,7 +233,9 @@ export default function MainBoard() {
               30 days
             </button>
           </div>
-          <button style={{ ...segBtn, border: "1px solid var(--line2)", borderRadius: "6px" }}>Export</button>
+          <button onClick={exportCsv} style={{ ...segBtn, border: "1px solid var(--line2)", borderRadius: "6px" }}>
+            Export
+          </button>
         </div>
         {f.phase === "before" && !guideDismissed && <GuideCard onDismiss={() => setGuideDismissed(true)} />}
         <Metrics />

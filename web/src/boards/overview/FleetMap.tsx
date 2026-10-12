@@ -2,6 +2,9 @@
 import type { ReactNode } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
 import { minutesBetween, Tag } from "./ui";
+import { OrderLink, PersonLink } from "@/components/Entity";
+import { openPerson } from "@/components/Overlays";
+import { findPerson } from "@/lib/people";
 
 const JUN = "#2E90FA";
 
@@ -22,6 +25,25 @@ function LegendDot({ color, children }: { color: string; children: ReactNode }) 
       <span style={{ width: "8px", height: "8px", borderRadius: "99px", background: color }} />
       {children}
     </span>
+  );
+}
+
+/** A driver's marker on the map: click it to open their profile card. */
+function Pin({ x, y, color, name, initials }: { x: number; y: number; color: string; name: string; initials: string }) {
+  return (
+    <g
+      style={{ cursor: "pointer" }}
+      onClick={(e) => {
+        const p = findPerson(name);
+        if (p) openPerson(p, e.currentTarget);
+      }}
+    >
+      <title>{name}</title>
+      <circle cx={x} cy={y} r="13" fill={color} stroke="#fff" strokeWidth="2.5" />
+      <text x={x} y={y + 4}>
+        {initials}
+      </text>
+    </g>
   );
 }
 
@@ -270,10 +292,7 @@ export function FleetMap() {
           <path d="M266 368 L268 356 L276 355 L278 363 L271 368" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinejoin="round" />
           {/* Drivers */}
           <g fontFamily="IBM Plex Sans, sans-serif" fontSize="10" fontWeight="600" textAnchor="middle" fill="#fff">
-            <circle cx="391" cy="356" r="13" fill={JUN} stroke="#fff" strokeWidth="2.5" />
-            <text x="391" y="360">
-              JR
-            </text>
+            <Pin x={391} y={356} color={JUN} name="Jun Reyes" initials="JR" />
             {f.junIncident && (
               <>
                 <circle cx="404" cy="343" r="7" fill="#F04438" stroke="#fff" strokeWidth="1.5" />
@@ -282,18 +301,9 @@ export function FleetMap() {
                 </text>
               </>
             )}
-            <circle cx="640" cy="64" r="13" fill="#7A5AF8" stroke="#fff" strokeWidth="2.5" />
-            <text x="640" y="68">
-              CM
-            </text>
-            <circle cx="500" cy="320" r="13" fill="#E91E63" stroke="#fff" strokeWidth="2.5" />
-            <text x="500" y="324">
-              AV
-            </text>
-            <circle cx="300" cy="368" r="13" fill="#F79009" stroke="#fff" strokeWidth="2.5" />
-            <text x="300" y="372">
-              RS
-            </text>
+            <Pin x={640} y={64} color="#7A5AF8" name="Carlo Mendoza" initials="CM" />
+            <Pin x={500} y={320} color="#E91E63" name="Ana Villanueva" initials="AV" />
+            <Pin x={300} y={368} color="#F79009" name="Rico Santos" initials="RS" />
           </g>
         </svg>
 
@@ -303,7 +313,9 @@ export function FleetMap() {
               <Tag tone="err">Incident</Tag>
               <span style={{ color: "var(--mute)", fontSize: "12px" }}>10:31 · {minutesBetween("10:31", f.clock)} min</span>
             </div>
-            <div style={{ fontWeight: 600, marginTop: "6px" }}>Jun Reyes · flat tire</div>
+            <div style={{ fontWeight: 600, marginTop: "6px" }}>
+              <PersonLink name="Jun Reyes" /> · flat tire
+            </div>
             <div style={{ color: "var(--ink2)", fontSize: "12px", marginTop: "2px" }}>
               {f.thinking ? "EDSA near Guadalupe · re-planning his 3 stops" : "EDSA near Guadalupe · 3 stops awaiting reassignment"}
             </div>
@@ -324,7 +336,8 @@ export function FleetMap() {
               {f.notifyCustomers ? "Stops moved · 3 customers notified" : "Stops moved"}
             </div>
             <div style={{ color: "var(--ink2)", fontSize: "12px", marginTop: "2px" }}>
-              Ana takes #1042 and #1050, Rico takes #1049. All on time.
+              <PersonLink name="Ana Villanueva">Ana</PersonLink> takes <OrderLink id="#1042" /> and <OrderLink id="#1050" />,{" "}
+              <PersonLink name="Rico Santos">Rico</PersonLink> takes <OrderLink id="#1049" />. All on time.
             </div>
           </Callout>
         )}
@@ -334,9 +347,11 @@ export function FleetMap() {
               <Tag tone="err">Incident</Tag>
               <span style={{ color: "var(--mute)", fontSize: "12px" }}>10:31 · {minutesBetween("10:31", f.clock)} min</span>
             </div>
-            <div style={{ fontWeight: 600, marginTop: "6px" }}>Jun Reyes · flat tire</div>
+            <div style={{ fontWeight: 600, marginTop: "6px" }}>
+              <PersonLink name="Jun Reyes" /> · flat tire
+            </div>
             <div style={{ color: "var(--ink2)", fontSize: "12px", marginTop: "2px" }}>
-              Jun keeps his 3 stops · #1042 and #1049 late · both customers sent an apology
+              Keeps his 3 stops · <OrderLink id="#1042" /> and <OrderLink id="#1049" /> late · both customers got an apology
             </div>
           </Callout>
         )}

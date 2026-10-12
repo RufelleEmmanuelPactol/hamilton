@@ -5,6 +5,10 @@ import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNo
 import { useScenarioFacts } from "@/lib/scenario";
 import { useScenario } from "@/lib/store";
 import { check, HAM_417 } from "@/lib/policy";
+import Link from "next/link";
+import { ticketHref } from "@/lib/links";
+import { openSoon } from "@/components/Overlays";
+import { AgentLink, OrderLink, PersonLink, TicketLink } from "@/components/Entity";
 
 type Tone = "ok" | "warn" | "err" | "info" | "neutral";
 type DriverKey = "j" | "c" | "a" | "r";
@@ -33,9 +37,9 @@ function Tag({ tone, children, href }: { tone: Tone; children: ReactNode; href?:
     </span>
   );
   return href ? (
-    <a href={href} style={{ textDecoration: "none" }}>
+    <Link href={href} style={{ textDecoration: "none" }}>
       {tag}
-    </a>
+    </Link>
   ) : (
     tag
   );
@@ -154,7 +158,7 @@ interface Group {
   km: number;
   stops: Stop[];
   /** A dashed info row at the end of the group (open slot, moved stops). */
-  footer?: { title: string; text: string; right: string };
+  footer?: { title: string; text: ReactNode; right: ReactNode };
 }
 
 const P = {
@@ -236,7 +240,7 @@ function todayPlan(phase: Phase, ticketOpen: boolean, backOnRoad: boolean): Grou
     ];
   } else if (phase === "incident") {
     const st = (to: string): Stop["status"] =>
-      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: "/console/approvals?t=HAM-417" } : { label: "Re-planning", tone: "neutral" };
+      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: ticketHref("HAM-417") } : { label: "Re-planning", tone: "neutral" };
     junRest = [
       { ...upcoming("#1042", "Mark Tan", "BGC", "10:00–13:00", null, "j", false, m1042), status: st("Ana") },
       { ...upcoming("#1050", "Nicole Ramos", "BGC", "11:00–15:00", null, "j", false), status: st("Ana") },
@@ -258,7 +262,19 @@ function todayPlan(phase: Phase, ticketOpen: boolean, backOnRoad: boolean): Grou
       ...junRest,
     ],
     footer: moved
-      ? { title: "3 stops moved to Ana and Rico", text: "#1042 and #1050 to Ana · #1049 to Rico", right: "HAM-417 approved at 10:44" }
+      ? {
+          title: "3 stops moved to Ana and Rico",
+          text: (
+            <>
+              <OrderLink id="#1042" /> and <OrderLink id="#1050" /> to Ana · <OrderLink id="#1049" /> to Rico
+            </>
+          ),
+          right: (
+            <>
+              <TicketLink id="HAM-417" /> approved at 10:44
+            </>
+          ),
+        }
       : undefined,
   };
 
@@ -483,6 +499,8 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
           <h2 style={{ margin: "0", fontSize: "14px", fontWeight: "600" }}>Why this plan</h2>
           <span style={{ fontSize: "12px", color: "var(--mute)", flex: "1" }}>draft for Tue 13 Oct</span>
           <button
+            type="button"
+            onClick={() => openSoon("Editing tomorrow’s plan notes")}
             style={{
               font: "inherit",
               fontSize: "12px",
@@ -509,13 +527,19 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
         >
           <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.7" }}>
             <li>
-              <b>#1064 Ben Cruz</b> now prefers deliveries after 15:00 (from the address book), so he is Ana&#39;s last stop at 15:20.
+              <b>
+                #1064 <PersonLink name="Ben Cruz" />
+              </b>{" "}
+              now prefers deliveries after 15:00 (from the address book), so he is Ana&#39;s last stop at 15:20.
             </li>
             <li>
               <b>Jun&#39;s van</b> is booked for a tire check 08:00–08:30, so his first stop is at 09:00.
             </li>
             <li>
-              <b>Rico</b> is in his 4th week. He gets 2 Makati stops close to the hub, both with access notes.
+              <b>
+                <PersonLink name="Rico Santos">Rico</PersonLink>
+              </b>{" "}
+              is in his 4th week. He gets 2 Makati stops close to the hub, both with access notes.
             </li>
             <li>
               <b>1 same-day slot</b> is held on Carlo&#39;s Quezon City afternoon (14:00–16:00). Released at 14:00 if
@@ -524,17 +548,17 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
           </ul>
           <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #FBD5E3" }}>
             <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
-            <a href="/console/orders" style={{ textDecoration: "none" }}>
+            <Link href="/console/orders" style={{ textDecoration: "none" }}>
               14 orders
-            </a>
+            </Link>
             ,{" "}
-            <a href="/console/addresses" style={{ textDecoration: "none" }}>
+            <Link href="/console/addresses" style={{ textDecoration: "none" }}>
               the address book
-            </a>{" "}
+            </Link>{" "}
             and{" "}
-            <a href="/console/drivers" style={{ textDecoration: "none" }}>
+            <Link href="/console/drivers" style={{ textDecoration: "none" }}>
               driver notes
-            </a>{" "}
+            </Link>{" "}
             · drafted today 06:00
           </div>
         </div>
@@ -569,7 +593,9 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
                     <td colSpan={7} style={{ padding: "7px 14px", borderBottom: "1px solid var(--line)" }}>
                       <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
                         <Avatar d={g.d} />
-                        <b>{DRIVERS[g.d].full}</b>
+                        <b>
+                          <PersonLink name={DRIVERS[g.d].full} />
+                        </b>
                         <span style={{ color: "var(--mute)" }}>{DRIVERS[g.d].vehicle}</span>
                         <span style={{ flex: "1" }}></span>
                         <span style={{ color: "var(--ink2)", fontWeight: "500" }}>
@@ -585,7 +611,9 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
                     <tr key={order}>
                       <td style={{ ...td, padding: "7px 14px", color: "var(--mute)" }}>{i + 1}</td>
                       <td style={{ ...td, padding: "7px 10px", whiteSpace: "nowrap", fontFamily: MONO }}>{order}</td>
-                      <td style={{ ...td, padding: "7px 10px" }}>{who}</td>
+                      <td style={{ ...td, padding: "7px 10px" }}>
+                        <PersonLink name={who} />
+                      </td>
                       <td style={{ ...td, padding: "7px 10px" }}>{area}</td>
                       <td style={{ ...td, padding: "7px 10px", whiteSpace: "nowrap", fontFamily: MONO }}>{win}</td>
                       <td style={{ ...td, padding: "7px 10px", whiteSpace: "nowrap", fontFamily: MONO }}>{at}</td>
@@ -1075,7 +1103,9 @@ function RouteTable({
                   <td colSpan={9} style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
                       <Avatar d={g.d} />
-                      <b>{DRIVERS[g.d].full}</b>
+                      <b>
+                        <PersonLink name={DRIVERS[g.d].full} />
+                      </b>
                       <span style={{ color: "var(--mute)" }}>{DRIVERS[g.d].vehicle}</span>
                       <Tag tone={g.tag.tone}>{g.tag.label}</Tag>
                       <span style={{ flex: "1" }}></span>
@@ -1125,8 +1155,12 @@ function RouteTable({
                             {s.status.label}
                           </Tag>
                         </td>
-                        <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.order}</td>
-                        <td style={{ ...td, ...muted }}>{s.recipient}</td>
+                        <td style={{ ...td, whiteSpace: "nowrap", ...muted }}>
+                          <OrderLink id={s.order} />
+                        </td>
+                        <td style={{ ...td, ...muted }}>
+                          <PersonLink name={s.recipient} />
+                        </td>
                         <td style={{ ...td, ...muted }}>{s.area}</td>
                         <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.window}</td>
                         <td style={td}>
@@ -1149,7 +1183,9 @@ function RouteTable({
                         </td>
                         <td style={{ ...td, padding: "9px 14px" }}>
                           {s.done ? (
-                            <span style={{ color: "var(--mute)" }}>{DRIVERS[s.driver].name}</span>
+                            <span style={{ color: "var(--mute)" }}>
+                              <PersonLink name={DRIVERS[s.driver].full}>{DRIVERS[s.driver].name}</PersonLink>
+                            </span>
                           ) : (
                             <select
                               aria-label={`Driver for ${s.order}`}
@@ -1298,9 +1334,9 @@ export default function PlanBoard() {
     const active = id === view;
     return (
       <button
-        onClick={() => (id === "timeline" ? undefined : setView(id))}
+        type="button"
+        onClick={() => (id === "timeline" ? openSoon("Timeline view") : setView(id))}
         aria-pressed={active}
-        title={id === "timeline" ? "Timeline view is coming soon" : undefined}
         style={{
           font: "inherit",
           fontSize: "12px",
@@ -1363,9 +1399,9 @@ export default function PlanBoard() {
               </button>
             )}
             {f.ticketOpen && (
-              <a href="/console/approvals?t=HAM-417" style={btnPrimary}>
+              <Link href={ticketHref("HAM-417")} style={btnPrimary}>
                 Review HAM-417
-              </a>
+              </Link>
             )}
           </>
         ) : draftApproved ? (
@@ -1450,8 +1486,12 @@ export default function PlanBoard() {
                 animation: "hamFade .25s ease-out",
               }}
             >
-              <b style={{ color: "var(--warn)" }}>HAM-417 is waiting for you.</b>
-              <span>The Dispatch agent wants to move 3 of Jun&#39;s stops to Ana and Rico. {check(HAM_417).reason}</span>
+              <b style={{ color: "var(--warn)" }}>
+                <TicketLink id="HAM-417" /> is waiting for you.
+              </b>
+              <span>
+                The <AgentLink name="Dispatch agent" /> wants to move 3 of Jun&#39;s stops to Ana and Rico. {check(HAM_417).reason}
+              </span>
             </div>
           )}
           <section
@@ -1478,20 +1518,32 @@ export default function PlanBoard() {
             </div>
             <ul style={{ margin: "0", padding: "10px 14px 12px 32px", color: "var(--ink2)", lineHeight: "1.7" }}>
               <li>
-                <b>#1047 event arch</b> is oversized, so it stays on the only van (Jun).
+                <b>
+                  <OrderLink id="#1047" /> event arch
+                </b>{" "}
+                is oversized, so it stays on the only van (Jun).
               </li>
               <li>
-                <b>#1044 Ben Cruz</b> has 2 failed attempts on record. A confirmation message goes out before Ana is dispatched.
+                <b>
+                  <OrderLink id="#1044" /> <PersonLink name="Ben Cruz" />
+                </b>{" "}
+                has 2 failed attempts on record. A confirmation message goes out before Ana is dispatched.
               </li>
               <li>
-                <b>Rico</b> is new (3 weeks). He gets one compact Makati stop with clear access notes.
+                <b>
+                  <PersonLink name="Rico Santos">Rico</PersonLink>
+                </b>{" "}
+                is new (3 weeks). He gets one compact Makati stop with clear access notes.
               </li>
               <li>
                 <b>1 open slot</b> is left on Carlo&#39;s Quezon City afternoon for same-day orders (you average 1.4 a day). Released at
                 14:00 if unused.
               </li>
               <li>
-                <b>WA-0912</b> (WhatsApp) is in review. Approving it adds it to Rico&#39;s afternoon.
+                <b>
+                  <OrderLink id="WA-0912" />
+                </b>{" "}
+                (WhatsApp) is in review. Approving it adds it to Rico&#39;s afternoon.
               </li>
             </ul>
           </section>

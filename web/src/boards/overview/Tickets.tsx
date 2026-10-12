@@ -3,54 +3,81 @@ import { useRef, type ReactNode } from "react";
 import { useFlip } from "@/lib/flip";
 import { useScenarioFacts } from "@/lib/scenario";
 import { AgentWorking, minutesBetween } from "./ui";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ticketHref } from "@/lib/links";
+import { AgentLink, Chip, OrderLink, PersonLink, PolicyLink, TicketLink } from "@/components/Entity";
 
-function Ticket({ id, icon, title, meta, age, last }: { id: string; icon: ReactNode; title: string; meta: ReactNode; age: number; last?: boolean }) {
+function Ticket({
+  id,
+  icon,
+  title,
+  meta,
+  age,
+  last,
+}: {
+  id: string;
+  icon: ReactNode;
+  title: ReactNode;
+  meta: ReactNode;
+  age: number;
+  last?: boolean;
+}) {
+  const router = useRouter();
+  // The whole row opens the ticket; names, IDs and policies inside it open their own thing.
   return (
-    <a
-      href={ticketHref(id)}
+    <div
       data-flip={id}
       className="ham-in ham-ticket"
+      onClick={() => router.push(ticketHref(id))}
       style={{
         display: "grid",
         gridTemplateColumns: "16px 1fr auto",
-        gap: "4px 10px",
+        gap: "6px 10px",
         alignItems: "center",
         padding: "11px 14px",
         borderBottom: last ? undefined : "1px solid var(--line)",
-        textDecoration: "none",
-        color: "inherit",
+        cursor: "pointer",
       }}
     >
       {icon}
-      <span style={{ fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{title}</span>
-      <span
-        style={{
-          width: "20px",
-          height: "20px",
-          borderRadius: "99px",
-          background: "#344054",
-          color: "#fff",
-          fontSize: "9px",
-          fontWeight: 600,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-        title="Assigned to Maria"
-      >
-        MS
-      </span>
+      <span style={{ fontWeight: 500, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", minWidth: 0 }}>{title}</span>
+      <PersonLink name="Maria Santos">
+        <span
+          title="Assigned to Maria"
+          style={{
+            width: "20px",
+            height: "20px",
+            borderRadius: "99px",
+            background: "#344054",
+            color: "#fff",
+            fontSize: "9px",
+            fontWeight: 600,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            verticalAlign: "middle",
+          }}
+        >
+          MS
+        </span>
+      </PersonLink>
       <span />
-      <span style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>
+      <span className="ham-chips" style={{ fontSize: "12px", color: "var(--mute)" }}>
+        <TicketLink id={id} look="chip" />
         {meta}
       </span>
       <span style={{ fontSize: "12px", color: "var(--mute)", whiteSpace: "nowrap" }}>{age}m</span>
-    </a>
+    </div>
   );
 }
 
-const mono = { fontFamily: "'IBM Plex Mono', monospace" };
+/** Ticket title: the action opens the ticket, so it stays a real link for keyboard users. */
+const Title = ({ id, children }: { id: string; children: ReactNode }) => (
+  <Link href={ticketHref(id)} onClick={(e) => e.stopPropagation()} style={{ color: "inherit", textDecoration: "none" }}>
+    {children}
+  </Link>
+);
 
 export function OpenTickets() {
   const f = useScenarioFacts();
@@ -109,19 +136,22 @@ export function OpenTickets() {
               <path d="M8 4v5M8 11.5v.5" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
             </svg>
           }
-          title="Reassign 3 stops from Jun"
+          title={
+            <>
+              <Title id="HAM-417">Reassign 3 stops from</Title> <PersonLink name="Jun Reyes">Jun</PersonLink>
+            </>
+          }
           meta={
             <>
-              <span style={mono}>HAM-417</span>
-              <span>Dispatch</span>
-              <span style={{ color: "var(--warn)" }}>SLA {Math.max(0, SLA - age("10:33"))}m</span>
+              <AgentLink name="Dispatch agent" look="chip" />
+              <span style={{ color: "var(--warn)", whiteSpace: "nowrap" }}>Due in {Math.max(0, SLA - age("10:33"))}m</span>
             </>
           }
           age={age("10:33")}
         />
       )}
       <Ticket
-          id="HAM-414"
+        id="HAM-414"
         icon={
           <svg width="14" height="14" viewBox="0 0 16 16" aria-label="Medium priority" role="img">
             <rect x="1" y="9" width="3" height="5" rx="1" fill="#344054" />
@@ -129,18 +159,21 @@ export function OpenTickets() {
             <rect x="12" y="1" width="3" height="13" rx="1" fill="#D0D5DD" />
           </svg>
         }
-        title="Create order from WhatsApp · Rina Bautista"
-        meta={
+        title={
           <>
-            <span style={mono}>HAM-414</span>
-            <span>Intake</span>
-            <span>Address unclear</span>
+            <Title id="HAM-414">Create order from WhatsApp</Title> · <PersonLink name="Rina Bautista" />
           </>
         }
-        age={age("10:15")}
+        meta={
+          <>
+            <AgentLink name="Intake agent" look="chip" />
+            <Chip>Building unclear</Chip>
+          </>
+        }
+        age={age("09:58")}
       />
       <Ticket
-          id="HAM-416"
+        id="HAM-416"
         icon={
           <svg width="14" height="14" viewBox="0 0 16 16" aria-label="High priority" role="img">
             <rect x="1" y="9" width="3" height="5" rx="1" fill="#344054" />
@@ -148,12 +181,15 @@ export function OpenTickets() {
             <rect x="12" y="1" width="3" height="13" rx="1" fill="#344054" />
           </svg>
         }
-        title="Refund request · Paolo Lim #1045"
+        title={
+          <>
+            <Title id="HAM-416">Refund request</Title> · <PersonLink name="Paolo Lim" /> <OrderLink id="#1045" />
+          </>
+        }
         meta={
           <>
-            <span style={mono}>HAM-416</span>
-            <span>Escalated</span>
-            <span>Refunds never auto</span>
+            <Chip>Escalated</Chip>
+            <PolicyLink label="Refunds never auto" look="chip" />
           </>
         }
         age={age("10:27")}

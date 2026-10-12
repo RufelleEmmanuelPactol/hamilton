@@ -6,6 +6,11 @@ import { useState } from "react";
 import { useScenarioFacts, scenarioEvents } from "@/lib/scenario";
 import { openPalette, openPerson, openSoon, showToast } from "./Overlays";
 import { PEOPLE } from "@/lib/people";
+import { orderHref, ticketHref } from "@/lib/links";
+
+/** Where a notification about an agent event leads: its ticket or order, otherwise the audit log. */
+const refHref = (ref: string) => (ref.startsWith("HAM-") ? ticketHref(ref) : /^#\d+$/.test(ref) ? orderHref(ref) : "/console/audit");
+const agentLabel = (a: string) => (a === "Assurance agent" ? "Messages agent" : a);
 
 const groupLabel: React.CSSProperties = {
   fontSize: "11px",
@@ -242,8 +247,10 @@ function Nav() {
       <div
         style={{ marginTop: "auto", borderTop: "1px solid var(--line)", padding: "12px 10px 4px", fontSize: "12px", color: "var(--mute)" }}
       >
-        <div>4 drivers · 13 orders today</div>
-        <div>Plan published 7:52</div>
+        <div>4 drivers · {f.totalOrders} orders today</div>
+        <Link href="/console/dispatch" style={{ color: "inherit", textDecoration: "none" }}>
+          Plan published 7:52
+        </Link>
       </div>
     </nav>
   );
@@ -287,10 +294,10 @@ function Bell() {
   const [seen, setSeen] = useState(0);
   const events = scenarioEvents(f.phase, f.notifyCustomers).slice(0, 4);
   const items: { title: string; sub: string; href: string; tone: string }[] = [
-    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/console/approvals?t=HAM-417", tone: "var(--warn)" }] : []),
-    ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/console/audit", tone: "var(--brand)" })),
-    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · #1045", href: "/console/approvals?t=HAM-416", tone: "var(--err)" },
-    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/console/approvals?t=HAM-414", tone: "var(--warn)" },
+    ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: ticketHref("HAM-417"), tone: "var(--warn)" }] : []),
+    ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${agentLabel(e.agent)}`, href: refHref(e.ref), tone: "var(--brand)" })),
+    { title: "HAM-416 waiting on you", sub: "Refund request from Paolo Lim, Café Morato · #1045", href: ticketHref("HAM-416"), tone: "var(--err)" },
+    { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: ticketHref("HAM-414"), tone: "var(--warn)" },
   ];
   const unread = Math.max(items.length - seen, 0);
   return (

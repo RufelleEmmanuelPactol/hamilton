@@ -5,6 +5,9 @@ import { orderHref, ticketHref } from "@/lib/links";
 import { Fragment, useMemo, useState } from "react";
 import { useScenarioFacts, scenarioEvents, type AuditEvent } from "@/lib/scenario";
 import { check, HAM_417 } from "@/lib/policy";
+import Link from "next/link";
+import { OrderLink, PersonLink, PolicyLink, TicketLink } from "@/components/Entity";
+import { linkify } from "./overview/ui";
 
 type Outcome = "Ran alone" | "Asked you" | "Blocked by policy" | "Observed" | "Approved by Maria" | "Rejected by Maria";
 
@@ -93,7 +96,7 @@ const SEED: Row[] = [
   {
     id: "seed-414",
     time: "09:58",
-    event: "Created order draft from WhatsApp message (building unclear)",
+    event: "Created order draft for Rina Bautista from WhatsApp (building unclear)",
     agent: "Intake",
     outcome: "Asked you",
     policy: "Turn WhatsApp and email requests into orders",
@@ -135,7 +138,7 @@ const OUTCOME_OF: Record<AuditEvent["outcome"], Outcome> = {
 };
 const AGENT_OF: Record<string, string> = {
   "Dispatch agent": "Dispatch",
-  "Assurance agent": "Messages",
+  
   "Driver app": "Driver app",
   "Maria Santos": "Maria",
 };
@@ -168,6 +171,26 @@ function toRow(e: AuditEvent, i: number): Row {
       link: isProposal ? { label: "Open ticket", href: ticketHref("HAM-417") } : undefined,
     },
   };
+}
+
+/** The Ref cell: tickets, orders (one or several) and people open their own thing; anything else is a plain link. */
+function RefLinks({ r }: { r: Row }) {
+  const parts = r.ref.split(" ");
+  if (r.ref.startsWith("HAM-")) return <TicketLink id={r.ref} />;
+  if (parts.every((x) => x.startsWith("#")))
+    return (
+      <span style={{ display: "inline-flex", gap: "6px" }}>
+        {parts.map((x) => (
+          <OrderLink key={x} id={x} />
+        ))}
+      </span>
+    );
+  if (r.ref === "Jun Reyes") return <PersonLink name={r.ref} />;
+  return (
+    <Link href={r.href} className="ham-ent" onClick={(e) => e.stopPropagation()}>
+      {r.ref}
+    </Link>
+  );
 }
 
 const PILL: Record<Outcome, React.CSSProperties> = {
@@ -532,39 +555,51 @@ export default function ActivityBoard() {
                         {r.time}
                       </td>
                       <td style={{ ...td, fontWeight: "500" }}>
-                        {r.detail ? (
+                        {linkify(r.event, { agents: false })}
+                        {r.detail && (
                           <button
                             aria-expanded={isOpen}
+                            aria-label={isOpen ? "Hide details" : "Show details"}
                             onClick={(e) => {
                               e.stopPropagation();
                               setExpanded(isOpen ? null : r.id);
                             }}
                             style={{
                               font: "inherit",
-                              fontWeight: "500",
-                              color: "inherit",
+                              color: "var(--mute)",
                               background: "none",
                               border: "0",
-                              padding: "0",
-                              textAlign: "left",
+                              padding: "0 2px",
+                              marginLeft: "6px",
                               cursor: "pointer",
                               display: "inline-flex",
-                              alignItems: "center",
-                              gap: "6px",
+                              verticalAlign: "middle",
+                              transform: isOpen ? "rotate(180deg)" : undefined,
                             }}
                           >
-                            {r.event}
-                            <span
-                              style={{ display: "inline-flex", color: "var(--mute)", transform: isOpen ? "rotate(180deg)" : undefined }}
-                            >
-                              <Chevron />
-                            </span>
+                            <Chevron />
                           </button>
-                        ) : (
-                          r.event
                         )}
                       </td>
-                      <td style={{ ...td, color: "var(--ink2)", whiteSpace: "nowrap" }}>{r.agent}</td>
+                      <td style={{ ...td, color: "var(--ink2)", whiteSpace: "nowrap" }}>
+                        {r.agent === "Maria" ? (
+                          <PersonLink name="Maria Santos">Maria</PersonLink>
+                        ) : r.agent === "Driver app" ? (
+                          r.agent
+                        ) : (
+                          <button
+                            type="button"
+                            className="ham-ent"
+                            title={`Show only the ${r.agent} agent`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setAgent(agent === r.agent ? "All" : r.agent);
+                            }}
+                          >
+                            {r.agent}
+                          </button>
+                        )}
+                      </td>
                       <td style={td}>
                         <span
                           style={{
@@ -579,7 +614,7 @@ export default function ActivityBoard() {
                           {r.outcome}
                         </span>
                       </td>
-                      <td style={{ ...td, color: "var(--ink2)" }}>{r.policy}</td>
+                      <td style={{ ...td, color: "var(--ink2)" }}>{r.policy === "—" ? r.policy : <PolicyLink label={r.policy} />}</td>
                       <td
                         style={{
                           ...td,
@@ -589,9 +624,7 @@ export default function ActivityBoard() {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        <a href={r.href} onClick={(e) => e.stopPropagation()} style={{ color: "var(--brandInk)", textDecoration: "none" }}>
-                          {r.ref}
-                        </a>
+                        <RefLinks r={r} />
                       </td>
                     </tr>
                     {isOpen && r.detail && (
@@ -619,8 +652,8 @@ export default function ActivityBoard() {
                             ).map(([k, main, sub]) => (
                               <div key={k}>
                                 <div style={label}>{k}</div>
-                                <div style={{ marginTop: "4px", color: "var(--ink2)" }}>{main}</div>
-                                {sub && <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>{sub}</div>}
+                                <div style={{ marginTop: "4px", color: "var(--ink2)" }}>{linkify(main, { agents: false })}</div>
+                                {sub && <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>{linkify(sub, { agents: false })}</div>}
                               </div>
                             ))}
                           </div>

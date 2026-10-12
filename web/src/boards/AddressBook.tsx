@@ -1,8 +1,10 @@
 "use client";
 // Converted from design/project/AddressBook.dc.html, then wired: Ben's reply (10:40) only exists after 10:30,
 // notes and the AI guidance Edit are local (not saved).
-import { useState } from "react";
+import { useRef, useState } from "react";
+import Link from "next/link";
 import { useScenarioFacts } from "@/lib/scenario";
+import { AgentLink, OrderLink, PersonLink, PolicyLink } from "@/components/Entity";
 
 const GUIDANCE_BEFORE = ["Message on WhatsApp before dispatch.", "If missed again, ask for a safe-drop person."];
 const GUIDANCE_AFTER = [
@@ -19,6 +21,7 @@ export default function AddressBookBoard() {
   const [draftGuidance, setDraftGuidance] = useState("");
   const [note, setNote] = useState("");
   const [notes, setNotes] = useState<{ time: string; text: string }[]>([]);
+  const noteRef = useRef<HTMLInputElement>(null);
   const guidance = edited !== null ? edited.split("\n").filter((l) => l.trim()) : replied ? GUIDANCE_AFTER : GUIDANCE_BEFORE;
   const startEdit = () => {
     setDraftGuidance(guidance.join("\n"));
@@ -48,15 +51,20 @@ export default function AddressBookBoard() {
           {" "}
           <div style={{ padding: "18px 18px 14px", borderBottom: "1px solid var(--line)" }}>
             {" "}
-            <a
-              href="/console/addresses"
+            <button
+              type="button"
               style={{
+                font: "inherit",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "4px",
                 fontSize: "12px",
                 fontWeight: "500",
-                textDecoration: "none",
+                color: "var(--brandInk)",
+                background: "none",
+                border: 0,
+                padding: 0,
+                cursor: "pointer",
                 marginBottom: "12px",
               }}
             >
@@ -64,7 +72,7 @@ export default function AddressBookBoard() {
                 <path d="M15 6l-6 6 6 6" />
               </svg>
               All addresses
-            </a>{" "}
+            </button>{" "}
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               {" "}
               <span
@@ -85,7 +93,9 @@ export default function AddressBookBoard() {
               </span>{" "}
               <div>
                 <h1 style={{ margin: "0", fontSize: "17px", fontWeight: "600" }}>Cruz home</h1>
-                <div style={{ color: "var(--mute)" }}>Ben Cruz · Residential</div>
+                <div style={{ color: "var(--mute)" }}>
+                  <PersonLink name="Ben Cruz" /> · Residential
+                </div>
               </div>{" "}
             </div>{" "}
             <div style={{ display: "flex", gap: "6px", marginTop: "12px", flexWrap: "wrap" }}>
@@ -135,18 +145,16 @@ export default function AddressBookBoard() {
               }}
             >
               {" "}
-              <button
+              <Link
+                href="/console/messages"
                 style={{
-                  font: "inherit",
                   fontSize: "11px",
                   color: "var(--ink2)",
-                  background: "none",
-                  border: "0",
+                  textDecoration: "none",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: "4px",
-                  cursor: "pointer",
                 }}
               >
                 <span
@@ -165,19 +173,17 @@ export default function AddressBookBoard() {
                   </svg>
                 </span>
                 Message
-              </button>{" "}
-              <button
+              </Link>{" "}
+              <a
+                href="tel:+639172221044"
                 style={{
-                  font: "inherit",
                   fontSize: "11px",
                   color: "var(--ink2)",
-                  background: "none",
-                  border: "0",
+                  textDecoration: "none",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   gap: "4px",
-                  cursor: "pointer",
                 }}
               >
                 <span
@@ -196,8 +202,9 @@ export default function AddressBookBoard() {
                   </svg>
                 </span>
                 Call
-              </button>{" "}
+              </a>{" "}
               <button
+                type="button"
                 style={{
                   font: "inherit",
                   fontSize: "11px",
@@ -229,6 +236,8 @@ export default function AddressBookBoard() {
                 Order
               </button>{" "}
               <button
+                type="button"
+                onClick={() => noteRef.current?.focus()}
                 style={{
                   font: "inherit",
                   fontSize: "11px",
@@ -286,7 +295,9 @@ export default function AddressBookBoard() {
               </div>{" "}
               <div>
                 <dt style={{ fontSize: "12px", color: "var(--mute)" }}>Primary contact</dt>
-                <dd style={{ margin: "2px 0 0" }}>Ben Cruz · +63 917 222 1004</dd>
+                <dd style={{ margin: "2px 0 0" }}>
+                  <PersonLink name="Ben Cruz" /> · +63 917 222 1044
+                </dd>
               </div>{" "}
               <div>
                 <dt style={{ fontSize: "12px", color: "var(--mute)" }}>Best delivery time</dt>
@@ -372,6 +383,7 @@ export default function AddressBookBoard() {
             <button
               role="tab"
               aria-selected="true"
+              onClick={() => undefined}
               style={{
                 font: "inherit",
                 fontWeight: "600",
@@ -444,6 +456,7 @@ export default function AddressBookBoard() {
               }}
             >
               <input
+                ref={noteRef}
                 aria-label="Add a note"
                 placeholder="Add a note about this address…"
                 value={note}
@@ -507,7 +520,10 @@ export default function AddressBookBoard() {
                   </span>
                   <div style={{ flex: "1" }}>
                     <div>
-                      <b>Maria Santos</b> added a note
+                      <b>
+                        <PersonLink name="Maria Santos" />
+                      </b>{" "}
+                      added a note
                     </div>
                     <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "2px" }}>{n.text}</div>
                   </div>
@@ -544,10 +560,13 @@ export default function AddressBookBoard() {
                     </span>
                     <div style={{ flex: "1" }}>
                       <div>
-                        <b>Assurance agent</b> updated <b>Best delivery time</b> to weekdays after 15:00
+                        <b>
+                          <AgentLink name="Messages agent" />
+                        </b>{" "}
+                        updated <b>Best delivery time</b> to weekdays after 15:00
                       </div>
                       <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
-                        From reply &#34;wala pa ako sa bahay, after 3pm pa po&#34; · policy: save memory (Auto)
+                        From reply &#34;wala pa ako sa bahay, after 3pm pa po&#34; · Policy: <PolicyLink label="Record what was learned" /> (Auto)
                       </div>
                     </div>
                     <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
@@ -573,10 +592,14 @@ export default function AddressBookBoard() {
                     </span>
                     <div style={{ flex: "1" }}>
                       <div>
-                        Order <b>#1044</b> rescheduled 11:00–15:00 → <b>15:00–17:00</b>
+                        Order{" "}
+                        <b>
+                          <OrderLink id="#1044" />
+                        </b>{" "}
+                        rescheduled 11:00–15:00 → <b>15:00–17:00</b>
                       </div>
                       <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
-                        Driver: Ana Villanueva · route re-sequenced
+                        Driver: <PersonLink name="Ana Villanueva" /> · route re-sequenced
                       </div>
                     </div>
                     <span style={{ fontSize: "12px", color: "var(--mute)" }}>10:41</span>
@@ -603,19 +626,27 @@ export default function AddressBookBoard() {
                 </span>
                 <div style={{ flex: "1" }}>
                   <div>
-                    {replied
-                      ? "WhatsApp pre-confirmation sent, Ben replied in 88 min"
-                      : "WhatsApp pre-confirmation sent, waiting for Ben's reply"}
+                    {replied ? (
+                      <>
+                        WhatsApp pre-confirmation sent, <PersonLink name="Ben Cruz">Ben</PersonLink> replied in 88 min
+                      </>
+                    ) : (
+                      <>
+                        WhatsApp pre-confirmation sent, waiting for <PersonLink name="Ben Cruz">Ben</PersonLink>&#39;s reply
+                      </>
+                    )}
                   </div>
-                  <a href="/console/messages" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
+                  <Link href="/console/messages" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
                     View conversation
-                  </a>
+                  </Link>
                 </div>
                 <span style={{ fontSize: "12px", color: "var(--mute)" }}>09:12</span>
               </div>{" "}
             </div>{" "}
             <div
+              id="history"
               style={{
+                scrollMarginTop: "16px",
                 fontSize: "11px",
                 fontWeight: "600",
                 letterSpacing: "0.04em",
@@ -649,7 +680,9 @@ export default function AddressBookBoard() {
                   <div>
                     Order <b>#0972</b> delivered on retry, 16:20
                   </div>
-                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Received by Ben · proof verified</div>
+                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                    Received by <PersonLink name="Ben Cruz">Ben</PersonLink> · proof verified
+                  </div>
                 </div>
                 <span style={{ fontSize: "12px", color: "var(--mute)" }}>14 Sep</span>
               </div>{" "}
@@ -675,7 +708,9 @@ export default function AddressBookBoard() {
                   <div>
                     Order <b>#0972</b> failed, nobody home, no answer
                   </div>
-                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Attempt 1 at 11:05 · Driver: Carlo</div>
+                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                    Attempt 1 at 11:05 · Driver: <PersonLink name="Carlo Mendoza">Carlo</PersonLink>
+                  </div>
                 </div>
                 <span style={{ fontSize: "12px", color: "var(--mute)" }}>14 Sep</span>
               </div>{" "}
@@ -715,7 +750,9 @@ export default function AddressBookBoard() {
                   <div>
                     Order <b>#0881</b> failed, nobody home
                   </div>
-                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>10:40 · refunded ₱1,450 by Maria</div>
+                  <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>
+                    10:40 · refunded ₱1,450 by <PersonLink name="Maria Santos">Maria</PersonLink>
+                  </div>
                 </div>
                 <span style={{ fontSize: "12px", color: "var(--mute)" }}>12 Aug</span>
               </div>{" "}
@@ -742,7 +779,9 @@ export default function AddressBookBoard() {
             </div>{" "}
             <div style={{ border: "1px solid var(--line)", borderRadius: "6px", padding: "8px 10px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: "12px", color: "var(--mute)" }}>#1044</span>
+                <span style={{ fontSize: "12px", color: "var(--mute)" }}>
+                  <OrderLink id="#1044" />
+                </span>
                 <span
                   style={{
                     fontSize: "11px",
@@ -758,7 +797,7 @@ export default function AddressBookBoard() {
               </div>
               <div style={{ fontWeight: "500", marginTop: "4px" }}>Sunflower bundle</div>
               <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                {replied ? "Today 15:00–17:00 · Ana" : "Today 11:00–15:00 · Ana"}
+                {replied ? "Today 15:00–17:00" : "Today 11:00–15:00"} · <PersonLink name="Ana Villanueva">Ana</PersonLink>
               </div>
             </div>{" "}
           </div>{" "}
@@ -782,7 +821,9 @@ export default function AddressBookBoard() {
               >
                 CM
               </span>
-              <span style={{ flex: "1" }}>Carlo Mendoza</span>
+              <span style={{ flex: "1" }}>
+                <PersonLink name="Carlo Mendoza" />
+              </span>
               <span style={{ fontSize: "12px", color: "var(--mute)" }}>3 visits</span>
             </div>{" "}
             <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "4px 0" }}>
@@ -802,7 +843,9 @@ export default function AddressBookBoard() {
               >
                 AV
               </span>
-              <span style={{ flex: "1" }}>Ana Villanueva</span>
+              <span style={{ flex: "1" }}>
+                <PersonLink name="Ana Villanueva" />
+              </span>
               <span style={{ fontSize: "12px", color: "var(--mute)" }}>1 visit</span>
             </div>{" "}
           </div>{" "}
@@ -877,7 +920,9 @@ export default function AddressBookBoard() {
               >
                 {edited !== null ? (
                   <>
-                    <span style={{ color: "var(--ink)", fontWeight: "500" }}>Edited by Maria</span> at {facts.clock} · overrides the summary{" "}
+                    <span style={{ color: "var(--ink)", fontWeight: "500" }}>
+                      Edited by <PersonLink name="Maria Santos">Maria</PersonLink>
+                    </span> at {facts.clock} · overrides the summary{" "}
                     <button
                       onClick={() => setEdited(null)}
                       style={{
@@ -895,24 +940,24 @@ export default function AddressBookBoard() {
                 ) : (
                   <>
                     <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
-                    <a href="/console/addresses" style={{ textDecoration: "none" }}>
+                    <a href="#history" style={{ textDecoration: "none" }}>
                       2 failed attempts
                     </a>
                     ,{" "}
-                    <a href="/console/messages" style={{ textDecoration: "none" }}>
+                    <Link href="/console/messages" style={{ textDecoration: "none" }}>
                       {replied ? "3 WhatsApp replies" : "2 WhatsApp replies"}
-                    </a>{" "}
+                    </Link>{" "}
                     and{" "}
-                    <a href="/console/drivers" style={{ textDecoration: "none" }}>
+                    <Link href="/console/drivers" style={{ textDecoration: "none" }}>
                       1 driver note
-                    </a>{" "}
+                    </Link>{" "}
                     · updated today {replied ? "10:41" : "09:12"}
                   </>
                 )}
               </div>
             </div>
             <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px" }}>
-              Used by the Dispatch and Messages agents
+              Used by the <AgentLink name="Dispatch agent" /> and <AgentLink name="Messages agent" />
             </div>{" "}
           </div>{" "}
         </aside>{" "}

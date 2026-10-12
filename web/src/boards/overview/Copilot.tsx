@@ -3,7 +3,8 @@ import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 
 import { useScenario, type Phase } from "@/lib/store";
 import { useScenarioFacts } from "@/lib/scenario";
 import { check, HAM_417 } from "@/lib/policy";
-import { AgentWorking, btnPrimary, btnSecondary, Sparkle, Tag } from "./ui";
+import { AgentWorking, btnPrimary, btnSecondary, linkify, Sparkle, Tag } from "./ui";
+import { AgentLink, OrderLink, PersonLink, TicketLink } from "@/components/Entity";
 
 /*
  * The copilot is scripted: no model is called. Chips and the text box append canned answers
@@ -118,7 +119,7 @@ const check14 = (
 /* ---------- answers ---------- */
 
 function greeting(phase: Phase, thinking: boolean) {
-  const start = "Morning Maria. Plan went out at 7:52.";
+  const start = "Plan went out at 7:52.";
   switch (phase) {
     case "before":
       return `${start} All 4 drivers are on time.`;
@@ -133,7 +134,7 @@ function greeting(phase: Phase, thinking: boolean) {
   }
 }
 
-function RiskRow({ order, eta, where, last }: { order: string; eta: string; where: string; last?: boolean }) {
+function RiskRow({ order, customer, eta, where, last }: { order: string; customer: string; eta: string; where: string; last?: boolean }) {
   return (
     <div
       style={{
@@ -144,10 +145,14 @@ function RiskRow({ order, eta, where, last }: { order: string; eta: string; wher
         borderBottom: last ? undefined : "1px solid var(--line)",
       }}
     >
-      <span style={{ fontWeight: 600 }}>{order}</span>
+      <span style={{ fontWeight: 600 }}>
+        <OrderLink id={order} /> <PersonLink name={customer} />
+      </span>
       <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--warn)", whiteSpace: "nowrap" }}>ETA {eta}</span>
       <span style={{ fontSize: "12px", color: "var(--mute)" }}>{where} · window ends 13:00</span>
-      <span style={{ fontSize: "12px", color: "var(--mute)" }}>Jun</span>
+      <span style={{ fontSize: "12px", color: "var(--mute)", textAlign: "right" }}>
+        <PersonLink name="Jun Reyes">Jun</PersonLink>
+      </span>
     </div>
   );
 }
@@ -158,24 +163,26 @@ function RiskAnswer({ phase, intro, actions }: { phase: Phase; intro?: string; a
       <Bot>
         {phase === "before"
           ? "Nothing right now. All 13 deliveries are on track for their windows."
-          : "Nothing right now. With Ana and Rico's new routes, every delivery lands inside its window."}
+          : linkify("Nothing right now. With Ana and Rico's new routes, every delivery lands inside its window.")}
       </Bot>
     );
   }
   return (
     <>
       <Bot>
-        {intro ??
-          (phase === "rejected"
-            ? "Two deliveries will be late. They stay with Jun, and both customers got an apology:"
-            : "Two deliveries, both on Jun's stalled route:")}
+        {linkify(
+          intro ??
+            (phase === "rejected"
+              ? "Two deliveries will be late. They stay with Jun, and both customers got an apology:"
+              : "Two deliveries, both on Jun's stalled route:"),
+        )}
       </Bot>
       <div className="ham-in" style={card}>
         <div style={{ padding: "9px 12px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: "8px" }}>
           <span style={{ fontWeight: 600, flex: "1" }}>At-risk deliveries (2)</span>
         </div>
-        <RiskRow order="#1042 Mark Tan" eta="13:40" where="Uptown BGC" />
-        <RiskRow order="#1049 Sam Ocampo" eta="13:55" where="Rockwell" last={!actions} />
+        <RiskRow order="#1042" customer="Mark Tan" eta="13:40" where="Uptown BGC" />
+        <RiskRow order="#1049" customer="Sam Ocampo" eta="13:55" where="Rockwell" last={!actions} />
         {actions && <div style={{ padding: "9px 12px", display: "flex", gap: "6px", alignItems: "center" }}>{actions}</div>}
       </div>
     </>
@@ -199,16 +206,16 @@ function DecisionResult({ phase, notify }: { phase: Phase; notify: boolean }) {
       >
         <div style={{ fontWeight: 600 }}>{notify ? "3 stops moved · 3 customers notified" : "3 stops moved · customers not notified"}</div>
         <div style={{ fontSize: "12px", marginTop: "2px", color: "#085D3A" }}>
-          Ana and Rico have new routes. Both at-risk windows now land on time.
+          {linkify("Ana and Rico have new routes. Both at-risk windows now land on time.")}
         </div>
       </div>
     );
   if (phase === "rejected")
     return (
       <div className="ham-in" style={{ ...card, padding: "10px 12px" }}>
-        <div style={{ fontWeight: 600 }}>Jun keeps his 3 stops</div>
+        <div style={{ fontWeight: 600 }}>{linkify("Jun keeps his 3 stops")}</div>
         <div style={{ fontSize: "12px", marginTop: "2px", color: "var(--ink2)" }}>
-          #1042 and #1049 will be late. Both customers got an apology on WhatsApp.
+          {linkify("#1042 and #1049 will be late. Both customers got an apology on WhatsApp.")}
         </div>
       </div>
     );
@@ -220,7 +227,9 @@ function DecisionLine({ phase }: { phase: Phase }) {
     return (
       <div style={{ padding: "9px 12px", display: "flex", alignItems: "center", gap: "6px", color: "var(--ok)", fontWeight: 600 }}>
         {check14}
-        Approved by Maria
+        <span>
+          Approved by <PersonLink name="Maria Santos">Maria</PersonLink>
+        </span>
         <span style={{ marginLeft: "auto", fontWeight: 400, fontSize: "12px", color: "var(--mute)" }}>10:44</span>
       </div>
     );
@@ -230,7 +239,9 @@ function DecisionLine({ phase }: { phase: Phase }) {
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
           <path d="M6 6l12 12M18 6L6 18" />
         </svg>
-        Rejected by Maria
+        <span>
+          Rejected by <PersonLink name="Maria Santos">Maria</PersonLink>
+        </span>
         <span style={{ marginLeft: "auto", fontWeight: 400, fontSize: "12px", color: "var(--mute)" }}>10:44</span>
       </div>
     );
@@ -242,11 +253,17 @@ function Proposal() {
   const approve = useScenario((s) => s.approve);
   const reject = useScenario((s) => s.reject);
   const verdict = check(HAM_417);
-  const row = (order: string, to: string, eta: string) => (
+  const row = (order: string, customer: string, to: string, eta: string) => (
     <div style={{ display: "flex", justifyContent: "space-between", gap: "8px" }}>
-      <span>{order}</span>
+      <span>
+        <OrderLink id={order} /> <PersonLink name={customer} />
+      </span>
       <span style={{ color: "var(--ink2)", whiteSpace: "nowrap" }}>
-        Jun → <b>{to}</b> · {eta}
+        {linkify("Jun")} →{" "}
+        <b>
+          {linkify(to)}
+        </b>{" "}
+        · {eta}
       </span>
     </div>
   );
@@ -255,17 +272,24 @@ function Proposal() {
       <div className="ham-in" style={card}>
         <div style={{ padding: "9px 12px", borderBottom: "1px solid var(--line)", display: "flex", alignItems: "center", gap: "8px" }}>
           <span style={{ fontWeight: 600, flex: "1" }}>Proposed reassignment</span>
-          <span style={{ fontSize: "11px", color: "var(--mute)", fontFamily: "'IBM Plex Mono', monospace" }}>HAM-417</span>
+          <span style={{ fontSize: "11px", color: "var(--mute)" }}>
+            <TicketLink id="HAM-417" />
+          </span>
         </div>
         <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: "6px", borderBottom: "1px solid var(--line)" }}>
-          {row("#1042 Mark Tan", "Ana", "12:15")}
-          {row("#1050 Nicole Ramos", "Ana", "12:40")}
-          {row("#1049 Sam Ocampo", "Rico", "11:05")}
+          {row("#1042", "Mark Tan", "Ana", "12:15")}
+          {row("#1050", "Nicole Ramos", "Ana", "12:40")}
+          {row("#1049", "Sam Ocampo", "Rico", "11:05")}
         </div>
         <div style={{ padding: "8px 12px", fontSize: "12px", color: "var(--mute)", borderBottom: "1px solid var(--line)" }}>
           {f.phase === "incident" ? "Needs approval" : "Held by policy"}: {verdict.reason}{" "}
           {f.phase === "incident" && (f.notifyCustomers ? "Customers are notified on approval." : "Customers won't be notified.")}
-          <Sources>Auto-generated by the Dispatch agent from Jun&#39;s report and live ETAs</Sources>
+          <Sources>
+            <span>
+              Auto-generated by the <AgentLink name="Dispatch agent" /> from <PersonLink name="Jun Reyes">Jun</PersonLink>&#39;s report and
+              live ETAs
+            </span>
+          </Sources>
         </div>
         {f.ticketOpen && (
           <div style={{ padding: "9px 12px", display: "flex", gap: "6px" }}>
@@ -309,7 +333,9 @@ function Carlo() {
           CM
         </span>
         <div style={{ flex: "1", minWidth: 0 }}>
-          <div style={{ fontWeight: 600 }}>Carlo Mendoza</div>
+          <div style={{ fontWeight: 600 }}>
+            <PersonLink name="Carlo Mendoza" />
+          </div>
           <div style={{ fontSize: "12px", color: "var(--mute)" }}>Katipunan Ave · moving 24 km/h</div>
         </div>
         <Tag tone="info">En route</Tag>
@@ -320,7 +346,9 @@ function Carlo() {
         </div>
         <span style={{ color: "var(--ink2)", whiteSpace: "nowrap" }}>2/4 done</span>
       </div>
-      <div style={{ fontSize: "12px", color: "var(--ink2)" }}>Next: #1051 Prof. Diaz, UP Diliman · ETA 11:05 · on time</div>
+      <div style={{ fontSize: "12px", color: "var(--ink2)" }}>
+        Next: <OrderLink id="#1051" /> Prof. Diaz, UP Diliman · ETA 11:05 · on time
+      </div>
       <div style={{ display: "flex", gap: "6px" }}>
         <a href="/console/drivers" style={{ fontWeight: 500, textDecoration: "none" }}>
           Profile
@@ -356,7 +384,7 @@ function Summary({ phase, approvals, atRisk }: { phase: Phase; approvals: number
   return (
     <>
       <Bot>
-        {line}
+        {linkify(line)}
         <Sources>Auto-generated from today&#39;s routes and tickets</Sources>
       </Bot>
       <div className="ham-in" style={{ ...card, display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))" }}>
@@ -438,7 +466,7 @@ export function Copilot() {
   const render = (e: Entry) => {
     switch (e.k) {
       case "greet":
-        return <Bot key={e.id}>{greeting(e.phase, f.thinking)}</Bot>;
+        return <Bot key={e.id}>Morning Maria. {linkify(greeting(e.phase, f.thinking))}</Bot>;
       case "user":
         return <User key={e.id}>{e.text}</User>;
       case "risk":
@@ -461,7 +489,7 @@ export function Copilot() {
           <div key={e.id} style={{ display: "contents" }}>
             <div className="ham-in" style={card}>
               <div style={{ padding: "9px 12px", borderBottom: "1px solid var(--line)", fontWeight: 600 }}>
-                HAM-417 · Reassign 3 stops from Jun
+                <TicketLink id="HAM-417" /> · Reassign 3 stops from <PersonLink name="Jun Reyes">Jun</PersonLink>
               </div>
               <DecisionLine phase={f.phase} />
             </div>
@@ -475,7 +503,7 @@ export function Copilot() {
       case "fallback":
         return (
           <Bot key={e.id}>
-            In this demo I can answer: <b>What&#39;s at risk?</b>, <b>Where&#39;s Carlo?</b> and <b>Summarize today</b>.
+            Try <b>What&#39;s at risk?</b>, <b>Where&#39;s Carlo?</b> or <b>Summarize today</b>.
           </Bot>
         );
     }

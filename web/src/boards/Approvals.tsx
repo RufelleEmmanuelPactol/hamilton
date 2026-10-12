@@ -176,14 +176,14 @@ const TICKETS: Record<TicketId, { tag: [Tone, string]; agent: string; created: s
   },
   "HAM-414": {
     tag: ["warn", "Medium"],
-    agent: "Dispatch agent",
+    agent: "Intake agent",
     created: "09:58",
     title: "Create order WA-0912 from WhatsApp",
     sub: "Building in Makati unclear",
   },
   "HAM-416": {
     tag: ["neutral", "Escalated"],
-    agent: "Assurance agent",
+    agent: "Messages agent",
     created: "10:27",
     title: "Refund request · Paolo Lim #1045",
     sub: "Blocked by policy: refunds are never automated",
@@ -685,7 +685,7 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
       <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
         <TicketMeta
           id="HAM-414"
-          agent="Dispatch agent"
+          agent="Intake agent"
           created="09:58"
           clock={clock}
           policy="Orders from messages"
@@ -864,7 +864,7 @@ function Ham416Detail(p: {
       <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
         <TicketMeta
           id="HAM-416"
-          agent="Assurance agent"
+          agent="Messages agent"
           created="10:27"
           clock={clock}
           policy={verdict.policy.label}
@@ -960,7 +960,7 @@ function Ham416Detail(p: {
       </div>
       <div style={section}>
         <div style={{ fontWeight: "600", marginBottom: "2px" }}>Options</div>
-        <div style={{ fontSize: "12px", color: "var(--mute)", marginBottom: "8px" }}>Ranked by the Assurance agent</div>
+        <div style={{ fontSize: "12px", color: "var(--mute)", marginBottom: "8px" }}>Ranked by the Messages agent</div>
         <div role="radiogroup" aria-label="Options" style={{ border: "1px solid var(--line)", borderRadius: "6px" }}>
           {OPTIONS.map((o, i) => {
             const on = (recorded ?? pick) === o.id;
