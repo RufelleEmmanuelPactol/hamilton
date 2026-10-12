@@ -29,7 +29,7 @@ _Last updated: Mon 12 Oct 2026. See §9 for the session log and the agreed deliv
 |---|---|
 | Product roadmap | ✅ `docs/roadmap.md` |
 | Top 3 agentic functions | ✅ `README.md`, `docs/scope.md` |
-| Scoping pack (PPT) | ❌ **Not started** |
+| Scoping pack (PPT) | ❌ **Not started**. It now lives inside the website (§9.2). |
 | Basic interactive prototype | 🟡 The Claude Design canvas is clickable. The coded website is not started (plan in §9.2). |
 | GitHub repo | ✅ Pushed on Mon 12 Oct to branch `claude/funny-gates-6b2di5` (see §6) |
 
@@ -105,10 +105,9 @@ The old Tangerine V2 tokens were removed from the repo. The owner's original Tan
 
 ## 7. Open work, in priority order
 
-1. **Scoping pack (PPT).** Problem → users → top 3 agents → autonomy model → architecture (Decisions API + Claude) → roadmap → risks → metrics. Reuse the canvas screenshots. It must be an actual .pptx, because the brief names the format.
-2. **Coded website prototype:** the flat-tire flow, per the plan in §9.2.
-3. **Share the canvas link** with the recruiter. The owner has to do this from their account.
-4. **Submission email:** links to the deck, the website, the repo and the walkthrough video.
+1. **The website: the only thing handed off** (owner's decision, 12 Oct). Build the flat-tire demo per §9.2, along with the case-study pages that cover the brief's other items.
+2. **Scoping pack content:** problem → users → top 3 agents → autonomy model → architecture (Decisions API + Claude) → roadmap → risks → metrics. It lives inside the website (§9.2). Whether there's also a downloadable .pptx is still open.
+3. **Share the canvas link** (optional; the owner does this from their account).
 5. **Canvas polish backlog:**
    - Orders kanban cards don't use HAM IDs yet.
    - The Overview map and tracker numbers don't exactly match the Dispatch table (sample data drift).
@@ -145,14 +144,19 @@ prototype-legacy/    early Next.js prototype (reference only)
   - be realistic about uncertainty (e.g. tire-repair time shown as a range from the driver's estimate plus history)
 - Answered: "how do we handle damage claims?" The answer is the flow in §4: detect → one holding reply (no refund promise) → evidence pack → HAM-416 blocked by the Never policy → a person picks the outcome.
 
-### 9.2 Agreed deliverable plan (recommended to the owner, not yet confirmed)
+### 9.2 Deliverable plan
 
-Send four things, with the website as the centerpiece:
+**Decided (12 Oct): the only thing handed off is the website.** It's one deployed URL (e.g. on Vercel), so it has to cover every item in the brief on its own:
 
-1. **The PPT scoping pack.** The brief names the format, so it has to be a real .pptx.
-2. **A deployed website** (e.g. on Vercel) that runs the prototype, linked from the deck and the README.
-3. **The GitHub repo:** code, a README with the architecture and run steps, plus the existing docs.
-4. **A 2–3 minute walkthrough video**, because reviewers often won't click through the site.
+| Brief item | Where it lives on the website |
+|---|---|
+| Interactive prototype | The app itself: the demo flow below |
+| Product roadmap | A case-study page, from `docs/roadmap.md` |
+| Top 3 agentic functions | A case-study page, from `README.md` / `docs/scope.md` |
+| Scoping pack "in PPT format" | A slide-style scoping page in the site. _Open question:_ also offer a downloadable .pptx, since the brief names the format. Recommended: yes, as a "Download deck" link. |
+| GitHub repo | A link in the site footer or on the case-study page |
+
+Suggested structure: a landing page ("Hamilton: agentic ops for small delivery fleets", with **Open the demo** and **Read the scoping pack**) → the demo app → case-study pages. A walkthrough video embedded on the landing page is optional but recommended.
 
 The canvas shows the design process, but it isn't the prototype. The brief tests **engineering** as well as PM, so a code-free mockup leaves the engineering half unproven.
 
@@ -179,19 +183,15 @@ The canvas shows the design process, but it isn't the prototype. The brief tests
 - Every live model call falls back to a **cached response**, so the demo works without keys or if a call fails.
 - The autonomy policy is enforced **in code, not in the prompt** ("the AI proposes, the policy decides"). This is the main engineering point.
 - Keys stay server-side in env vars.
-- **Reset to the start, always available.** A visible **Reset demo** control (header or scenario bar) puts everything back to **10:30, before the flat**: seed orders and routes, HAM-417 not yet created, the At-risk count at 0, the inbox and audit log back to their seed entries, and the model-call cache kept.
+- **Reset to the start: hidden, never shown in the UI** (owner's decision, 12 Oct). Reviewers must never see a "Reset demo" button. Resetting puts everything back to **10:30, before the flat**: seed orders and routes, HAM-417 not yet created, the At-risk count at 0, the inbox and audit log back to their seed entries, and the model-call cache kept.
+  - **Hidden triggers:** the URL `?reset=1`, which resets and then removes the param from the URL, plus a keyboard shortcut for the presenter (e.g. `Shift+Alt+R`, ignored while typing in an input).
   - The scenario state lives in one store, rebuilt from `seed.ts` on reset, so there are no partial resets.
-  - The state is per browser session (local state, or an in-memory session on the server). One reviewer's demo never changes another's.
-  - A fresh page load starts at the reset state. A `?step=` URL param can jump to a step (e.g. straight to Approvals) for the walkthrough video.
+  - The state is per browser (localStorage). One reviewer's demo never changes another's, and a refresh doesn't lose a reviewer's progress. A first visit starts at the reset state.
+  - A `?step=` URL param can jump to a step (e.g. straight to Approvals) for recording the video.
 
 **Other screens:** Orders, Drivers, Address book and Autonomy are read-only pages with sample data, ported from the canvas.
 
-**Timing:**
-
-- Option A: send the deck, the repo and the canvas link today, with a note that the live prototype follows within about a day.
-- Option B: if everything has to go at once, cut the site to steps 1–4.
-
-The owner hasn't chosen yet, and also hasn't chosen whether the deck or the website comes first.
+**Timing:** it's due now. If time runs short, cut the demo to steps 1–4 (flat tire → HAM-417 → approve) and keep the case-study pages.
 
 ### 9.3 Definitions settled this session
 
