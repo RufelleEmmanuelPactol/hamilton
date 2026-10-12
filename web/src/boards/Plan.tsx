@@ -1,7 +1,8 @@
 "use client";
 // Converted from design/project/Plan.dc.html, then wired to the scenario store.
-import { Fragment, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
+import { useScenario } from "@/lib/store";
 import { check, HAM_417 } from "@/lib/policy";
 
 type Tone = "ok" | "warn" | "err" | "info" | "neutral";
@@ -321,6 +322,97 @@ function todayPlan(phase: Phase, ticketOpen: boolean, backOnRoad: boolean): Grou
     ],
   };
   return [jun, carlo, ana, rico];
+}
+
+/* ---------- routes the person edited by dragging ---------- */
+
+type Routes = Record<DriverKey, string[]>;
+/** Minutes per stop (drive + handover) when re-estimating an edited route. */
+const STOP_MIN = 25;
+/** Map units to km, calibrated on Jun's planned route (19 km). */
+const KM_PER_UNIT = 0.027;
+
+const toMin = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
+const fmt = (m: number) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+
+/** The upcoming (not delivered) order ids per driver, in plan order. */
+function routesOf(groups: Group[]): Routes {
+  return Object.fromEntries(groups.map((g) => [g.d, g.stops.filter((s) => !s.done).map((s) => s.order)])) as Routes;
+}
+
+/**
+ * Applies the person's moves to the scripted plan. Routes nobody touched keep their scripted times and statuses.
+ * Touched routes are re-estimated: start at the clock (or when Jun is back on the road), add STOP_MIN per stop,
+ * wait for a window to open, and flag any stop that lands after its window as late.
+ */
+function applyRoutes(
+  scripted: Group[],
+  edits: Routes | null,
+  opts: { clock: string; junStuck: boolean },
+): { groups: Group[]; routes: Routes; moved: number; late: number } {
+  const routes = routesOf(scripted);
+  if (!edits) return { groups: scripted, routes, moved: 0, late: 0 };
+
+  const stops: Record<string, Stop> = {};
+  for (const g of scripted) for (const st of g.stops) if (!st.done) stops[st.order] = st;
+  const next = {} as Routes;
+  const seen = new Set<string>();
+  for (const d of ORDER) {
+    next[d] = (edits[d] ?? []).filter((id) => stops[id] && !seen.has(id));
+    next[d].forEach((id) => seen.add(id));
+  }
+  for (const d of ORDER) for (const id of routes[d]) if (!seen.has(id)) next[d].push(id);
+
+  let moved = 0;
+  let late = 0;
+  const groups = scripted.map((g) => {
+    const ids = next[g.d];
+    if (ids.join() === routes[g.d].join()) return g;
+    const done = g.stops.filter((s) => s.done);
+    const start = g.d === "j" && opts.junStuck ? toMin("13:15") : toMin(opts.clock);
+    let t = start;
+    let prev: [number, number] = done.length ? done[done.length - 1].at : HUB;
+    let dist = done.reduce<{ p: [number, number]; n: number }>(
+      (acc, s) => ({ p: s.at, n: acc.n + Math.hypot(s.at[0] - acc.p[0], s.at[1] - acc.p[1]) }),
+      { p: HUB, n: 0 },
+    ).n;
+    const upcoming = ids.map((id, i): Stop => {
+      const base = stops[id];
+      const [open, close] = base.window.split("–").map(toMin);
+      t = Math.max(t + STOP_MIN, open);
+      dist += Math.hypot(base.at[0] - prev[0], base.at[1] - prev[1]);
+      prev = base.at;
+      const from = base.driver !== g.d ? DRIVERS[base.driver].name : null;
+      if (from) moved++;
+      const isLate = t > close;
+      if (isLate) late++;
+      return {
+        ...base,
+        driver: g.d,
+        time: `ETA ${fmt(t)}`,
+        next: i === 0 && !(g.d === "j" && opts.junStuck),
+        note: from ? `From ${from}${base.note ? ` · ${base.note}` : ""}` : base.note,
+        status: isLate
+          ? { label: `Late · window ends ${fmt(close)}`, tone: "err" }
+          : from
+            ? { label: `Moved from ${from}`, tone: "info" }
+            : i === 0 && !(g.d === "j" && opts.junStuck)
+              ? { label: "Next stop", tone: "info" }
+              : { label: "Upcoming", tone: "neutral" },
+      };
+    });
+    return {
+      ...g,
+      stops: [...done, ...upcoming],
+      total: done.length + upcoming.length,
+      km: Math.round(dist * KM_PER_UNIT),
+      footer: g.footer?.title.includes("moved") ? undefined : g.footer,
+    };
+  });
+  return { groups, routes: next, moved, late };
 }
 
 /* ---------- tomorrow's draft ---------- */
@@ -813,13 +905,152 @@ function RouteMap({ groups, flat }: { groups: Group[]; flat: "show" | "none" }) 
 
 /* ---------- route table ---------- */
 
-function RouteTable({ groups, phase }: { groups: Group[]; phase: Phase }) {
+interface RowDrag {
+  order: string;
+  label: string;
+  x: number;
+  y: number;
+  over: { d: DriverKey; index: number } | null;
+}
+
+function Grip() {
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", minWidth: "1000px", borderCollapse: "collapse" }}>
+    <svg width="10" height="14" viewBox="0 0 10 14" aria-hidden="true" style={{ flex: "none" }}>
+      {[2, 7, 12].map((y) => (
+        <g key={y} fill="currentColor">
+          <circle cx="2.5" cy={y} r="1.2" />
+          <circle cx="7.5" cy={y} r="1.2" />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function RouteTable({
+  groups,
+  locked,
+  onMove,
+}: {
+  groups: Group[];
+  /** Why the plan can't be edited right now, or null. */
+  locked: string | null;
+  onMove: (order: string, to: DriverKey, index?: number) => void;
+}) {
+  const [drag, setDrag] = useState<RowDrag | null>(null);
+  const dragRef = useRef<RowDrag | null>(null);
+  dragRef.current = drag;
+  const started = useRef(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+  const pointerY = useRef(0);
+
+  // Auto-scroll while dragging near the top or bottom edge, so stops can move to drivers further down.
+  useEffect(() => {
+    if (!drag) return;
+    let el: HTMLElement | null = tableRef.current;
+    while (el && !(el.scrollHeight > el.clientHeight && /auto|scroll/.test(getComputedStyle(el).overflowY))) el = el.parentElement;
+    const scroller = el ?? document.scrollingElement ?? document.documentElement;
+    let raf = 0;
+    const tick = () => {
+      const r = scroller === document.scrollingElement ? { top: 0, bottom: window.innerHeight } : scroller.getBoundingClientRect();
+      const y = pointerY.current;
+      const edge = 70;
+      const v = y < r.top + edge ? -Math.ceil((r.top + edge - y) / 5) : y > r.bottom - edge ? Math.ceil((y - (r.bottom - edge)) / 5) : 0;
+      if (v) {
+        scroller.scrollTop += v;
+        const d = dragRef.current;
+        if (d) setDrag((cur) => (cur ? { ...cur, over: targetAt(cur.x, cur.y) } : cur));
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [!!drag]);
+
+  useEffect(() => {
+    const block = (e: TouchEvent) => {
+      if (started.current) e.preventDefault();
+    };
+    document.addEventListener("touchmove", block, { passive: false });
+    return () => document.removeEventListener("touchmove", block);
+  }, []);
+
+  const targetAt = (x: number, y: number): RowDrag["over"] => {
+    const el = document.elementFromPoint(x, y) as HTMLElement | null;
+    const row = el?.closest<HTMLElement>("tr[data-driver]");
+    if (!row) return null;
+    const d = row.dataset.driver as DriverKey;
+    const rows = Array.from(row.closest("tbody")!.querySelectorAll<HTMLElement>(`tr[data-stop][data-driver="${d}"]`)).filter(
+      (r) => r.dataset.stop !== dragRef.current?.order,
+    );
+    let index = 0;
+    for (const r of rows) {
+      const b = r.getBoundingClientRect();
+      if (y > b.top + b.height / 2) index++;
+    }
+    return { d, index };
+  };
+
+  const onPointerDown = (s: Stop) => (e: React.PointerEvent<HTMLElement>) => {
+    if (locked || e.button !== 0 || (e.target as HTMLElement).closest("a,button,select,input")) return;
+    const sx = e.clientX;
+    const sy = e.clientY;
+    const touch = e.pointerType === "touch";
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const begin = (x: number, y: number) => {
+      started.current = true;
+      pointerY.current = y;
+      if (touch) navigator.vibrate?.(8);
+      const d: RowDrag = { order: s.order, label: `${s.order} · ${s.recipient}`, x, y, over: null };
+      dragRef.current = d;
+      setDrag({ ...d, over: targetAt(x, y) });
+    };
+    const move = (ev: PointerEvent) => {
+      pointerY.current = ev.clientY;
+      if (!started.current) {
+        const dist = Math.hypot(ev.clientX - sx, ev.clientY - sy);
+        if (touch) {
+          if (dist > 8) cleanup();
+        } else if (dist > 4) begin(ev.clientX, ev.clientY);
+        return;
+      }
+      setDrag((d) => (d ? { ...d, x: ev.clientX, y: ev.clientY, over: targetAt(ev.clientX, ev.clientY) } : d));
+    };
+    const up = () => {
+      const d = dragRef.current;
+      if (started.current && d?.over) onMove(s.order, d.over.d, d.over.index);
+      cleanup();
+    };
+    const cleanup = () => {
+      clearTimeout(timer);
+      started.current = false;
+      dragRef.current = null;
+      setDrag(null);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cleanup);
+    };
+    if (touch) timer = setTimeout(() => begin(sx, sy), 220);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", cleanup);
+  };
+
+  const dropLine = (key: string) => (
+    <tr key={key} aria-hidden="true">
+      <td colSpan={9} style={{ padding: 0, height: "0" }}>
+        <div style={{ height: "3px", background: "var(--brand)", borderRadius: "2px", margin: "0 10px" }} />
+      </td>
+    </tr>
+  );
+
+  return (
+    <div ref={tableRef} style={{ overflowX: "auto" }}>
+      <style>{`.rt-drag{cursor:grab}.rt-drag:hover .rt-grip{color:var(--ink2)}.rt-drag:hover{background:#FAFAFB}`}</style>
+      <table style={{ width: "100%", minWidth: "1000px", borderCollapse: "collapse", userSelect: drag ? "none" : undefined }}>
         <thead>
           <tr style={{ background: "var(--sub)", textAlign: "left", color: "var(--mute)", fontSize: "12px" }}>
-            <th style={{ ...th, paddingLeft: "14px", width: "30px" }}>#</th>
+            <th style={{ ...th, paddingLeft: "14px", width: "44px" }}>#</th>
             <th style={th}>Status</th>
             <th style={th}>Order</th>
             <th style={th}>Recipient</th>
@@ -833,9 +1064,13 @@ function RouteTable({ groups, phase }: { groups: Group[]; phase: Phase }) {
         <tbody>
           {groups.map((g) => {
             const pct = g.total ? Math.round((g.delivered / g.total) * 100) : 0;
+            const over = drag?.over?.d === g.d;
+            const upcoming = g.stops.filter((s) => !s.done && s.order !== drag?.order);
+            const lineAt = over ? Math.min(drag!.over!.index, upcoming.length) : -1;
+            let u = 0;
             return (
               <Fragment key={g.d}>
-                <tr style={{ background: "#FCFCFD" }}>
+                <tr data-driver={g.d} style={{ background: over ? "var(--brandTint)" : "#FCFCFD", transition: "background .12s" }}>
                   <td colSpan={9} style={{ padding: "8px 14px", borderBottom: "1px solid var(--line)" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
                       <Avatar d={g.d} />
@@ -857,64 +1092,100 @@ function RouteTable({ groups, phase }: { groups: Group[]; phase: Phase }) {
                 </tr>
                 {g.stops.map((s, i) => {
                   const muted = s.done ? { color: "var(--mute)" } : {};
+                  const draggable = !s.done && !locked;
+                  const dragging = drag?.order === s.order;
+                  const line = !s.done && !dragging && u++ === lineAt ? dropLine(`line-${s.order}`) : null;
                   return (
-                    <tr key={s.order} style={s.next ? { background: "#F5F8FF" } : undefined}>
-                      <td style={{ ...td, padding: "9px 14px", color: "var(--mute)" }}>{i + 1}</td>
-                      <td style={td}>
-                        <Tag tone={s.status.tone} href={s.status.href}>
-                          {s.status.label}
-                        </Tag>
-                      </td>
-                      <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.order}</td>
-                      <td style={{ ...td, ...muted }}>{s.recipient}</td>
-                      <td style={{ ...td, ...muted }}>{s.area}</td>
-                      <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.window}</td>
-                      <td style={td}>
-                        {s.time === null ? (
-                          <span style={{ color: "var(--mute)" }}>—</span>
-                        ) : (
-                          <span
-                            style={{
-                              fontFamily: MONO,
-                              whiteSpace: "nowrap",
-                              color: s.done ? "var(--mute)" : s.status.tone === "err" ? "var(--err)" : undefined,
-                            }}
-                          >
-                            {s.time}
+                    <Fragment key={s.order}>
+                      {line}
+                      <tr
+                        data-driver={g.d}
+                        data-stop={s.done ? undefined : s.order}
+                        className={draggable ? "rt-drag" : undefined}
+                        onPointerDown={draggable ? onPointerDown(s) : undefined}
+                        title={draggable ? "Drag to reorder or move to another driver" : undefined}
+                        style={{
+                          background: s.next ? "#F5F8FF" : undefined,
+                          opacity: dragging ? 0.35 : 1,
+                          touchAction: draggable ? "manipulation" : undefined,
+                        }}
+                      >
+                        <td style={{ ...td, padding: "9px 14px", color: "var(--mute)", whiteSpace: "nowrap" }}>
+                          <span style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                            <span className="rt-grip" style={{ color: draggable ? "var(--line2)" : "transparent", display: "flex" }}>
+                              <Grip />
+                            </span>
+                            {i + 1}
                           </span>
-                        )}
-                      </td>
-                      <td style={{ ...td, color: "var(--ink2)", fontSize: "12px" }}>
-                        {s.note ?? <span style={{ color: "var(--line2)" }}>—</span>}
-                      </td>
-                      <td style={{ ...td, padding: "9px 14px" }}>
-                        {s.done ? (
-                          <span style={{ color: "var(--mute)" }}>{DRIVERS[s.driver].name}</span>
-                        ) : (
-                          <select
-                            key={`${phase}-${s.driver}`}
-                            aria-label={`Driver for ${s.order}`}
-                            defaultValue={DRIVERS[s.driver].name}
-                            style={{
-                              font: "inherit",
-                              height: "28px",
-                              border: "1px solid var(--line2)",
-                              borderRadius: "6px",
-                              padding: "0 6px",
-                              background: "var(--panel)",
-                            }}
-                          >
-                            {ORDER.map((d) => (
-                              <option key={d}>{DRIVERS[d].name}</option>
-                            ))}
-                          </select>
-                        )}
-                      </td>
-                    </tr>
+                        </td>
+                        <td style={td}>
+                          <Tag tone={s.status.tone} href={s.status.href}>
+                            {s.status.label}
+                          </Tag>
+                        </td>
+                        <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.order}</td>
+                        <td style={{ ...td, ...muted }}>{s.recipient}</td>
+                        <td style={{ ...td, ...muted }}>{s.area}</td>
+                        <td style={{ ...td, whiteSpace: "nowrap", fontFamily: MONO, ...muted }}>{s.window}</td>
+                        <td style={td}>
+                          {s.time === null ? (
+                            <span style={{ color: "var(--mute)" }}>—</span>
+                          ) : (
+                            <span
+                              style={{
+                                fontFamily: MONO,
+                                whiteSpace: "nowrap",
+                                color: s.done ? "var(--mute)" : s.status.tone === "err" ? "var(--err)" : undefined,
+                              }}
+                            >
+                              {s.time}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ ...td, color: "var(--ink2)", fontSize: "12px" }}>
+                          {s.note ?? <span style={{ color: "var(--line2)" }}>—</span>}
+                        </td>
+                        <td style={{ ...td, padding: "9px 14px" }}>
+                          {s.done ? (
+                            <span style={{ color: "var(--mute)" }}>{DRIVERS[s.driver].name}</span>
+                          ) : (
+                            <select
+                              aria-label={`Driver for ${s.order}`}
+                              value={s.driver}
+                              disabled={!!locked}
+                              title={locked ?? undefined}
+                              onChange={(e) => onMove(s.order, e.target.value as DriverKey)}
+                              style={{
+                                font: "inherit",
+                                height: "28px",
+                                border: "1px solid var(--line2)",
+                                borderRadius: "6px",
+                                padding: "0 6px",
+                                background: "var(--panel)",
+                              }}
+                            >
+                              {ORDER.map((d) => (
+                                <option key={d} value={d}>
+                                  {DRIVERS[d].name}
+                                </option>
+                              ))}
+                            </select>
+                          )}
+                        </td>
+                      </tr>
+                    </Fragment>
                   );
                 })}
+                {lineAt >= 0 && lineAt === upcoming.length && dropLine(`line-end-${g.d}`)}
+                {over && upcoming.length === 0 && (
+                  <tr aria-hidden="true">
+                    <td colSpan={9} style={{ padding: "8px 14px", color: "var(--brandInk)", fontSize: "12px" }}>
+                      Drop to give {DRIVERS[g.d].name} this stop
+                    </td>
+                  </tr>
+                )}
                 {g.footer && (
-                  <tr>
+                  <tr data-driver={g.d}>
                     <td style={{ ...td, padding: "9px 14px", color: "var(--mute)" }}>{g.stops.length + 1}</td>
                     <td colSpan={8} style={{ padding: "7px 10px", borderBottom: "1px solid var(--line)" }}>
                       <div
@@ -941,6 +1212,28 @@ function RouteTable({ groups, phase }: { groups: Group[]; phase: Phase }) {
           })}
         </tbody>
       </table>
+      {drag && (
+        <div
+          aria-hidden="true"
+          style={{
+            position: "fixed",
+            left: drag.x + 12,
+            top: drag.y - 16,
+            zIndex: 50,
+            pointerEvents: "none",
+            background: "var(--panel)",
+            border: "1px solid var(--line2)",
+            borderRadius: "6px",
+            padding: "6px 10px",
+            fontWeight: 500,
+            boxShadow: "0 12px 24px -6px rgba(16,24,40,0.25)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          <span style={{ fontFamily: MONO }}>{drag.label}</span>
+          {drag.over && <span style={{ color: "var(--brandInk)", marginLeft: "8px" }}>→ {DRIVERS[drag.over.d].name}</span>}
+        </div>
+      )}
     </div>
   );
 }
@@ -953,7 +1246,37 @@ export default function PlanBoard() {
   const [view, setView] = useState<"map" | "table">("map");
   const [draftApproved, setDraftApproved] = useState(false);
 
-  const groups = todayPlan(f.phase, f.ticketOpen, f.junBackOnRoad);
+  const dispatch = useScenario((st) => st.dispatch);
+  const setDispatch = useScenario((st) => st.setDispatch);
+  const [toast, setToast] = useState<{ text: string; undo: typeof dispatch } | null>(null);
+  useEffect(() => {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 6000);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  const scripted = todayPlan(f.phase, f.ticketOpen, f.junBackOnRoad);
+  // Edits made in an earlier phase no longer apply (the agent's approved plan replaced them).
+  const edits = dispatch && dispatch.phase === f.phase ? (dispatch.routes as Routes) : null;
+  const junStuck = f.junIncident && !f.junBackOnRoad;
+  const { groups, routes, moved, late } = applyRoutes(scripted, edits, { clock: f.clock, junStuck });
+  const locked = f.thinking
+    ? "The Dispatch agent is re-planning"
+    : f.ticketOpen
+      ? "Locked while HAM-417 waits for you"
+      : null;
+  const moveStop = (order: string, to: DriverKey, index?: number) => {
+    const from = ORDER.find((d) => routes[d].includes(order))!;
+    const next = Object.fromEntries(ORDER.map((d) => [d, routes[d].filter((id) => id !== order)])) as Routes;
+    const at = index === undefined ? next[to].length : Math.min(index, next[to].length);
+    next[to].splice(at, 0, order);
+    if (ORDER.every((d) => next[d].join() === routes[d].join())) return;
+    setToast({
+      text: from === to ? `Moved ${order} to stop ${at + 1 + groups.find((g) => g.d === to)!.delivered} for ${DRIVERS[to].name}` : `Gave ${order} to ${DRIVERS[to].name}`,
+      undo: dispatch,
+    });
+    setDispatch({ phase: f.phase, routes: next });
+  };
   const flat = f.junIncident && !f.junBackOnRoad ? "show" : "none";
 
   const third =
@@ -962,13 +1285,13 @@ export default function PlanBoard() {
     ) : f.phase === "approved" ? (
       <Metric label="Reassigned" value="3" sub="to Ana and Rico" color="var(--ok)" />
     ) : f.phase === "rejected" ? (
-      <Metric label="At risk" value={String(f.atRisk)} sub="Jun · flat tire" color="var(--err)" />
+      <Metric label="At risk" value={String(edits ? late : f.atRisk)} sub={edits ? "after your changes" : "Jun · flat tire"} color={(edits ? late : f.atRisk) ? "var(--err)" : "var(--ok)"} />
     ) : f.ticketOpen ? (
       <Metric label="Being reassigned" value="3" sub="Jun · flat tire" color="var(--warn)" />
     ) : (
       <Metric label="Incidents" value="1" sub="Jun · flat tire" color="var(--err)" />
     );
-  const conflicts = f.atRisk;
+  const conflicts = edits ? late : f.atRisk;
 
   const viewBtn = (id: "map" | "table" | "timeline", label: string, first?: boolean) => {
     const active = id === view;
@@ -1029,9 +1352,15 @@ export default function PlanBoard() {
         </div>
         {tab === "today" ? (
           <>
-            <button style={btnSecondary} disabled={f.thinking}>
-              Re-plan remaining stops
-            </button>
+            {edits ? (
+              <button style={btnSecondary} onClick={() => (setToast({ text: "Your route changes were discarded", undo: dispatch }), setDispatch(null))}>
+                Discard my changes
+              </button>
+            ) : (
+              <button style={btnSecondary} disabled={f.thinking}>
+                Re-plan remaining stops
+              </button>
+            )}
             {f.ticketOpen && (
               <a href="/app/approvals" style={btnPrimary}>
                 Review HAM-417
@@ -1191,9 +1520,69 @@ export default function PlanBoard() {
               </div>
             </div>
             {view === "map" && <RouteMap groups={groups} flat={flat} />}
-            <RouteTable groups={groups} phase={f.phase} />
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                alignItems: "center",
+                gap: "8px",
+                padding: "8px 14px",
+                borderBottom: "1px solid var(--line)",
+                background: edits ? "var(--infoBg)" : "var(--sub)",
+                color: "var(--ink2)",
+                fontSize: "12px",
+              }}
+            >
+              {locked ? (
+                <span>{locked}. You can move stops again once it is decided.</span>
+              ) : edits ? (
+                <>
+                  <b style={{ color: "var(--info)" }}>You edited this plan.</b>
+                  <span>
+                    {moved} stop{moved === 1 ? "" : "s"} moved between drivers · arrival times re-estimated
+                    {late ? ` · ${late} late` : " · all within their windows"}. Drivers see the new order right away.
+                  </span>
+                </>
+              ) : (
+                <span>Drag a stop to change its order or give it to another driver. Delivered stops stay put.</span>
+              )}
+            </div>
+            <RouteTable groups={groups} locked={locked} onMove={moveStop} />
           </section>
         </>
+      )}
+      {toast && (
+        <div
+          role="status"
+          style={{
+            position: "fixed",
+            left: "50%",
+            bottom: "20px",
+            transform: "translateX(-50%)",
+            zIndex: 60,
+            background: "#101828",
+            color: "#fff",
+            borderRadius: "8px",
+            padding: "10px 14px",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            boxShadow: "0 12px 24px -6px rgba(16,24,40,0.3)",
+            maxWidth: "calc(100vw - 32px)",
+          }}
+        >
+          <span>{toast.text}</span>
+          <button
+            type="button"
+            onClick={() => {
+              setDispatch(toast.undo);
+              setToast(null);
+            }}
+            style={{ font: "inherit", fontWeight: 600, background: "none", border: 0, color: "#F8BBD0", cursor: "pointer", padding: 0 }}
+          >
+            Undo
+          </button>
+        </div>
       )}
     </main>
   );

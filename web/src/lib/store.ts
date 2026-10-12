@@ -48,8 +48,11 @@ export interface ScenarioState {
   /** Jun tapped "I'm back on the road". */
   junBackOnRoad: boolean;
   board: BoardEdits;
+  /** Stops the person moved on the Dispatch plan: driver key → upcoming order ids. Only applies in the phase it was made in. */
+  dispatch: { phase: Phase; routes: Record<string, string[]> } | null;
 
   setBoard: (board: BoardEdits) => void;
+  setDispatch: (dispatch: ScenarioState["dispatch"]) => void;
   reportFlat: (estimate: Estimate, note: string) => void;
   approve: () => void;
   reject: () => void;
@@ -68,6 +71,7 @@ export const INITIAL = {
   notifyCustomers: true,
   junBackOnRoad: false,
   board: { cols: null, drivers: {}, added: [] } as BoardEdits,
+  dispatch: null as ScenarioState["dispatch"],
 };
 
 export const useScenario = create<ScenarioState>()(
@@ -75,6 +79,7 @@ export const useScenario = create<ScenarioState>()(
     (set, get) => ({
       ...INITIAL,
       setBoard: (board) => set({ board }),
+      setDispatch: (dispatch) => set({ dispatch }),
       reportFlat: (estimate, note) => {
         if (get().phase !== "before") return;
         set({ phase: "incident", report: { estimate, note }, reportedAt: Date.now() });
@@ -111,6 +116,7 @@ export const useScenario = create<ScenarioState>()(
         notifyCustomers: s.notifyCustomers,
         junBackOnRoad: s.junBackOnRoad,
         board: s.board,
+        dispatch: s.dispatch,
       }),
     },
   ),
