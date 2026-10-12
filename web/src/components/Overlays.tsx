@@ -146,7 +146,7 @@ function PersonCard({ p, rect, onClose }: { p: Person; rect: Rect; onClose: () =
         left: Math.max(12, Math.min(rect.left, window.innerWidth - W - 12)),
         ...(rect.bottom + 340 < window.innerHeight ? { top: rect.bottom + 8 } : { bottom: Math.max(12, window.innerHeight - rect.top + 8) }),
       }
-    : { left: "50%", top: "18vh", transform: "translateX(-50%)" };
+    : { left: 0, right: 0, margin: "0 auto", top: "18vh" };
   const today = p.kind === "driver" ? driverToday(p.key, phase, back) : null;
   const first = p.name.split(" ")[0];
   return (
@@ -261,7 +261,7 @@ function SoonModal({ label, onClose }: { label: string; onClose: () => void }) {
         role="alertdialog"
         aria-label="Coming soon"
         className="ham-in"
-        style={{ ...panel, position: "fixed", left: "50%", top: "22vh", transform: "translateX(-50%)", width: 420, maxWidth: "calc(100vw - 24px)", padding: "20px" }}
+        style={{ ...panel, position: "fixed", left: 0, right: 0, margin: "0 auto", top: "22vh", width: 420, maxWidth: "calc(100vw - 24px)", padding: "20px" }}
       >
         <div
           style={{
@@ -372,7 +372,7 @@ function Palette({ onClose }: { onClose: () => void }) {
         role="dialog"
         aria-label="Search"
         className="ham-in"
-        style={{ ...panel, position: "fixed", left: "50%", top: "12vh", transform: "translateX(-50%)", width: 560, maxWidth: "calc(100vw - 24px)", overflow: "hidden" }}
+        style={{ ...panel, position: "fixed", left: 0, right: 0, margin: "0 auto", top: "12vh", width: 560, maxWidth: "calc(100vw - 24px)", overflow: "hidden" }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 14px", borderBottom: "1px solid var(--line)" }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--mute)" strokeWidth="2" aria-hidden="true">
