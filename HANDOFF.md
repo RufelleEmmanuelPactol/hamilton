@@ -93,8 +93,8 @@ The old Tangerine V2 tokens were removed from the repo. The owner's original Tan
   1. Scaffold fresh (Next.js + `design-system/tailwind.preset.js`).
   2. Port the canvas boards screen by screen, starting with Overview → Approvals → Dispatch.
   3. Use one seed scenario: the 10:31 flat tire → HAM-417 → approve → routes update.
-  4. Wire the agents (§2 model plan) behind a single `decide()` / `act()` interface, enforcing autonomy policies server-side.
-  5. Read keys from env (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`). Never commit them.
+  4. Put the scripted agents behind a single `decide()` / `act()` interface, with the autonomy policy check in code. **No real model calls** (owner's decision, 12 Oct). The §2 model plan is architecture to describe on the case-study pages, not to implement.
+  5. No API keys are needed. If real calls are ever added later, read keys from env and never commit them.
 
 ## 6. Repo and git state
 
@@ -160,30 +160,28 @@ Suggested structure: a landing page ("Hamilton: agentic ops for small delivery f
 
 The canvas shows the design process, but it isn't the prototype. The brief tests **engineering** as well as PM, so a code-free mockup leaves the engineering half unproven.
 
-**How interactive:** one scripted story, with real model calls at two or three agent steps. Don't build a general-purpose app.
+**How interactive (decided 12 Oct):** one fully scripted story with **no real model calls**. Every agent output (proposals, drafts, triage tags, evidence packs) is canned seed data. It still has to *feel* agentic, so:
 
-| Level | Verdict |
-|---|---|
-| Clickable mockup (the canvas) | Already have it. It shows nothing about engineering. |
-| Scripted, all canned AI | Weak, because "agentic" is the point. |
-| **Scripted plus real agents at decision points** | **Recommended.** |
-| Full app (auth, real maps, general routing) | Too big for the time left. |
+- Agent steps show a brief "thinking" state, then the result, labelled with the agent's name (AI output is always labelled, per `RULES.md`).
+- Agents stay behind a `decide()` / `act()` interface, so swapping in real models later means replacing one function. Say so on the architecture page.
+- The policy check is real code, not part of the script.
+
+Don't build a general-purpose app.
 
 **The demo flow:**
 
 1. **Overview:** a "Play scenario" button moves the clock to 10:31.
 2. **Driver app:** Jun reports a flat tire and picks "about 1 hour".
-3. **Dispatch agent:** Claude, in a tool-use loop, proposes reassigning 3 stops. A **server-side policy check** blocks it ("3 stops is over the 1-stop auto limit") and turns the proposal into ticket HAM-417.
+3. **Dispatch agent** (scripted) proposes reassigning 3 stops. A **policy check in code** blocks it ("3 stops is over the 1-stop auto limit") and turns the proposal into ticket HAM-417.
 4. **Approvals:** "If you do nothing" vs "If you approve" → Approve. Routes, ETAs and the At-risk count update, and WhatsApp messages are drafted.
-5. **Messages:** type any customer message, and triage (Decisions API) tags it live. A damage claim goes to "Needs you", and the money action is blocked as Never.
+5. **Messages:** pick from a few preset incoming customer messages (e.g. "where's my order?", a reschedule, a damage claim). Each one gets its scripted triage tag. A damage claim goes to "Needs you", and the money action is blocked as Never.
 6. **Audit log:** every step above appears in it.
 
 **Rules for a safe demo:**
 
-- Every live model call falls back to a **cached response**, so the demo works without keys or if a call fails.
+- There are no network or model dependencies, so the demo can't break on a key or an outage. It can be a static or client-only deploy.
 - The autonomy policy is enforced **in code, not in the prompt** ("the AI proposes, the policy decides"). This is the main engineering point.
-- Keys stay server-side in env vars.
-- **Reset to the start: hidden, never shown in the UI** (owner's decision, 12 Oct). Reviewers must never see a "Reset demo" button. Resetting puts everything back to **10:30, before the flat**: seed orders and routes, HAM-417 not yet created, the At-risk count at 0, the inbox and audit log back to their seed entries, and the model-call cache kept.
+- **Reset to the start: hidden, never shown in the UI** (owner's decision, 12 Oct). Reviewers must never see a "Reset demo" button. Resetting puts everything back to **10:30, before the flat**: seed orders and routes, HAM-417 not yet created, the At-risk count at 0, the inbox and audit log back to their seed entries.
   - **Hidden triggers:** the URL `?reset=1`, which resets and then removes the param from the URL, plus a keyboard shortcut for the presenter (e.g. `Shift+Alt+R`, ignored while typing in an input).
   - The scenario state lives in one store, rebuilt from `seed.ts` on reset, so there are no partial resets.
   - The state is per browser (localStorage). One reviewer's demo never changes another's, and a refresh doesn't lose a reviewer's progress. A first visit starts at the reset state.
