@@ -1,6 +1,85 @@
-/* eslint-disable */
-// Converted from design/project/Autonomy.dc.html. Holes: showStdSec, toggleHelp, f_all, showAll, nf_all, f_std, showStd, nf_std, f_yours, showYours, nf_yours, help, showYoursSec
-export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: any; h?: any }) {
+"use client";
+// Converted from design/project/Autonomy.dc.html, then wired: filter, (?) help, per-policy modes (local, not saved).
+import { useState, type CSSProperties } from "react";
+import { useScenarioFacts } from "@/lib/scenario";
+import { check, HAM_417, POLICIES, type Mode } from "@/lib/policy";
+
+type ModeLabel = "Auto" | "Auto if…" | "Ask me" | "Never";
+const LABEL: Record<Mode, ModeLabel> = { auto: "Auto", auto_if: "Auto if…", ask: "Ask me", never: "Never" };
+const STYLE: Record<ModeLabel, CSSProperties> = {
+  Auto: { border: "1px solid var(--okLine)", background: "var(--okBg)", color: "var(--ok)" },
+  "Auto if…": { border: "1px solid var(--infoLine)", background: "var(--infoBg)", color: "var(--info)" },
+  "Ask me": { border: "1px solid var(--line2)", background: "var(--panel)", color: "var(--ink)" },
+  Never: { border: "1px solid var(--errLine)", background: "var(--errBg)", color: "var(--err)" },
+};
+
+/** Starting mode of each standard policy, top to bottom. Reassign stops and money come from policy.ts. */
+const INITIAL_MODES: ModeLabel[] = [
+  "Auto", // Text customers delivery updates
+  "Auto", // Move a delivery to a later time today
+  "Ask me", // Move a delivery to another date
+  "Auto if…", // Leave with guard / concierge / neighbour
+  LABEL[POLICIES.reassign_stops.mode], // Move stops from one driver to another
+  "Auto", // Re-order remaining stops
+  "Auto", // Add a same-day order
+  "Ask me", // Send the morning plan
+  "Auto if…", // Turn requests into orders
+  "Auto", // Retake proof photo
+  "Auto", // Record what was learned
+  LABEL[POLICIES.refund.mode], // Refunds, credits or discounts
+];
+
+function ModeSelect({ value, onChange, money }: { value: ModeLabel; onChange: (m: ModeLabel) => void; money?: boolean }) {
+  const options: ModeLabel[] = money ? ["Never", "Ask me"] : ["Auto", "Auto if…", "Ask me", "Never"];
+  return (
+    <select
+      aria-label="Mode"
+      value={value}
+      onChange={(e) => onChange(e.target.value as ModeLabel)}
+      title={money ? "Anything that moves money is always decided by a person." : undefined}
+      style={{
+        font: "inherit",
+        height: "28px",
+        borderRadius: "6px",
+        padding: "0 6px",
+        fontWeight: "600",
+        cursor: "pointer",
+        ...STYLE[value],
+      }}
+    >
+      {options.map((o) => (
+        <option key={o}>{o}</option>
+      ))}
+    </select>
+  );
+}
+
+export default function AutonomyBoard() {
+  const facts = useScenarioFacts();
+  const [f, setF] = useState<"all" | "standard" | "yours">("all");
+  const [help, setHelp] = useState(false);
+  const [modes, setModes] = useState<ModeLabel[]>(INITIAL_MODES);
+  const setMode = (i: number, m: ModeLabel) => setModes((ms) => ms.map((x, j) => (j === i ? m : x)));
+  const count = (m: ModeLabel) => modes.filter((x) => x === m).length;
+  const held = check(HAM_417);
+  const showHeld = facts.ticketOpen || facts.phase === "approved" || facts.phase === "rejected";
+  const ui = {
+    help,
+    f_all: f === "all",
+    nf_all: f !== "all",
+    f_std: f === "standard",
+    nf_std: f !== "standard",
+    f_yours: f === "yours",
+    nf_yours: f !== "yours",
+    showStdTable: f !== "yours",
+    showYoursSec: f !== "standard",
+  };
+  const on = {
+    toggleHelp: () => setHelp((x) => !x),
+    showAll: () => setF("all"),
+    showStd: () => setF("standard"),
+    showYours: () => setF("yours"),
+  };
   return (
     <>
       {" "}
@@ -80,19 +159,19 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
           {" "}
           <div style={{ padding: "12px 16px", borderRight: "1px solid var(--line)" }}>
             <div style={{ color: "var(--mute)", fontWeight: "500" }}>Auto</div>
-            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>6</div>
+            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>{count("Auto")}</div>
           </div>{" "}
           <div style={{ padding: "12px 16px", borderRight: "1px solid var(--line)" }}>
             <div style={{ color: "var(--mute)", fontWeight: "500" }}>Auto if…</div>
-            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>3</div>
+            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>{count("Auto if…")}</div>
           </div>
           <div style={{ padding: "12px 16px", borderRight: "1px solid var(--line)" }}>
             <div style={{ color: "var(--mute)", fontWeight: "500" }}>Ask me</div>
-            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>2</div>
+            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>{count("Ask me")}</div>
           </div>{" "}
           <div style={{ padding: "12px 16px", borderRight: "1px solid var(--line)" }}>
             <div style={{ color: "var(--mute)", fontWeight: "500" }}>Never</div>
-            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>1</div>
+            <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>{count("Never")}</div>
           </div>{" "}
           <div style={{ padding: "12px 16px", borderRight: "1px solid var(--line)" }}>
             <div style={{ color: "var(--mute)", fontWeight: "500" }}>Actions (30d)</div>
@@ -105,7 +184,7 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
             <div style={{ fontSize: "22px", fontWeight: "600", marginTop: "4px" }}>94%</div>
           </div>{" "}
         </section>{" "}
-        {v.showStdSec && (
+        {
           <>
             <section
               aria-label="Standard policies"
@@ -130,7 +209,7 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
               >
                 <h2 style={{ margin: "0", fontSize: "14px", fontWeight: "600" }}>Standard policies</h2>
                 <button
-                  onClick={h.toggleHelp}
+                  onClick={on.toggleHelp}
                   aria-label="How policies work"
                   title="How policies work"
                   style={{
@@ -165,10 +244,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                     borderRadius: "7px",
                   }}
                 >
-                  {v.f_all && (
+                  {ui.f_all && (
                     <>
                       <button
-                        onClick={h.showAll}
+                        onClick={on.showAll}
                         aria-pressed="true"
                         style={{
                           font: "inherit",
@@ -188,10 +267,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       </button>
                     </>
                   )}
-                  {v.nf_all && (
+                  {ui.nf_all && (
                     <>
                       <button
-                        onClick={h.showAll}
+                        onClick={on.showAll}
                         aria-pressed="false"
                         style={{
                           font: "inherit",
@@ -209,10 +288,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       </button>
                     </>
                   )}
-                  {v.f_std && (
+                  {ui.f_std && (
                     <>
                       <button
-                        onClick={h.showStd}
+                        onClick={on.showStd}
                         aria-pressed="true"
                         style={{
                           font: "inherit",
@@ -232,10 +311,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       </button>
                     </>
                   )}
-                  {v.nf_std && (
+                  {ui.nf_std && (
                     <>
                       <button
-                        onClick={h.showStd}
+                        onClick={on.showStd}
                         aria-pressed="false"
                         style={{
                           font: "inherit",
@@ -253,10 +332,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       </button>
                     </>
                   )}
-                  {v.f_yours && (
+                  {ui.f_yours && (
                     <>
                       <button
-                        onClick={h.showYours}
+                        onClick={on.showYours}
                         aria-pressed="true"
                         style={{
                           font: "inherit",
@@ -276,10 +355,10 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       </button>
                     </>
                   )}
-                  {v.nf_yours && (
+                  {ui.nf_yours && (
                     <>
                       <button
-                        onClick={h.showYours}
+                        onClick={on.showYours}
                         aria-pressed="false"
                         style={{
                           font: "inherit",
@@ -298,7 +377,7 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                     </>
                   )}
                 </div>
-                {v.help && (
+                {ui.help && (
                   <>
                     <div
                       role="dialog"
@@ -320,7 +399,7 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                       <div style={{ display: "flex", alignItems: "center" }}>
                         <b style={{ flex: "1" }}>How policies work</b>
                         <button
-                          onClick={h.toggleHelp}
+                          onClick={on.toggleHelp}
                           aria-label="Close"
                           style={{
                             border: "0",
@@ -388,718 +467,562 @@ export default function AutonomyBoard({ v = {} as any, h = {} as any }: { v?: an
                   </>
                 )}
               </div>{" "}
-              <div style={{ overflowX: "auto" }}>
-                {" "}
-                <table style={{ width: "100%", minWidth: "860px", borderCollapse: "collapse" }}>
-                  <thead>
-                    <tr style={{ background: "var(--sub)", textAlign: "left", color: "var(--mute)", fontSize: "12px" }}>
-                      <th style={{ padding: "8px 14px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Action</th>
-                      <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Agent</th>
-                      <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Mode</th>
-                      <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>
-                        Runs alone only when…
-                      </th>
-                      <th
-                        style={{
-                          padding: "8px 10px",
-                          fontWeight: "500",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                        }}
-                      >
-                        30d actions
-                      </th>
-                      <th
-                        style={{
-                          padding: "8px 14px",
-                          fontWeight: "500",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                        }}
-                      >
-                        Approved
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ background: "#FCFCFD" }}>
-                      <td
-                        colSpan={6}
-                        style={{
-                          padding: "7px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          fontSize: "11px",
-                          fontWeight: "600",
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        Customers
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Text customers delivery updates</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          WhatsApp or SMS when the driver leaves, arrives, delivers (with photo), or the ETA will miss the window
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+              {!ui.showStdTable && (
+                <div style={{ padding: "10px 14px", fontSize: "12px", color: "var(--mute)" }}>
+                  12 standard policies hidden.{" "}
+                  <button
+                    onClick={on.showAll}
+                    style={{
+                      font: "inherit",
+                      border: "0",
+                      background: "none",
+                      padding: "0",
+                      color: "var(--brandInk)",
+                      fontWeight: 500,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Show all
+                  </button>
+                </div>
+              )}
+              {ui.showStdTable && (
+                <div style={{ overflowX: "auto" }}>
+                  {" "}
+                  <table style={{ width: "100%", minWidth: "860px", borderCollapse: "collapse" }}>
+                    <thead>
+                      <tr style={{ background: "var(--sub)", textAlign: "left", color: "var(--mute)", fontSize: "12px" }}>
+                        <th style={{ padding: "8px 14px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Action</th>
+                        <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Agent</th>
+                        <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>Mode</th>
+                        <th style={{ padding: "8px 10px", fontWeight: "500", borderBottom: "1px solid var(--line)" }}>
+                          Runs alone only when…
+                        </th>
+                        <th
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "8px 10px",
+                            fontWeight: "500",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Always</td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        812
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Move a delivery to a later time today</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          When the customer asks for a new time, or the current ETA will miss their window
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          30d actions
+                        </th>
+                        <th
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "8px 14px",
+                            fontWeight: "500",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        The new time is before 19:00
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        46
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Move a delivery to another date</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          When the customer asks; checks that date&#39;s driver capacity first
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          Approved
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ background: "#FCFCFD" }}>
+                        <td
+                          colSpan={6}
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--line2)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--panel)",
+                            padding: "7px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            fontSize: "11px",
                             fontWeight: "600",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                            color: "var(--mute)",
                           }}
                         >
-                          <option>Ask me</option>
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--mute)" }}>
-                        Never runs alone. Always asks you
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        9
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        100%
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Leave the parcel with a guard, concierge or neighbour</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>Instead of failing the delivery when nobody is home</div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          Customers
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Text customers delivery updates</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            WhatsApp or SMS when the driver leaves, arrives, delivers (with photo), or the ETA will miss the window
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[0]} onChange={(m) => setMode(0, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Always</td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--infoLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--infoBg)",
-                            color: "var(--info)",
-                            fontWeight: "600",
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Auto if…</option>
-                          <option>Auto</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        The customer said yes in writing. Otherwise asks you
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        31
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        97%
-                      </td>
-                    </tr>
-                    <tr style={{ background: "#FCFCFD" }}>
-                      <td
-                        colSpan={6}
-                        style={{
-                          padding: "7px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          fontSize: "11px",
-                          fontWeight: "600",
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        Dispatch
-                      </td>
-                    </tr>
-                    <tr style={{ background: "var(--brandTint)" }}>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Move stops from one driver to another</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          After a breakdown, break or delay, if every affected window still holds ·{" "}
-                          <span style={{ color: "var(--brandInk)" }}>1 suggestion</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          812
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--infoLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--infoBg)",
-                            color: "var(--info)",
-                            fontWeight: "600",
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
                           }}
                         >
-                          <option>Auto if…</option>
-                          <option>Auto</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        Moving{" "}
-                        <input
-                          aria-label="Stop limit"
-                          defaultValue="1"
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Move a delivery to a later time today</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            When the customer asks for a new time, or the current ETA will miss their window
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[1]} onChange={(m) => setMode(1, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          The new time is before 19:00
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            width: "32px",
-                            height: "24px",
-                            border: "1px solid var(--line2)",
-                            borderRadius: "4px",
-                            textAlign: "center",
-                          }}
-                        />{" "}
-                        stop or fewer. More than that asks you
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        24
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        96%
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Change the order of a driver&#39;s remaining stops</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          To fit a reschedule or avoid a late arrival; same driver, same stops
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
-                          style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        No stop ends up outside its window
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        138
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Add a same-day order to a driver already on the road</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          Uses the open slot held in the morning plan. Orders after the 14:00 cutoff go to tomorrow
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          46
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        It adds 12 min or less, and no other stop ends up late
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        41
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Send the morning route plan to drivers</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          Who delivers what, in which order, published to the driver app
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Move a delivery to another date</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            When the customer asks; checks that date&#39;s driver capacity first
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[2]} onChange={(m) => setMode(2, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--mute)" }}>
+                          Never runs alone. Always asks you
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--line2)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--panel)",
-                            fontWeight: "600",
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Ask me</option>
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--mute)" }}>
-                        Never runs alone. Always asks you
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        26
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        100%
-                      </td>
-                    </tr>
-                    <tr style={{ background: "var(--brandTint)" }}>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Turn WhatsApp and email requests into orders</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          Fills recipient, address, items and window from the message ·{" "}
-                          <span style={{ color: "var(--brandInk)" }}>1 suggestion</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          9
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--infoLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--infoBg)",
-                            color: "var(--info)",
-                            fontWeight: "600",
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Auto if…</option>
-                          <option>Auto</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        Hamilton is{" "}
-                        <input
-                          aria-label="Confidence threshold"
-                          defaultValue="95"
+                          100%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Leave the parcel with a guard, concierge or neighbour</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>Instead of failing the delivery when nobody is home</div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[3]} onChange={(m) => setMode(3, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          The customer said yes in writing. Otherwise asks you
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            width: "36px",
-                            height: "24px",
-                            border: "1px solid var(--line2)",
-                            borderRadius: "4px",
-                            textAlign: "center",
-                          }}
-                        />
-                        % or more sure it read the order correctly. Otherwise asks you
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        58
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        91%
-                      </td>
-                    </tr>
-                    <tr style={{ background: "#FCFCFD" }}>
-                      <td
-                        colSpan={6}
-                        style={{
-                          padding: "7px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          fontSize: "11px",
-                          fontWeight: "600",
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        Proof, memory &amp; money
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Ask the driver to retake a proof photo</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          When the photo is blurry, the parcel isn&#39;t visible, or it&#39;s the wrong door
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Proof</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
-                          style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        The driver is still at the address
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        41
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
-                        <div style={{ fontWeight: "500" }}>Record what was learned</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>
-                          Add address notes (best time, gate code, safe-drop) and driver patterns
-                        </div>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>All</td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
-                        <select
-                          aria-label="Mode"
+                          31
+                        </td>
+                        <td
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--okLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--okBg)",
-                            color: "var(--ok)",
-                            fontWeight: "600",
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
                           }}
                         >
-                          <option>Auto</option>
-                          <option>Auto if…</option>
-                          <option>Ask me</option>
-                          <option>Never</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
-                        Each note links to the message or delivery it came from
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          fontFamily: "'IBM Plex Mono', monospace",
-                        }}
-                      >
-                        97
-                      </td>
-                      <td
-                        style={{
-                          padding: "10px 14px",
-                          borderBottom: "1px solid var(--line)",
-                          textAlign: "right",
-                          color: "var(--mute)",
-                        }}
-                      >
-                        n/a
-                      </td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: "10px 14px" }}>
-                        <div style={{ fontWeight: "500" }}>Issue refunds, credits or discounts</div>
-                        <div style={{ fontSize: "12px", color: "var(--mute)" }}>Anything that moves money</div>
-                      </td>
-                      <td style={{ padding: "10px", color: "var(--ink2)" }}>All</td>
-                      <td style={{ padding: "10px" }}>
-                        <select
-                          aria-label="Mode"
+                          97%
+                        </td>
+                      </tr>
+                      <tr style={{ background: "#FCFCFD" }}>
+                        <td
+                          colSpan={6}
                           style={{
-                            font: "inherit",
-                            height: "28px",
-                            border: "1px solid var(--errLine)",
-                            borderRadius: "6px",
-                            padding: "0 6px",
-                            background: "var(--errBg)",
-                            color: "var(--err)",
+                            padding: "7px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            fontSize: "11px",
                             fontWeight: "600",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                            color: "var(--mute)",
                           }}
                         >
-                          <option>Never</option>
-                          <option>Ask me</option>
-                          <option>Auto</option>
-                        </select>
-                      </td>
-                      <td style={{ padding: "10px", color: "var(--mute)" }}>Never. Always sent to you</td>
-                      <td style={{ padding: "10px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>2</td>
-                      <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--mute)" }}>n/a</td>
-                    </tr>
-                  </tbody>
-                </table>{" "}
-              </div>{" "}
+                          Dispatch
+                        </td>
+                      </tr>
+                      <tr style={{ background: "var(--brandTint)" }}>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Move stops from one driver to another</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            After a breakdown, break or delay, if every affected window still holds ·{" "}
+                            <span style={{ color: "var(--brandInk)" }}>1 suggestion</span>
+                          </div>
+                          {showHeld && (
+                            <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
+                              Held{" "}
+                              <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
+                                HAM-417
+                              </a>{" "}
+                              today at 10:33. {held.reason}
+                              {facts.phase === "approved"
+                                ? " You approved it at 10:44."
+                                : facts.phase === "rejected"
+                                  ? " You rejected it at 10:44."
+                                  : ""}
+                            </div>
+                          )}
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[4]} onChange={(m) => setMode(4, m)} />
+                        </td>
+                        {modes[4] !== "Auto if…" ? (
+                          <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--mute)" }}>
+                            {modes[4] === "Auto"
+                              ? "Always"
+                              : modes[4] === "Never"
+                                ? "Never. Always sent to you"
+                                : "Never runs alone. Always asks you"}
+                          </td>
+                        ) : (
+                          <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                            Moving{" "}
+                            <input
+                              aria-label="Stop limit"
+                              defaultValue={String(POLICIES.reassign_stops.autoLimit ?? 1)}
+                              style={{
+                                font: "inherit",
+                                width: "32px",
+                                height: "24px",
+                                border: "1px solid var(--line2)",
+                                borderRadius: "4px",
+                                textAlign: "center",
+                              }}
+                            />{" "}
+                            stop or fewer. More than that asks you
+                          </td>
+                        )}
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          24
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          96%
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Change the order of a driver&#39;s remaining stops</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            To fit a reschedule or avoid a late arrival; same driver, same stops
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[5]} onChange={(m) => setMode(5, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          No stop ends up outside its window
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          138
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
+                          }}
+                        >
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Add a same-day order to a driver already on the road</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            Uses the open slot held in the morning plan. Orders after the 14:00 cutoff go to tomorrow
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[6]} onChange={(m) => setMode(6, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          It adds 12 min or less, and no other stop ends up late
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          41
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
+                          }}
+                        >
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Send the morning route plan to drivers</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            Who delivers what, in which order, published to the driver app
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[7]} onChange={(m) => setMode(7, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--mute)" }}>
+                          Never runs alone. Always asks you
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          26
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          100%
+                        </td>
+                      </tr>
+                      <tr style={{ background: "var(--brandTint)" }}>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Turn WhatsApp and email requests into orders</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            Fills recipient, address, items and window from the message ·{" "}
+                            <span style={{ color: "var(--brandInk)" }}>1 suggestion</span>
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[8]} onChange={(m) => setMode(8, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          Hamilton is{" "}
+                          <input
+                            aria-label="Confidence threshold"
+                            defaultValue="95"
+                            style={{
+                              font: "inherit",
+                              width: "36px",
+                              height: "24px",
+                              border: "1px solid var(--line2)",
+                              borderRadius: "4px",
+                              textAlign: "center",
+                            }}
+                          />
+                          % or more sure it read the order correctly. Otherwise asks you
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          58
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          91%
+                        </td>
+                      </tr>
+                      <tr style={{ background: "#FCFCFD" }}>
+                        <td
+                          colSpan={6}
+                          style={{
+                            padding: "7px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            fontSize: "11px",
+                            fontWeight: "600",
+                            letterSpacing: "0.04em",
+                            textTransform: "uppercase",
+                            color: "var(--mute)",
+                          }}
+                        >
+                          Proof, memory &amp; money
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Ask the driver to retake a proof photo</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            When the photo is blurry, the parcel isn&#39;t visible, or it&#39;s the wrong door
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Proof</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[9]} onChange={(m) => setMode(9, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          The driver is still at the address
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          41
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
+                          }}
+                        >
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
+                          <div style={{ fontWeight: "500" }}>Record what was learned</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>
+                            Add address notes (best time, gate code, safe-drop) and driver patterns
+                          </div>
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>All</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
+                          <ModeSelect value={modes[10]} onChange={(m) => setMode(10, m)} />
+                        </td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          Each note links to the message or delivery it came from
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            fontFamily: "'IBM Plex Mono', monospace",
+                          }}
+                        >
+                          97
+                        </td>
+                        <td
+                          style={{
+                            padding: "10px 14px",
+                            borderBottom: "1px solid var(--line)",
+                            textAlign: "right",
+                            color: "var(--mute)",
+                          }}
+                        >
+                          n/a
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style={{ padding: "10px 14px" }}>
+                          <div style={{ fontWeight: "500" }}>Issue refunds, credits or discounts</div>
+                          <div style={{ fontSize: "12px", color: "var(--mute)" }}>Anything that moves money</div>
+                        </td>
+                        <td style={{ padding: "10px", color: "var(--ink2)" }}>All</td>
+                        <td style={{ padding: "10px" }}>
+                          <ModeSelect value={modes[11]} onChange={(m) => setMode(11, m)} money />
+                        </td>
+                        <td style={{ padding: "10px", color: "var(--mute)" }}>Never. Always sent to you</td>
+                        <td style={{ padding: "10px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>2</td>
+                        <td style={{ padding: "10px 14px", textAlign: "right", color: "var(--mute)" }}>n/a</td>
+                      </tr>
+                    </tbody>
+                  </table>{" "}
+                </div>
+              )}{" "}
             </section>
           </>
-        )}{" "}
-        {v.showYoursSec && (
+        }{" "}
+        {ui.showYoursSec && (
           <>
             <section
               aria-label="Your triggers"
