@@ -368,9 +368,9 @@ export default function OrdersBoard() {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(5, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(5, minmax(212px, 1fr))",
             gap: "12px",
-            minWidth: "1240px",
+            minWidth: "1108px",
             alignItems: "start",
           }}
         >

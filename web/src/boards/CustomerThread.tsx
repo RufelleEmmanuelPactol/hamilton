@@ -163,7 +163,7 @@ export default function CustomerThreadBoard() {
         <div style={{ alignSelf: "center", fontSize: "11px", color: "var(--mute)" }}>Today</div>
         <OrderCard
           label="Order #1042 · on the way"
-          title="Arriving 11:15 – 11:30"
+          title="Arriving 10:45 – 11:00"
           body="Jun is bringing your order. We'll message you if anything changes."
           driver="jun"
           time="10:05"

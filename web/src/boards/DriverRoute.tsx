@@ -35,7 +35,7 @@ const MARK: Stop = {
   address: "Tower 2, Uptown Parksuites, 36th St, BGC",
   item: "Anniversary box",
   window: "Window until 13:00",
-  eta: "11:20",
+  eta: "10:50",
 };
 const RAFFLES: Stop = {
   order: "#1043",
@@ -158,8 +158,8 @@ export default function DriverRouteBoard() {
       stop = MARK;
       stopIndex = "Stop 3 of 5";
       upNext = [
-        { label: "4 · Nicole Ramos, Serendra", time: "11:50" },
-        { label: "5 · Sam Ocampo, Makati", time: "12:25" },
+        { label: "4 · Nicole Ramos, Serendra", time: "11:25" },
+        { label: "5 · Sam Ocampo, Makati", time: "12:10" },
       ];
       instructions = markInstructions;
     } else if (phase === "approved") {

@@ -185,9 +185,9 @@ const ANA = "#E91E63";
 const RICO = "#F79009";
 
 // Jun's remaining stops in route order (stop 3, 4, 5), at their original plan times.
-const J1042 = pct("10:40");
-const J1050 = pct("11:20");
-const J1049 = pct("12:05");
+const J1042 = pct("10:50");
+const J1050 = pct("11:25");
+const J1049 = pct("12:10");
 const FLAT = pct("10:31");
 // Where the reassigned stops land if approved (the ETAs in HAM-417).
 const A1042 = pct("12:15");
@@ -309,12 +309,12 @@ export function LiveProgress() {
                   <Line from={now} to={J1049} border={`3px solid ${GREY}`} />
                   <Dot at={pct("09:24")} kind="delivered" color={JUN} title="#1041 delivered 09:24" />
                   <Dot at={pct("10:08")} kind="delivered" color={JUN} title="#1047 delivered 10:08" />
-                  <Dot at={J1042} kind="next" color={JUN} title="#1042 Mark Tan · ETA 10:40" />
-                  <Dot at={J1050} kind="planned" title="#1050 Nicole Ramos · ETA 11:20" />
-                  <Dot at={J1049} kind="planned" title="#1049 Sam Ocampo · ETA 12:05" />
+                  <Dot at={J1042} kind="next" color={JUN} title="#1042 Mark Tan · ETA 10:50" />
+                  <Dot at={J1050} kind="planned" title="#1050 Nicole Ramos · ETA 11:25" />
+                  <Dot at={J1049} kind="planned" title="#1049 Sam Ocampo · ETA 12:10" />
                   <Here at={now} color={JUN} ring="rgba(46,144,250,.35)" title="Jun · on time" />
                   <Label at={J1042} start color="var(--ink2)">
-                    #1042 · 10:40
+                    #1042 · 10:50
                   </Label>
                 </>
               ) : (
@@ -423,8 +423,8 @@ export function LiveProgress() {
               sub={moved ? "Motorcycle · 1/2 · on time" : "Motorcycle · 1/1 · at hub"}
               last
             >
-              <Line from={pct("09:30")} to={pct("10:15")} border={`3px solid ${RICO}`} />
-              <Dot at={pct("10:15")} kind="delivered" color={RICO} title="#1044 delivered 10:15" />
+              <Line from={pct("08:00")} to={pct("08:31")} border={`3px solid ${RICO}`} />
+              <Dot at={pct("08:31")} kind="delivered" color={RICO} title="#1039 Dela Cruz Bakery delivered 08:31" />
               {proposed && (
                 <>
                   <Line from={now} to={R1049} border="3px dashed var(--brand)" />

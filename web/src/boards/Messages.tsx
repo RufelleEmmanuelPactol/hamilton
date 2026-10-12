@@ -191,7 +191,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
   const markMsgs: Msg[] = [
     {
       k: "cust",
-      time: "10:21",
+      time: "10:11",
       text: "Hi, I'm at work until 6. Can you leave it with the concierge?",
       detected: "English · intent: leave with concierge",
     },
@@ -203,7 +203,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
         </>
       ),
     },
-    { k: "bot", time: "10:22", text: "No problem, Mark. We'll leave it with the concierge and send you a photo when it's delivered." },
+    { k: "bot", time: "10:12", text: "No problem, Mark. We'll leave it with the concierge and send you a photo when it's delivered." },
   ];
   let mark: Convo = {
     id: "mark",
@@ -211,7 +211,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     initials: "MT",
     order: "#1042",
     phone: "+63 917 222 1042",
-    time: "10:22",
+    time: "10:12",
     preview: "We'll leave it with the concierge.",
     topic: "Drop-off instructions",
     handling: "assistant",
