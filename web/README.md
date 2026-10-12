@@ -18,7 +18,7 @@ Production build: `npm run build` writes the static site to `web/out/`. `npm sta
 
 On any static host, the build output is `web/out/`.
 
-- **Railway:** create a service from the GitHub repo and set **Root Directory** to `/web`. `web/railway.json` sets the build (`npm run build`) and start (`npm start`, which serves `out/` on Railway's `$PORT`). Under Settings → Networking → **Generate Domain** for a public URL. Every push to the watched branch redeploys.
+- **Railway:** create a service from the GitHub repo. No settings are needed: the repo root has a `package.json` and `railway.json` that build `web/` and serve `web/out/` on Railway's `$PORT` (Node 22). Under Settings → Networking → **Generate Domain** for a public URL. Every push to the watched branch redeploys.
 - **Vercel:** import the GitHub repo and set **Root Directory** to `web`. The framework is detected as Next.js, and the default settings work.
 - **Netlify / Cloudflare Pages:** set the base directory to `web`, the build command to `npm run build`, and the publish directory to `out`.
 
