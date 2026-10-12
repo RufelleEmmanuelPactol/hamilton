@@ -29,8 +29,8 @@ export type Verdict =
   | { outcome: "ask"; policy: Policy; reason: string }
   | { outcome: "block"; policy: Policy; reason: string };
 
-export function check(p: Proposal): Verdict {
-  const policy = POLICIES[p.kind];
+/** `policy` defaults to the owner's saved policy; the landing page passes an edited one to show what would change. */
+export function check(p: Proposal, policy: Policy = POLICIES[p.kind]): Verdict {
   switch (policy.mode) {
     case "auto":
       return { outcome: "run", policy, reason: `${policy.label} run on their own.` };

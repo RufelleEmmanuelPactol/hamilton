@@ -15,6 +15,26 @@ import { persist, createJSONStorage } from "zustand/middleware";
  */
 export type Phase = "before" | "incident" | "approved" | "rejected";
 export type Estimate = "under30" | "hour" | "unsure";
+export type ColId = "review" | "scheduled" | "out" | "delivered" | "exceptions";
+export type DriverId = "JR" | "CM" | "AV" | "RS";
+
+/** An order Maria added by hand on the Orders board. */
+export interface AddedOrder {
+  id: string;
+  title: string;
+  area: string;
+  window: string;
+  /** ms timestamp, used to show the Dispatch agent picking a driver for a moment. */
+  createdAt: number;
+}
+
+/** What the person changed on the Orders board by dragging, reassigning or adding cards. */
+export interface BoardEdits {
+  /** Column → order ids, top to bottom. Null until the first move; the scripted layout is used until then. */
+  cols: Record<ColId, string[]> | null;
+  drivers: Record<string, DriverId>;
+  added: AddedOrder[];
+}
 
 export interface ScenarioState {
   phase: Phase;
@@ -27,7 +47,9 @@ export interface ScenarioState {
   notifyCustomers: boolean;
   /** Jun tapped "I'm back on the road". */
   junBackOnRoad: boolean;
+  board: BoardEdits;
 
+  setBoard: (board: BoardEdits) => void;
   reportFlat: (estimate: Estimate, note: string) => void;
   approve: () => void;
   reject: () => void;
@@ -45,12 +67,14 @@ export const INITIAL = {
   decidedAt: null,
   notifyCustomers: true,
   junBackOnRoad: false,
+  board: { cols: null, drivers: {}, added: [] } as BoardEdits,
 };
 
 export const useScenario = create<ScenarioState>()(
   persist(
     (set, get) => ({
       ...INITIAL,
+      setBoard: (board) => set({ board }),
       reportFlat: (estimate, note) => {
         if (get().phase !== "before") return;
         set({ phase: "incident", report: { estimate, note }, reportedAt: Date.now() });
@@ -86,6 +110,7 @@ export const useScenario = create<ScenarioState>()(
         decidedAt: s.decidedAt,
         notifyCustomers: s.notifyCustomers,
         junBackOnRoad: s.junBackOnRoad,
+        board: s.board,
       }),
     },
   ),

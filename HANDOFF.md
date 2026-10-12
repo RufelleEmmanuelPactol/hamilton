@@ -211,3 +211,13 @@ Open a new session on this repo and say "read HANDOFF.md". Canvas link (private 
 - Railway: the repo-root `package.json` + `railway.json` build `web/` and serve `web/out` on `$PORT` (Node 22). Checked with Railpack 0.40.1 locally.
 - Plan times everyone agrees on: Jun's planned ETAs are #1042 10:50, #1050 11:25, #1049 12:10. The Mark Tan concierge exchange is at 10:11–10:12.
 - End-to-end check: `web/scripts/e2e.cjs` (serve `web/out` on :3123 first).
+
+### 9.6 Landing page and interactive Orders (12 Oct, later)
+
+- **Owner feedback:** the old landing page "should be marketing focused like Camunda", and the demo wasn't interactable ("I cannot drag tickets").
+- **Landing page** (`web/src/landing/Landing.tsx`, rendered by `web/src/app/page.tsx`) is now a marketing page: dark hero with a live widget (approve HAM-417 and watch Jun's stops move to Ana and Rico), "built for" band, problem stats (from `docs/problem-research.md`, sources cited), tabbed agent showcase, a **policy playground** that calls the real `check()` from `lib/policy.ts` (`check()` now takes an optional edited policy), how it works, demo timeline, roadmap, final CTA and a footer linking the case-study docs. The landing widgets use local state only; they never touch the saved scenario.
+- **Orders board** (`web/src/boards/Orders.tsx`) is interactive: drag cards between columns (pointer events: mouse, pen, long-press on touch), placeholder and drop highlight, toast with Undo, avatar menu to move or reassign (keyboard path), Group by Status or Driver (dropping on a driver reassigns), driver filter, a working List view with Status/Driver selects, and **New order** (the Dispatch agent "assigns" Carlo after a short thinking state). Edits live in the scenario store as `board` and are cleared by the hidden reset.
+- **Artifacts (owner's, private):**
+  - Scoping deck (slides): https://claude.ai/artifact/P8KM2kMQseL9TCK2YB4GSM
+  - Website artifact: https://claude.ai/artifact/8vpLer3NpV1zJ3R3ikUD9j
+  - The owner has share links with access keys for both. They are deliberately **not** in this public repo.
