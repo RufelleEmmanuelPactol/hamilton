@@ -65,8 +65,8 @@ export function PersonLink({ name, look = "inline", label, children }: { name: s
       }}
       aria-label={`${p.name}: open profile`}
     >
-      {look === "chip" && <Mini p={p} />}
       {look === "chip" && label && <span className="ham-chip-k">{label}</span>}
+      {look === "chip" && <Mini p={p} />}
       {children ?? p.name}
     </button>
   );

@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
 import { check, HAM_417, POLICIES, type Mode } from "@/lib/policy";
+import { AgentLink, OrderLink, PersonLink, TicketLink } from "@/components/Entity";
 
 type ModeLabel = "Auto" | "Auto if…" | "Ask me" | "Never";
 const LABEL: Record<Mode, ModeLabel> = { auto: "Auto", auto_if: "Auto if…", ask: "Ask me", never: "Never" };
@@ -540,7 +541,9 @@ export default function AutonomyBoard() {
                             WhatsApp or SMS when the driver leaves, arrives, delivers (with photo), or the ETA will miss the window
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Assurance" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[0]} onChange={(m) => setMode(0, m)} />
                         </td>
@@ -573,7 +576,9 @@ export default function AutonomyBoard() {
                             When the customer asks for a new time, or the current ETA will miss their window
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Assurance" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[1]} onChange={(m) => setMode(1, m)} />
                         </td>
@@ -608,7 +613,9 @@ export default function AutonomyBoard() {
                             When the customer asks; checks that date&#39;s driver capacity first
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Assurance" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[2]} onChange={(m) => setMode(2, m)} />
                         </td>
@@ -641,7 +648,9 @@ export default function AutonomyBoard() {
                           <div style={{ fontWeight: "500" }}>Leave the parcel with a guard, concierge or neighbour</div>
                           <div style={{ fontSize: "12px", color: "var(--mute)" }}>Instead of failing the delivery when nobody is home</div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Assurance</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Assurance" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[3]} onChange={(m) => setMode(3, m)} />
                         </td>
@@ -694,11 +703,8 @@ export default function AutonomyBoard() {
                           </div>
                           {showHeld && (
                             <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
-                              Held{" "}
-                              <a href="/console/approvals?t=HAM-417" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
-                                HAM-417
-                              </a>{" "}
-                              today at 10:33. {held.reason}
+                              Held <TicketLink id="HAM-417" /> today at 10:33: 3 stops from <PersonLink name="Jun Reyes" />.{" "}
+                              {held.reason}
                               {facts.phase === "approved"
                                 ? " You approved it at 10:44."
                                 : facts.phase === "rejected"
@@ -707,7 +713,9 @@ export default function AutonomyBoard() {
                             </div>
                           )}
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Dispatch" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[4]} onChange={(m) => setMode(4, m)} />
                         </td>
@@ -765,7 +773,9 @@ export default function AutonomyBoard() {
                             To fit a reschedule or avoid a late arrival; same driver, same stops
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Dispatch" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[5]} onChange={(m) => setMode(5, m)} />
                         </td>
@@ -800,7 +810,9 @@ export default function AutonomyBoard() {
                             Uses the open slot held in the morning plan. Orders after the 14:00 cutoff go to tomorrow
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Dispatch" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[6]} onChange={(m) => setMode(6, m)} />
                         </td>
@@ -835,7 +847,9 @@ export default function AutonomyBoard() {
                             Who delivers what, in which order, published to the driver app
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Dispatch" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[7]} onChange={(m) => setMode(7, m)} />
                         </td>
@@ -870,8 +884,14 @@ export default function AutonomyBoard() {
                             Fills recipient, address, items and window from the message ·{" "}
                             <span style={{ color: "var(--brandInk)" }}>1 suggestion</span>
                           </div>
+                          <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
+                            Held <TicketLink id="HAM-414" /> today at 09:58: <OrderLink id="WA-0912" /> for{" "}
+                            <PersonLink name="Rina Bautista" />. Building in Makati unclear.
+                          </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Dispatch</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Dispatch" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[8]} onChange={(m) => setMode(8, m)} />
                         </td>
@@ -935,7 +955,9 @@ export default function AutonomyBoard() {
                             When the photo is blurry, the parcel isn&#39;t visible, or it&#39;s the wrong door
                           </div>
                         </td>
-                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>Proof</td>
+                        <td style={{ padding: "10px", borderBottom: "1px solid var(--line)", color: "var(--ink2)" }}>
+                          <AgentLink name="Proof" />
+                        </td>
                         <td style={{ padding: "10px", borderBottom: "1px solid var(--line)" }}>
                           <ModeSelect value={modes[9]} onChange={(m) => setMode(9, m)} />
                         </td>
@@ -1002,6 +1024,10 @@ export default function AutonomyBoard() {
                         <td style={{ padding: "10px 14px" }}>
                           <div style={{ fontWeight: "500" }}>Issue refunds, credits or discounts</div>
                           <div style={{ fontSize: "12px", color: "var(--mute)" }}>Anything that moves money</div>
+                          <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
+                            Held <TicketLink id="HAM-416" /> today at 10:27: refund request on <OrderLink id="#1045" /> from{" "}
+                            <PersonLink name="Paolo Lim" />.
+                          </div>
                         </td>
                         <td style={{ padding: "10px", color: "var(--ink2)" }}>All</td>
                         <td style={{ padding: "10px" }}>
@@ -1193,7 +1219,8 @@ export default function AutonomyBoard() {
                 </span>
                 <div style={{ flex: "1", minWidth: "0" }}>
                   <div style={{ color: "var(--ink)", fontWeight: "500" }}>
-                    Orders over ₱5,000 only go to Jun or Ana, and need a signature.
+                    Orders over ₱5,000 only go to <PersonLink name="Jun Reyes">Jun</PersonLink> or{" "}
+                    <PersonLink name="Ana Villanueva">Ana</PersonLink>, and need a signature.
                   </div>
                   <div style={{ marginTop: "6px", paddingLeft: "10px", borderLeft: "2px solid var(--line)" }}>
                     <div style={{ display: "flex", alignItems: "baseline", gap: "8px", marginTop: "4px" }}>
@@ -1239,7 +1266,7 @@ export default function AutonomyBoard() {
                 <div style={{ fontSize: "12px", color: "var(--mute)", textAlign: "right", whiteSpace: "nowrap" }}>
                   Fired 14× · 30d
                   <br />
-                  by Maria · 2 Sep
+                  by <PersonLink name="Maria Santos">Maria</PersonLink> · 2 Sep
                 </div>
               </div>{" "}
               <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
@@ -1315,7 +1342,7 @@ export default function AutonomyBoard() {
                 <div style={{ fontSize: "12px", color: "var(--mute)", textAlign: "right", whiteSpace: "nowrap" }}>
                   Fired 2× · 30d
                   <br />
-                  by Maria · 18 Sep
+                  by <PersonLink name="Maria Santos">Maria</PersonLink> · 18 Sep
                 </div>
               </div>{" "}
               <div style={{ display: "flex", gap: "12px", padding: "12px 14px", borderBottom: "1px solid var(--line)" }}>
@@ -1484,7 +1511,7 @@ export default function AutonomyBoard() {
                 <div style={{ fontSize: "12px", color: "var(--mute)", textAlign: "right", whiteSpace: "nowrap" }}>
                   Paused
                   <br />
-                  by Maria · 20 Aug
+                  by <PersonLink name="Maria Santos">Maria</PersonLink> · 20 Aug
                 </div>
               </div>{" "}
             </section>
@@ -1593,7 +1620,7 @@ export default function AutonomyBoard() {
                 </div>{" "}
               </div>{" "}
               <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "8px" }}>
-                The one rejection moved a wedding order off Jun. Wedding orders stay Ask me.
+                The one rejection moved a wedding order off <PersonLink name="Jun Reyes">Jun</PersonLink>. Wedding orders stay Ask me.
               </div>{" "}
             </div>{" "}
             <div

@@ -5,6 +5,7 @@ import { useScenario, type Estimate } from "@/lib/store";
 import { useFlip } from "@/lib/flip";
 import { useScenarioFacts, scenarioEvents } from "@/lib/scenario";
 import { check, HAM_417 } from "@/lib/policy";
+import { AgentLink, Chip, OrderLink, PersonLink, PolicyLink, TicketLink } from "@/components/Entity";
 
 /* ---------- small helpers ---------- */
 
@@ -127,6 +128,39 @@ function DecidedBar({ tone, children }: { tone: "ok" | "neutral"; children: Reac
   );
 }
 
+/** Property chips under a ticket: ID, agent, age, policy and the people and order it is about. */
+function TicketMeta(p: {
+  id: string;
+  agent: string;
+  created: string;
+  clock: string;
+  policy: string;
+  reason?: ReactNode;
+  customer?: string;
+  driver?: string;
+  order?: string;
+}) {
+  return (
+    <>
+      <span className="ham-chips">
+        <TicketLink id={p.id} look="chip" />
+        <AgentLink name={p.agent} look="chip" />
+        <Chip k="Created">{`${p.created} · ${age(p.created, p.clock)} ago`}</Chip>
+        <PolicyLink label={p.policy} look="chip" k="Policy" />
+        {p.customer && <PersonLink name={p.customer} look="chip" label="Customer" />}
+        {p.driver && <PersonLink name={p.driver} look="chip" label="Driver" />}
+        {p.order && <OrderLink id={p.order} look="chip" k="Order" />}
+      </span>
+      {p.reason && <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "6px" }}>{p.reason}</div>}
+    </>
+  );
+}
+
+/** Full names behind the first names used in tables. */
+const DRIVER: Record<string, string> = { Jun: "Jun Reyes", Ana: "Ana Villanueva", Rico: "Rico Santos", Carlo: "Carlo Mendoza" };
+const Who = ({ first }: { first: string }) => <PersonLink name={DRIVER[first] ?? first}>{first}</PersonLink>;
+const Maria = () => <PersonLink name="Maria Santos">Maria</PersonLink>;
+
 /* ---------- the queue ---------- */
 
 type TicketId = "HAM-417" | "HAM-414" | "HAM-416";
@@ -145,7 +179,7 @@ const TICKETS: Record<TicketId, { tag: [Tone, string]; agent: string; created: s
     agent: "Dispatch agent",
     created: "09:58",
     title: "Create order WA-0912 from WhatsApp",
-    sub: "Not sure which building in Makati",
+    sub: "Building in Makati unclear",
   },
   "HAM-416": {
     tag: ["neutral", "Escalated"],
@@ -250,21 +284,21 @@ function UncertaintyNote({ estimate, back }: { estimate: Estimate; back: [string
     return (
       <div>
         <b style={{ color: "var(--ink)" }}>Jun said under 30 min; his last 2 flats took 50 and 70 min.</b> Assumes he is back{" "}
-        {t(back[0])}–{t(back[1])}. Even back by {t(back[0])}, #1042 and #1049 are late.
+        {t(back[0])}–{t(back[1])}. Even back by {t(back[0])}, <OrderLink id="#1042" /> and <OrderLink id="#1049" /> are late.
       </div>
     );
   if (estimate === "unsure")
     return (
       <div>
         <b style={{ color: "var(--ink)" }}>No repair estimate from Jun.</b> From <b>his last 2 flats</b> (50 and 70 min), assumes he is
-        back {t(back[0])}–{t(back[1])}. Best case, #1042 and #1049 are still late.
+        back {t(back[0])}–{t(back[1])}. Best case, <OrderLink id="#1042" /> and <OrderLink id="#1049" /> are still late.
       </div>
     );
   return (
     <div>
       <b style={{ color: "var(--ink)" }}>Repair time unknown.</b> Assumes Jun is back {t(back[0])}–{t(back[1])}, from{" "}
-      <b>his report</b> (&#34;about 1 hour&#34;) and <b>his last 2 flats</b> (50 and 70 min). Best case (back by 11:00), #1042 and
-      #1049 are still late.
+      <b>his report</b> (&#34;about 1 hour&#34;) and <b>his last 2 flats</b> (50 and 70 min). Best case (back by 11:00), <OrderLink id="#1042" /> and{" "}
+      <OrderLink id="#1049" /> are still late.
     </div>
   );
 }
@@ -337,18 +371,19 @@ function Ham417Detail({
   return (
     <>
       <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", color: "var(--mute)", fontSize: "12px" }}>
-          <span style={{ fontFamily: MONO }}>HAM-417</span>
-          <span>·</span>
-          <span>Created 10:33 by Dispatch agent</span>
-          <span>·</span>
-          <span>
-            Policy: {verdict.policy.label}. {verdict.reason}
-          </span>
-        </div>
-        <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Reassign 3 stops from Jun Reyes</h2>
+        <TicketMeta
+          id="HAM-417"
+          agent="Dispatch agent"
+          created="10:33"
+          clock={f.clock}
+          policy={verdict.policy.label}
+          reason={verdict.reason}
+          driver="Jun Reyes"
+        />
+        <h2 style={{ margin: "10px 0 0", fontSize: "18px", fontWeight: "600" }}>Reassign 3 stops from Jun Reyes</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
-          Jun reported a flat tire at 10:31 on EDSA near Guadalupe. {estimateText} 2 of his 3 remaining deliveries will be late.
+          <Who first="Jun" /> reported a flat tire at 10:31 on EDSA near Guadalupe. {estimateText} 2 of his 3 remaining deliveries will be
+          late.
         </p>
       </div>
       <div style={section}>
@@ -408,10 +443,15 @@ function Ham417Detail({
                     return (
                       <tr key={s.id}>
                         <td style={td}>
-                          <span style={{ fontFamily: MONO, fontWeight: "600" }}>{s.id}</span> {s.name}
+                          <span style={{ fontWeight: "600" }}>
+                            <OrderLink id={s.id} />
+                          </span>{" "}
+                          <PersonLink name={s.name} />
                           <div style={{ fontSize: "12px", color: "var(--mute)" }}>{s.area}</div>
                         </td>
-                        <td style={td}>Jun</td>
+                        <td style={td}>
+                          <Who first="Jun" />
+                        </td>
                         <td style={tdMono}>
                           {fmt(a)}–{fmt(b)}
                         </td>
@@ -439,7 +479,13 @@ function Ham417Detail({
             </div>
             <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "8px" }}>
               No extra driving ·{" "}
-              {notify ? "customers #1042 and #1049 get a late-delivery apology" : "customers are not told (notifications off)"}
+              {notify ? (
+                <>
+                  customers <OrderLink id="#1042" /> and <OrderLink id="#1049" /> get a late-delivery apology
+                </>
+              ) : (
+                "customers are not told (notifications off)"
+              )}
             </div>
           </>
         ) : (
@@ -462,11 +508,16 @@ function Ham417Detail({
                   {JUN_STOPS.map((s) => (
                     <tr key={s.id}>
                       <td style={td}>
-                        <span style={{ fontFamily: MONO, fontWeight: "600" }}>{s.id}</span> {s.name}
+                        <span style={{ fontWeight: "600" }}>
+                          <OrderLink id={s.id} />
+                        </span>{" "}
+                        <PersonLink name={s.name} />
                         <div style={{ fontSize: "12px", color: "var(--mute)" }}>{s.area}</div>
                       </td>
                       <td style={td}>
-                        <span style={{ color: "var(--mute)", textDecoration: "line-through" }}>Jun</span> <b>{s.to}</b>
+                        <span style={{ color: "var(--mute)", textDecoration: "line-through" }}>Jun</span> <b>
+                          <Who first={s.to} />
+                        </b>
                       </td>
                       <td style={tdMono}>{s.newEta}</td>
                       <td style={{ ...tdMono, color: "var(--mute)" }}>{s.due}</td>
@@ -493,8 +544,13 @@ function Ham417Detail({
             <Sparkle /> Agent reasoning
           </div>
           <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.65" }}>
-            <li>Ana has the lightest load and is 14 min from BGC. Ben Cruz moved to 15:00, freeing her midday.</li>
-            <li>Rico is idle in Makati, 6 min from Joya Lofts, which has clear lobby instructions.</li>
+            <li>
+              <Who first="Ana" /> has the lightest load and is 14 min from BGC. <PersonLink name="Ben Cruz" /> moved to 15:00, freeing
+              her midday.
+            </li>
+            <li>
+              <Who first="Rico" /> is idle in Makati, 6 min from Joya Lofts, which has clear lobby instructions.
+            </li>
             <li>All three windows hold after the move. Added driving: +9 km.</li>
           </ul>
         </div>
@@ -503,8 +559,18 @@ function Ham417Detail({
             <>
               <div style={{ fontWeight: "600", marginBottom: "6px" }}>Done at 10:44</div>
               <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.65" }}>
-                <li>Jun keeps his 3 stops</li>
-                <li>{notify ? "Late-delivery apology sent to #1042 and #1049" : "Customers not notified (notifications off)"}</li>
+                <li>
+                  <Who first="Jun" /> keeps his 3 stops
+                </li>
+                <li>
+                  {notify ? (
+                    <>
+                      Late-delivery apology sent to <OrderLink id="#1042" /> and <OrderLink id="#1049" />
+                    </>
+                  ) : (
+                    "Customers not notified (notifications off)"
+                  )}
+                </li>
                 <li>Logged as an override</li>
               </ul>
             </>
@@ -512,9 +578,13 @@ function Ham417Detail({
             <>
               <div style={{ fontWeight: "600", marginBottom: "6px" }}>{f.phase === "approved" ? "Done at 10:44" : "On approval"}</div>
               <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.65" }}>
-                <li>Routes re-sequenced for Ana and Rico</li>
+                <li>
+                  Routes re-sequenced for <Who first="Ana" /> and <Who first="Rico" />
+                </li>
                 <li>{notify ? "3 customers notified with new ETAs" : "Customers not notified (notifications off)"}</li>
-                <li>Incident logged on Jun&#39;s profile</li>
+                <li>
+                  Incident logged on <PersonLink name="Jun Reyes">Jun&#39;s profile</PersonLink>
+                </li>
               </ul>
             </>
           )}
@@ -542,7 +612,9 @@ function Ham417Detail({
       {f.phase === "approved" ? (
         <DecidedBar tone="ok">
           <span style={{ flex: "1 1 320px" }}>
-            <b>Approved by Maria at 10:44</b> · Ana and Rico&#39;s routes updated ·{" "}
+            <b>
+              Approved by <Maria /> at 10:44
+            </b> · Ana and Rico&#39;s routes updated ·{" "}
             {notify ? "3 customers notified" : "customers not notified"}
           </span>
           <a href="/console/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
@@ -556,8 +628,17 @@ function Ham417Detail({
       ) : f.phase === "rejected" ? (
         <DecidedBar tone="neutral">
           <span style={{ flex: "1 1 320px" }}>
-            <b>Rejected by Maria at 10:44</b> · Jun keeps his 3 stops ·{" "}
-            {notify ? "#1042 and #1049 get a late-delivery apology" : "customers not told"}
+            <b>
+              Rejected by <Maria /> at 10:44
+            </b>{" "}
+            · <Who first="Jun" /> keeps his 3 stops ·{" "}
+            {notify ? (
+              <>
+                <OrderLink id="#1042" /> and <OrderLink id="#1049" /> get a late-delivery apology
+              </>
+            ) : (
+              "customers not told"
+            )}
           </span>
           <a href="/console/dispatch" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             See routes
@@ -592,26 +673,29 @@ function Ham417Detail({
 
 type Local414 = null | "approved" | "rejected";
 function Ham414Detail({ clock, decision, setDecision }: { clock: string; decision: Local414; setDecision: (d: Local414) => void }) {
-  const rows: [string, string, Tone, string][] = [
+  const rows: [string, ReactNode, Tone, string][] = [
     ["Items", "Red roses (12) + chocolates", "ok", "Sure"],
-    ["Recipient", "Rina Bautista", "ok", "Sure"],
-    ["Deliver to", "Makati, building unclear", "warn", "Not sure"],
+    ["Recipient", <PersonLink key="r" name="Rina Bautista" />, "ok", "Sure"],
+    ["Deliver to", "Makati, building unclear", "warn", "Unclear"],
     ["Window", "Today 13:00–16:00 (“before 4pm”)", "ok", "Sure"],
     ["Payment", "Not paid yet", "ok", "Sure"],
   ];
   return (
     <>
       <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", color: "var(--mute)", fontSize: "12px" }}>
-          <span style={{ fontFamily: MONO }}>HAM-414</span>
-          <span>·</span>
-          <span>Created 09:58 by Dispatch agent</span>
-          <span>·</span>
-          <span>Policy: Orders from messages · Ask me when the address is unclear</span>
-        </div>
-        <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Create order WA-0912 from WhatsApp</h2>
+        <TicketMeta
+          id="HAM-414"
+          agent="Dispatch agent"
+          created="09:58"
+          clock={clock}
+          policy="Orders from messages"
+          reason="Asks you when the address is unclear."
+          customer="Rina Bautista"
+          order="WA-0912"
+        />
+        <h2 style={{ margin: "10px 0 0", fontSize: "18px", fontWeight: "600" }}>Create order WA-0912 from WhatsApp</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
-          Rina Bautista ordered on WhatsApp at 09:57. Building in Makati unclear.
+          <PersonLink name="Rina Bautista" /> ordered on WhatsApp at 09:57. Building in Makati unclear.
         </p>
       </div>
       <div style={section}>
@@ -670,18 +754,27 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
       {decision === "approved" ? (
         <DecidedBar tone="ok">
           <span>
-            <b>Approved by Maria at {clock}</b> · order created · building requested from Rina on WhatsApp
+            <b>
+              Approved by <Maria /> at {clock}
+            </b>{" "}
+            · order <OrderLink id="WA-0912" /> created · building requested from{" "}
+            <PersonLink name="Rina Bautista">Rina</PersonLink> on WhatsApp
           </span>
         </DecidedBar>
       ) : decision === "rejected" ? (
         <DecidedBar tone="neutral">
           <span>
-            <b>Rejected by Maria at {clock}</b> · no order created
+            <b>
+              Rejected by <Maria /> at {clock}
+            </b>{" "}
+            · no order created
           </span>
         </DecidedBar>
       ) : (
         <div style={bar}>
-          <span style={{ flex: "1", color: "var(--ink2)" }}>On approval: order created · Rina asked for the building</span>
+          <span style={{ flex: "1", color: "var(--ink2)" }}>
+            On approval: order created · <PersonLink name="Rina Bautista">Rina</PersonLink> asked for the building
+          </span>
           <button type="button" onClick={() => setDecision("rejected")} style={btn}>
             Reject
           </button>
@@ -707,7 +800,7 @@ const OPTIONS = [
   { id: "decline", label: "Decline with reason", note: "The proof photo shows fresh flowers at 08:58. Risks losing a regular customer." },
 ];
 
-function PhotoPlaceholder({ label, meta, wilted }: { label: string; meta: string; wilted?: boolean }) {
+function PhotoPlaceholder({ label, meta, wilted }: { label: string; meta: ReactNode; wilted?: boolean }) {
   return (
     <figure style={{ margin: "0", flex: "1 1 160px" }}>
       <div
@@ -756,7 +849,12 @@ function Ham416Detail(p: {
   const facts: [string, ReactNode][] = [
     ["Delivered", <>08:58 · window 08:30–11:00 · on time</>],
     ["Time in transit", <>46 min (picked up 08:12)</>],
-    ["Driver notes", <>&#34;Handed to staff at the counter. Boxes upright, kept out of the sun.&#34; (Carlo)</>],
+    [
+      "Driver notes",
+      <>
+        &#34;Handed to staff at the counter. Boxes upright, kept out of the sun.&#34; (<Who first="Carlo" />)
+      </>,
+    ],
     ["Address history", <>Café Morato: 11 deliveries in 90 days, no earlier claims</>],
     ["Photo check", <>Proof photo shows 8 upright, fresh centerpieces</>],
   ];
@@ -764,17 +862,19 @@ function Ham416Detail(p: {
   return (
     <>
       <div style={{ padding: "16px 18px", borderBottom: "1px solid var(--line)" }}>
-        <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "8px", color: "var(--mute)", fontSize: "12px" }}>
-          <span style={{ fontFamily: MONO }}>HAM-416</span>
-          <span>·</span>
-          <span>Created 10:27 by Assurance agent</span>
-          <span>·</span>
-          <span>Policy: {verdict.policy.label} · Never</span>
-        </div>
-        <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Refund request · Paolo Lim #1045</h2>
+        <TicketMeta
+          id="HAM-416"
+          agent="Assurance agent"
+          created="10:27"
+          clock={clock}
+          policy={verdict.policy.label}
+          customer="Paolo Lim"
+          order="#1045"
+        />
+        <h2 style={{ margin: "10px 0 0", fontSize: "18px", fontWeight: "600" }}>Refund request · Paolo Lim #1045</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
-          Paolo Lim (Café Morato) says 2 of the 8 table centerpieces arrived wilted and asked for a refund. Carlo delivered order #1045 at
-          08:58.
+          <PersonLink name="Paolo Lim" /> (Café Morato) says 2 of the 8 table centerpieces arrived wilted and asked for a refund.{" "}
+          <Who first="Carlo" /> delivered order <OrderLink id="#1045" /> at 08:58.
         </p>
         <div
           style={{
@@ -821,7 +921,14 @@ function Ham416Detail(p: {
         </div>
         <div style={{ border: "1px solid #F8BBD0", background: "#FFF7FA", borderRadius: "6px", padding: "10px 12px" }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "8px" }}>
-            <PhotoPlaceholder label="Proof photo" meta="08:58 · Carlo" />
+            <PhotoPlaceholder
+              label="Proof photo"
+              meta={
+                <>
+                  08:58 · <Who first="Carlo" />
+                </>
+              }
+            />
             <PhotoPlaceholder label="Paolo's photo" meta="10:27 · 1h 29m later" wilted />
           </div>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -896,7 +1003,10 @@ function Ham416Detail(p: {
       {recorded ? (
         <DecidedBar tone="ok">
           <span style={{ flex: "1 1 320px" }}>
-            <b>Decision recorded by Maria at {clock}</b> · {chosen.label}
+            <b>
+              Decision recorded by <Maria /> at {clock}
+            </b>{" "}
+            · {chosen.label}
           </span>
           <a href="/console/messages" style={{ fontWeight: "600", textDecoration: "none", whiteSpace: "nowrap" }}>
             Reply to Paolo
