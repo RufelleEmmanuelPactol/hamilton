@@ -46,6 +46,8 @@ export function ScenarioRuntime() {
       const a = (e.target as HTMLElement).closest("a");
       const href = a?.getAttribute("href");
       if (!a || !href || a.target || !href.startsWith("/") || href.startsWith("//")) return;
+      // Presenter params are handled on page load, so let those links load normally.
+      if (/[?&](reset|step)=/.test(href)) return;
       e.preventDefault();
       router.push(href);
     };

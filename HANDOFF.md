@@ -30,7 +30,7 @@ _Last updated: Mon 12 Oct 2026. See §9 for the session log and the agreed deliv
 | Product roadmap | ✅ `docs/roadmap.md` |
 | Top 3 agentic functions | ✅ `README.md`, `docs/scope.md` |
 | Scoping pack (PPT) | ❌ **Not started**. It now lives inside the website (§9.2). |
-| Basic interactive prototype | 🟡 The Claude Design canvas is clickable. The coded website is not started (plan in §9.2). |
+| Basic interactive prototype | ✅ `web/`: the website, deployable on Railway from the repo root. See `web/README.md`. |
 | GitHub repo | ✅ Pushed on Mon 12 Oct to branch `claude/funny-gates-6b2di5` (see §6) |
 
 ## 2. Product in one paragraph
@@ -202,3 +202,12 @@ Don't build a general-purpose app.
 ### 9.4 Starting a new conversation
 
 Open a new session on this repo and say "read HANDOFF.md". Canvas link (private to the owner): https://claude.ai/code/artifact/40339063-e6e3-46ea-b06b-3332386432b2. A new session has to re-watch the canvas before canvas comments will wake it.
+
+### 9.5 Website build (12 Oct, later)
+
+- `web/` is a static Next.js 14 app. The canvas boards were converted to React (`web/scripts/convert-boards.mjs`), then wired to one scenario store (`web/src/lib/store.ts`). The phases are before (10:30) → incident (10:42) → approved/rejected (10:44).
+- The policy check is real code (`web/src/lib/policy.ts`); agent outputs are scripted. There are no model calls and no API keys.
+- Hidden presenter controls: `?reset=1`, `Shift+Alt+R`, `?step=before|incident|approved|rejected`. The landing page's "Start the demo" link uses `?reset=1`.
+- Railway: the repo-root `package.json` + `railway.json` build `web/` and serve `web/out` on `$PORT` (Node 22). Checked with Railpack 0.40.1 locally.
+- Plan times everyone agrees on: Jun's planned ETAs are #1042 10:50, #1050 11:25, #1049 12:10. The Mark Tan concierge exchange is at 10:11–10:12.
+- End-to-end check: `web/scripts/e2e.cjs` (serve `web/out` on :3123 first).
