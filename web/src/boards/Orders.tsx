@@ -441,7 +441,7 @@ interface Pending {
 }
 
 const EMPTY_HINT: Partial<Record<ColId, string>> = {
-  exceptions: "Failed and disputed orders land here.",
+  exceptions: "No failed or disputed orders",
 };
 
 export default function OrdersBoard() {
@@ -571,7 +571,7 @@ export default function OrdersBoard() {
         cols,
         added: [...edits.added, { id, title: `${o.item} · ${o.customer}`, area: o.area, window: o.window, createdAt: t }],
       },
-      `Added ${id}. The Dispatch agent is assigning a driver.`,
+      `Added ${id} · assigning a driver`,
     );
   };
 
@@ -764,7 +764,7 @@ export default function OrdersBoard() {
                           lineHeight: "1.5",
                         }}
                       >
-                        {EMPTY_HINT[lane.id as ColId] ?? "Nothing here."} Drag a card here to move it.
+                        {EMPTY_HINT[lane.id as ColId] ?? "Empty"}
                       </div>
                     )}
                   </div>
@@ -878,7 +878,7 @@ function Toolbar(p: {
           List
         </button>
       </div>
-      <span style={{ color: "var(--mute)", fontSize: "12px" }}>{p.view === "board" ? "Drag cards to move or reassign them" : ""}</span>
+      <span style={{ color: "var(--mute)", fontSize: "12px" }}>{p.view === "board" ? "Drag to move or reassign" : ""}</span>
       <div style={{ flex: "1" }}></div>
 
       <div style={{ position: "relative" }}>
@@ -1023,7 +1023,7 @@ function NewOrderForm({
         </label>
       </div>
       <div style={{ fontSize: "12px", color: "var(--mute)", display: "flex", gap: "6px", alignItems: "flex-start", lineHeight: 1.45 }}>
-        <Sparkle size={12} /> The Dispatch agent picks the driver. Assigning new orders runs on its own (Auto).
+        <Sparkle size={12} /> Driver picked by the Dispatch agent (Auto)
       </div>
       <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
         <button type="button" onClick={onCancel} style={btn}>

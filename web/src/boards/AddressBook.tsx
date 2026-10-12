@@ -877,7 +877,7 @@ export default function AddressBookBoard() {
               >
                 {edited !== null ? (
                   <>
-                    <span style={{ color: "var(--ink)", fontWeight: "500" }}>Edited by Maria</span> at {facts.clock}. Your version is kept.{" "}
+                    <span style={{ color: "var(--ink)", fontWeight: "500" }}>Edited by Maria</span> at {facts.clock} · overrides the summary{" "}
                     <button
                       onClick={() => setEdited(null)}
                       style={{
@@ -912,7 +912,7 @@ export default function AddressBookBoard() {
               </div>
             </div>
             <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px" }}>
-              Dispatch and Messages agents read this before planning or replying. Your edits are kept and override the summary.
+              Used by the Dispatch and Messages agents
             </div>{" "}
           </div>{" "}
         </aside>{" "}

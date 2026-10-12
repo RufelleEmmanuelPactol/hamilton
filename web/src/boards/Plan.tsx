@@ -517,8 +517,8 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
               <b>Rico</b> is in his 4th week. He gets 2 Makati stops close to the hub, both with access notes.
             </li>
             <li>
-              <b>1 same-day slot</b> is held on Carlo&#39;s Quezon City afternoon (14:00–16:00). If nothing comes in by 14:00, it is
-              released.
+              <b>1 same-day slot</b> is held on Carlo&#39;s Quezon City afternoon (14:00–16:00). Released at 14:00 if
+              unused.
             </li>
           </ul>
           <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #FBD5E3" }}>
@@ -545,7 +545,7 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
         <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 14px", borderBottom: "1px solid var(--line)" }}>
           <h2 style={{ margin: "0", fontSize: "14px", fontWeight: "600", flex: "1" }}>Stops by driver</h2>
           <span style={{ fontSize: "12px", color: "var(--mute)" }}>
-            {approved ? "Planned times · drivers get them at 06:30" : "Planned times · drivers see them after you approve"}
+            {approved ? "Planned times · drivers get them at 06:30" : "Planned times · not sent yet"}
           </span>
         </div>
         <div style={{ overflowX: "auto" }}>
@@ -1261,9 +1261,9 @@ export default function PlanBoard() {
   const junStuck = f.junIncident && !f.junBackOnRoad;
   const { groups, routes, moved, late } = applyRoutes(scripted, edits, { clock: f.clock, junStuck });
   const locked = f.thinking
-    ? "The Dispatch agent is re-planning"
+    ? "Dispatch agent is re-planning"
     : f.ticketOpen
-      ? "Locked while HAM-417 waits for you"
+      ? "Locked until HAM-417 is decided"
       : null;
   const moveStop = (order: string, to: DriverKey, index?: number) => {
     const from = ORDER.find((d) => routes[d].includes(order))!;
@@ -1344,16 +1344,16 @@ export default function PlanBoard() {
           </div>
           <div style={{ color: "var(--mute)", marginTop: "2px" }}>
             {tab === "today"
-              ? "Today's plan was published at 07:52 after you approved it. Stops update live as drivers deliver."
+              ? "Published 07:52 · 12 stops · 4 drivers"
               : draftApproved
-                ? "You approved the plan for Tue 13 Oct. Drivers get their routes at 06:30."
-                : "Draft for Tue 13 Oct. Nothing goes to drivers until you approve it."}
+                ? "Tue 13 Oct · approved · sends to drivers at 06:30"
+                : "Tue 13 Oct · draft · not sent to drivers"}
           </div>
         </div>
         {tab === "today" ? (
           <>
             {edits ? (
-              <button style={btnSecondary} onClick={() => (setToast({ text: "Your route changes were discarded", undo: dispatch }), setDispatch(null))}>
+              <button style={btnSecondary} onClick={() => (setToast({ text: "Route changes discarded", undo: dispatch }), setDispatch(null))}>
                 Discard my changes
               </button>
             ) : (
@@ -1486,8 +1486,8 @@ export default function PlanBoard() {
                 <b>Rico</b> is new (3 weeks). He gets one compact Makati stop with clear access notes.
               </li>
               <li>
-                <b>1 open slot</b> is left on Carlo&#39;s Quezon City afternoon for same-day orders (you average 1.4 a day). If nothing
-                comes in by 14:00, the slot is released.
+                <b>1 open slot</b> is left on Carlo&#39;s Quezon City afternoon for same-day orders (you average 1.4 a day). Released at
+                14:00 if unused.
               </li>
               <li>
                 <b>WA-0912</b> (WhatsApp) is in review. Approving it adds it to Rico&#39;s afternoon.
@@ -1534,17 +1534,17 @@ export default function PlanBoard() {
               }}
             >
               {locked ? (
-                <span>{locked}. You can move stops again once it is decided.</span>
+                <span>{locked}</span>
               ) : edits ? (
                 <>
                   <b style={{ color: "var(--info)" }}>You edited this plan.</b>
                   <span>
                     {moved} stop{moved === 1 ? "" : "s"} moved between drivers · arrival times re-estimated
-                    {late ? ` · ${late} late` : " · all within their windows"}. Drivers see the new order right away.
+                    {late ? ` · ${late} late` : " · all within their windows"} · sent to drivers
                   </span>
                 </>
               ) : (
-                <span>Drag a stop to change its order or give it to another driver. Delivered stops stay put.</span>
+                <span>Drag to reorder or reassign · delivered stops are fixed</span>
               )}
             </div>
             <RouteTable groups={groups} locked={locked} onMove={moveStop} />

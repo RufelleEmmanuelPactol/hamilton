@@ -336,10 +336,10 @@ function Carlo() {
 
 function Summary({ phase, approvals, atRisk }: { phase: Phase; approvals: number; atRisk: number }) {
   const line = {
-    before: "Quiet morning so far. 5 of 13 delivered and every driver is on time.",
-    incident: "One incident: Jun's flat tire. 2 deliveries are at risk until you decide on HAM-417.",
-    approved: "Jun's flat tire is handled. His 3 stops moved to Ana and Rico, and everyone is on time.",
-    rejected: "Jun kept his 3 stops after his flat tire, so 2 deliveries will be late.",
+    before: "5 of 13 delivered · every driver on time.",
+    incident: "1 incident: Jun's flat tire · 2 deliveries at risk until you decide HAM-417.",
+    approved: "Jun's 3 stops moved to Ana and Rico · every driver on time.",
+    rejected: "Jun kept his 3 stops after his flat tire · 2 deliveries late.",
   }[phase];
   const cell = (label: string, value: ReactNode, color?: string, br?: boolean, bb?: boolean) => (
     <div
@@ -475,8 +475,7 @@ export function Copilot() {
       case "fallback":
         return (
           <Bot key={e.id}>
-            In this demo I can answer: <b>What&#39;s at risk?</b>, <b>Where&#39;s Carlo?</b> and <b>Summarize today</b>. Try one of the
-            buttons below.
+            In this demo I can answer: <b>What&#39;s at risk?</b>, <b>Where&#39;s Carlo?</b> and <b>Summarize today</b>.
           </Bot>
         );
     }

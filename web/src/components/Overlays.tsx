@@ -282,8 +282,7 @@ function SoonModal({ label, onClose }: { label: string; onClose: () => void }) {
         </div>
         <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: 6 }}>“{label}” is coming soon</div>
         <p style={{ margin: "0 0 18px", color: "var(--ink2)", lineHeight: 1.55 }}>
-          This part of Hamilton isn’t built in the prototype yet. The flat-tire story works end to end: Overview, Driver app, Approvals and the
-          Audit log.
+          Not built in this prototype. Working end to end: Overview, Driver app, Approvals and Audit log.
         </p>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button

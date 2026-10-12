@@ -306,7 +306,7 @@ export function FleetMap() {
             </div>
             <div style={{ fontWeight: 600, marginTop: "6px" }}>Jun Reyes · flat tire</div>
             <div style={{ color: "var(--ink2)", fontSize: "12px", marginTop: "2px" }}>
-              {f.thinking ? "EDSA near Guadalupe. Re-planning his 3 stops now." : "EDSA near Guadalupe. 3 stops waiting on reassignment."}
+              {f.thinking ? "EDSA near Guadalupe · re-planning his 3 stops" : "EDSA near Guadalupe · 3 stops awaiting reassignment"}
             </div>
             {f.ticketOpen && (
               <a href="/app/approvals" style={{ display: "inline-block", marginTop: "8px", fontWeight: 600, textDecoration: "none" }}>
@@ -337,7 +337,7 @@ export function FleetMap() {
             </div>
             <div style={{ fontWeight: 600, marginTop: "6px" }}>Jun Reyes · flat tire</div>
             <div style={{ color: "var(--ink2)", fontSize: "12px", marginTop: "2px" }}>
-              Jun keeps his 3 stops. #1042 and #1049 will be late; both customers got an apology.
+              Jun keeps his 3 stops · #1042 and #1049 late · both customers sent an apology
             </div>
           </Callout>
         )}

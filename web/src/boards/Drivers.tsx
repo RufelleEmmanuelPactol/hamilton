@@ -915,7 +915,7 @@ export default function DriversBoard() {
                 color: "var(--mute)",
               }}
             >
-              Drivers are told what Hamilton records and why: for planning, not for pay or discipline.
+              Shared with drivers · used for planning, not pay or discipline
             </div>{" "}
           </section>{" "}
         </div>{" "}

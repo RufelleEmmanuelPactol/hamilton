@@ -290,7 +290,7 @@ function Bell() {
   const items: { title: string; sub: string; href: string; tone: string }[] = [
     ...(f.ticketOpen ? [{ title: "HAM-417 needs you", sub: "Reassign 3 stops from Jun · 2 deliveries at risk", href: "/app/approvals", tone: "var(--warn)" }] : []),
     ...events.map((e) => ({ title: e.event, sub: `${e.time} · ${e.agent}`, href: "/app/audit", tone: "var(--brand)" })),
-    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · money is always yours", href: "/app/approvals", tone: "var(--err)" },
+    { title: "HAM-416 waiting on you", sub: "Café Morato refund request · #1045", href: "/app/approvals", tone: "var(--err)" },
     { title: "HAM-414 waiting on you", sub: "WhatsApp order from Rina Bautista · building unclear", href: "/app/approvals", tone: "var(--warn)" },
   ];
   const unread = Math.max(items.length - seen, 0);

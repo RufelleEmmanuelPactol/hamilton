@@ -164,7 +164,7 @@ export default function CustomerThreadBoard() {
         <OrderCard
           label="Order #1042 · on the way"
           title="Arriving 10:45 – 11:00"
-          body="Jun is bringing your order. We'll message you if anything changes."
+          body="Jun is bringing your order."
           driver="jun"
           time="10:05"
         />
@@ -203,7 +203,7 @@ export default function CustomerThreadBoard() {
             isNew
             label="Order #1042 · updated arrival"
             title="Arriving 12:15 – 12:30"
-            body="Ana is bringing your order. Jun had a flat tire, so we switched drivers to keep you on time. She'll leave it with the concierge as you asked."
+            body="Ana is bringing your order instead of Jun (flat tire). Still on time · leaving it with the lobby concierge."
             driver="ana"
             time="10:44"
           />
@@ -213,7 +213,7 @@ export default function CustomerThreadBoard() {
             isNew
             label="Order #1042 · running late"
             title="Now arriving 13:40 – 14:00"
-            body="Sorry, your order is running late. Jun had a flat tire on the way. He'll still leave it with the concierge as you asked."
+            body="Sorry, Jun had a flat tire. He'll still leave it with the lobby concierge."
             driver="jun"
             time="10:44"
           />

@@ -421,7 +421,7 @@ export default function DriverPODBoard() {
               </svg>
             </div>
             <div style={{ fontWeight: "600", color: "var(--ok)" }}>Delivered</div>
-            <div style={{ fontSize: "13px", color: "#085D3A", marginTop: "2px" }}>Mark gets the photo on WhatsApp now.</div>
+            <div style={{ fontSize: "13px", color: "#085D3A", marginTop: "2px" }}>Photo sent to Mark on WhatsApp</div>
           </div>
         )}
       </div>

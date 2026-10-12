@@ -244,27 +244,25 @@ const RANGE: Record<Estimate, [number, number]> = { hour: [0, 30], under30: [-30
 
 function UncertaintyNote({ estimate, back }: { estimate: Estimate; back: [string, string] }) {
   const t = (s: string) => <span style={{ fontFamily: MONO }}>{s}</span>;
-  const tail = <> If Jun taps &#34;I&#39;m back on the road&#34; sooner, these times update.</>;
   if (estimate === "under30")
     return (
       <div>
-        <b style={{ color: "var(--ink)" }}>Jun said under 30 minutes, but his last 2 flats took 50 and 70 min.</b> Times below assume he is
-        back between {t(back[0])} and {t(back[1])}. Even if he is back by {t(back[0])}, #1042 and #1049 are still late.{tail}
+        <b style={{ color: "var(--ink)" }}>Jun said under 30 min; his last 2 flats took 50 and 70 min.</b> Assumes he is back{" "}
+        {t(back[0])}–{t(back[1])}. Even back by {t(back[0])}, #1042 and #1049 are late.
       </div>
     );
   if (estimate === "unsure")
     return (
       <div>
-        <b style={{ color: "var(--ink)" }}>Jun wasn&#39;t sure how long the repair will take.</b> We used <b>his last 2 flats</b> (50 and 70
-        min), so times below assume he is back between {t(back[0])} and {t(back[1])}. Even in the best case, #1042 and #1049 are still late.
-        {tail}
+        <b style={{ color: "var(--ink)" }}>No repair estimate from Jun.</b> From <b>his last 2 flats</b> (50 and 70 min), assumes he is
+        back {t(back[0])}–{t(back[1])}. Best case, #1042 and #1049 are still late.
       </div>
     );
   return (
     <div>
-      <b style={{ color: "var(--ink)" }}>We don&#39;t know exactly when the tire will be fixed.</b> Times below assume Jun is back between{" "}
-      {t(back[0])} and {t(back[1])}, based on <b>his report</b> (&#34;about 1 hour&#34;) and <b>his last 2 flats</b> (50 and 70 min). Even
-      in the best case (back by 11:00), #1042 and #1049 are still late.{tail}
+      <b style={{ color: "var(--ink)" }}>Repair time unknown.</b> Assumes Jun is back {t(back[0])}–{t(back[1])}, from{" "}
+      <b>his report</b> (&#34;about 1 hour&#34;) and <b>his last 2 flats</b> (50 and 70 min). Best case (back by 11:00), #1042 and
+      #1049 are still late.
     </div>
   );
 }
@@ -330,10 +328,10 @@ function Ham417Detail({
   const decided = f.phase === "approved" || f.phase === "rejected";
   const estimateText =
     estimate === "under30"
-      ? "He estimates under 30 minutes to get it fixed."
+      ? "His estimate: under 30 min."
       : estimate === "unsure"
-        ? "He isn't sure how long the repair will take."
-        : "He estimates about an hour to get it fixed.";
+        ? "No repair estimate."
+        : "His estimate: about 1 hour.";
 
   return (
     <>
@@ -349,7 +347,7 @@ function Ham417Detail({
         </div>
         <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Reassign 3 stops from Jun Reyes</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
-          Jun reported a flat tire at 10:31 on EDSA near Guadalupe. {estimateText} That would make 2 of his remaining deliveries late.
+          Jun reported a flat tire at 10:31 on EDSA near Guadalupe. {estimateText} 2 of his 3 remaining deliveries will be late.
         </p>
       </div>
       <div style={section}>
@@ -505,8 +503,8 @@ function Ham417Detail({
               <div style={{ fontWeight: "600", marginBottom: "6px" }}>Done at 10:44</div>
               <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.65" }}>
                 <li>Jun keeps his 3 stops</li>
-                <li>{notify ? "Late-delivery apology sent to #1042 and #1049" : "Customers not told (you turned this off)"}</li>
-                <li>Rejection recorded as an override</li>
+                <li>{notify ? "Late-delivery apology sent to #1042 and #1049" : "Customers not notified (notifications off)"}</li>
+                <li>Logged as an override</li>
               </ul>
             </>
           ) : (
@@ -514,7 +512,7 @@ function Ham417Detail({
               <div style={{ fontWeight: "600", marginBottom: "6px" }}>{f.phase === "approved" ? "Done at 10:44" : "On approval"}</div>
               <ul style={{ margin: "0", paddingLeft: "18px", color: "var(--ink2)", lineHeight: "1.65" }}>
                 <li>Routes re-sequenced for Ana and Rico</li>
-                <li>{notify ? "3 customers notified with new ETAs" : "Customers not notified (you turned this off)"}</li>
+                <li>{notify ? "3 customers notified with new ETAs" : "Customers not notified (notifications off)"}</li>
                 <li>Incident logged on Jun&#39;s profile</li>
               </ul>
             </>
@@ -608,11 +606,11 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
           <span>·</span>
           <span>Created 09:58 by Dispatch agent</span>
           <span>·</span>
-          <span>Policy: Orders from messages. 82% sure is below the 95% auto threshold.</span>
+          <span>Policy: Orders from messages · 82% sure, auto needs 95%</span>
         </div>
         <h2 style={{ margin: "8px 0 0", fontSize: "18px", fontWeight: "600" }}>Create order WA-0912 from WhatsApp</h2>
         <p style={{ margin: "6px 0 0", color: "var(--ink2)", lineHeight: "1.55" }}>
-          Rina Bautista ordered on WhatsApp at 09:57. The agent read most of the message but isn&#39;t sure which building in Makati.
+          Rina Bautista ordered on WhatsApp at 09:57. Building in Makati unclear.
         </p>
       </div>
       <div style={section}>
@@ -671,7 +669,7 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
       {decision === "approved" ? (
         <DecidedBar tone="ok">
           <span>
-            <b>Approved by Maria at {clock}</b> · order created · the agent will ask Rina which building on WhatsApp
+            <b>Approved by Maria at {clock}</b> · order created · building requested from Rina on WhatsApp
           </span>
         </DecidedBar>
       ) : decision === "rejected" ? (
@@ -682,7 +680,7 @@ function Ham414Detail({ clock, decision, setDecision }: { clock: string; decisio
         </DecidedBar>
       ) : (
         <div style={bar}>
-          <span style={{ flex: "1", color: "var(--ink2)" }}>Approving creates the order and asks Rina for the building.</span>
+          <span style={{ flex: "1", color: "var(--ink2)" }}>On approval: order created · Rina asked for the building</span>
           <button type="button" onClick={() => setDecision("rejected")} style={btn}>
             Reject
           </button>
@@ -854,7 +852,7 @@ function Ham416Detail(p: {
       </div>
       <div style={section}>
         <div style={{ fontWeight: "600", marginBottom: "2px" }}>Options</div>
-        <div style={{ fontSize: "12px", color: "var(--mute)", marginBottom: "8px" }}>Ranked by the Assurance agent. You pick.</div>
+        <div style={{ fontSize: "12px", color: "var(--mute)", marginBottom: "8px" }}>Ranked by the Assurance agent</div>
         <div role="radiogroup" aria-label="Options" style={{ border: "1px solid var(--line)", borderRadius: "6px" }}>
           {OPTIONS.map((o, i) => {
             const on = (recorded ?? pick) === o.id;
@@ -1015,7 +1013,7 @@ export default function ApprovalsBoard() {
         <div style={{ flex: "1 1 320px" }}>
           <h1 style={{ margin: "0", fontSize: "20px", fontWeight: "600", letterSpacing: "-0.01em" }}>Approvals</h1>
           <div style={{ color: "var(--mute)", marginTop: "2px" }}>
-            Agent actions held by your autonomy policies. Rejections are recorded as overrides.
+            Agent actions held by your autonomy policies
           </div>
         </div>
         <a

@@ -96,11 +96,11 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     memory: "Deliver to the banquet office, 2nd floor",
     why: (
       <>
-        A refund request moves money, so the assistant only sent a holding reply and asked for a photo. It never promises a refund.{" "}
+        Refunds are never automated. Holding reply and photo request sent, no refund promised.{" "}
         <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
           HAM-416
         </a>{" "}
-        is waiting for you in Approvals.
+        is in Approvals.
       </>
     ),
     messages: [
@@ -150,7 +150,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     ) : (
       "Best time: not known yet"
     ),
-    why: "Policy: pre-confirm addresses with 2+ failed attempts. A 20-second check prevented a likely failed trip (est. ₱950).",
+    why: "Policy: pre-confirm addresses with 2+ failed attempts.",
     messages: [
       {
         k: "bot",
@@ -233,7 +233,7 @@ function baseConvos(phase: Phase, notify: boolean, clock: string): Convo[] {
     address: "Uptown Parksuites, BGC",
     tags: [{ text: "Concierge drop-off OK" }],
     memory: "Leave with the lobby concierge",
-    why: "Policy: leaving a parcel with a concierge runs alone when the customer says yes in writing. Mark did, so the assistant confirmed.",
+    why: "Policy: concierge drop-off runs alone with the customer's written yes. Mark gave it.",
     messages: markMsgs,
   };
 
@@ -513,7 +513,7 @@ function simConvo(sim: Sim): Convo {
       address: "UP Diliman, Quezon City",
       tags: [],
       memory: "Call the recipient when you arrive",
-      why: "Policy: answering \"where's my order?\" runs on its own (Auto). The reply uses Carlo's live arrival time.",
+      why: "Policy: \"where's my order?\" replies (Auto) · uses Carlo's live ETA",
       messages: [
         { k: "cust", time: t, text: p.text, detected: sim.done ? "Taglish · intent: asking where #1051 is" : undefined },
         ...(sim.done
@@ -547,7 +547,7 @@ function simConvo(sim: Sim): Convo {
       address: "Greenhills, San Juan",
       tags: [],
       memory: "Same building as #1052, deliver both together",
-      why: "Policy: the assistant can offer open slots. Moving a delivery to another date asks you before it changes.",
+      why: "Policy: offering open slots (Auto) · moving to another date asks you",
       messages: [
         { k: "cust", time: t, text: p.text, detected: sim.done ? "English · intent: move to tomorrow, around 14:00" : undefined },
         ...(sim.done
@@ -557,7 +557,7 @@ function simConvo(sim: Sim): Convo {
                 time: t,
                 text: "Sure, Grace. We can deliver tomorrow (Tue 13 Oct) between 1:00 and 3:00pm. Reply YES to confirm.",
               },
-              { k: "sys", text: "Waiting for Grace to confirm. Moving to another date asks you first." },
+              { k: "sys", text: "Waiting for Grace · date change needs your approval" },
             ] as Msg[])
           : triaging),
       ],
@@ -583,11 +583,11 @@ function simConvo(sim: Sim): Convo {
     memory: "No notes yet",
     why: (
       <>
-        A refund request moves money, so the assistant only sent a holding reply and asked for a photo. It never promises a refund.{" "}
+        Refunds are never automated. Holding reply and photo request sent, no refund promised.{" "}
         <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 500 }}>
           HAM-418
         </a>{" "}
-        is waiting for you in Approvals.
+        is in Approvals.
       </>
     ),
     messages: [
@@ -794,8 +794,8 @@ function Message({ m, convo }: { m: Msg; convo: Convo }) {
             Refund requested → blocked by policy ({v.outcome === "block" ? "Never" : v.outcome}). Opened{" "}
             <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: 600, whiteSpace: "nowrap" }}>
               {m.ticket}
-            </a>{" "}
-            for you.
+            </a>
+            .
           </div>
           <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "2px" }}>{v.reason}</div>
           <div style={{ fontSize: "11px", color: "var(--mute)", marginTop: "4px" }}>
@@ -1039,7 +1039,7 @@ export default function MessagesBoard() {
             </div>
           </div>
           {visible.length === 0 && (
-            <div style={{ padding: "18px 14px", color: "var(--mute)", fontSize: "13px" }}>Nothing here right now.</div>
+            <div style={{ padding: "18px 14px", color: "var(--mute)", fontSize: "13px" }}>No conversations</div>
           )}
           {visible.map((c, i) => {
             const active = c.id === selected.id;
@@ -1207,7 +1207,7 @@ export default function MessagesBoard() {
             {!assistantOn && (
               <div style={{ display: "flex", alignItems: "center", gap: "10px", color: "var(--mute)", fontSize: "12px" }}>
                 <span style={{ flex: "1", height: "1px", background: "var(--line)" }}></span>
-                <span>Assistant paused on this conversation. You&#39;re replying.</span>
+                <span>Assistant paused · you&#39;re replying</span>
                 <span style={{ flex: "1", height: "1px", background: "var(--line)" }}></span>
               </div>
             )}
@@ -1233,7 +1233,7 @@ export default function MessagesBoard() {
             >
               <input
                 aria-label="Reply as Maria"
-                placeholder="Reply as Maria (pauses the assistant on this conversation)"
+                placeholder="Reply as Maria · pauses the assistant"
                 value={draft}
                 onChange={(e) => setDraft(e.target.value)}
                 style={{
@@ -1328,10 +1328,10 @@ export default function MessagesBoard() {
           <div style={{ padding: "12px 14px" }}>
             <div style={sectionLabel}>Why the assistant {selected.handling === "needs" ? "stopped" : "messaged"}</div>
             <p style={{ margin: "8px 0 0", color: "var(--ink2)", lineHeight: "1.5" }}>
-              {selected.handling === null ? "Triage is still reading the message." : selected.why}
+              {selected.handling === null ? "Triage is reading the message…" : selected.why}
             </p>
             <p style={{ margin: "8px 0 0", fontSize: "12px", color: "var(--mute)" }}>
-              The assistant answers only from this order&#39;s data and never claims to be a person.
+              Answers only from this order&#39;s data · never poses as a person
             </p>
           </div>
         </aside>

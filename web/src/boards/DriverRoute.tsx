@@ -167,7 +167,7 @@ export default function DriverRouteBoard() {
       empty = f.junBackOnRoad
         ? {
             title: "You're back on the road",
-            body: "No stops left on your route today. Dispatch will message you if anything new comes up.",
+            body: "No stops left today.",
           }
         : {
             title: "Your 3 stops moved to Ana and Rico",
@@ -192,16 +192,16 @@ export default function DriverRouteBoard() {
       if (phase === "approved") {
         banner = f.junBackOnRoad
           ? null
-          : { title: "Flat tire reported 10:31 · dispatch is handling it", body: "Maria approved the new plan at 10:44.", tone: "ok" };
+          : { title: "Flat tire reported 10:31", body: "Maria approved the new plan at 10:44.", tone: "ok" };
       } else if (phase === "rejected") {
         banner = {
           title: "Maria kept your stops",
-          body: f.junBackOnRoad ? "Customers were told you're running late." : "Deliver them when you're back on the road.",
+          body: f.junBackOnRoad ? "Customers told you're running late." : "Deliver them when you're back on the road.",
           tone: "warn",
         };
       } else if (!f.junBackOnRoad) {
         banner = {
-          title: "Flat tire reported 10:31 · dispatch is handling it",
+          title: "Flat tire reported 10:31 · dispatch notified",
           body: f.thinking ? "Dispatch is re-planning your stops…" : "Your 3 stops are waiting for Maria's OK.",
           tone: "ok",
         };

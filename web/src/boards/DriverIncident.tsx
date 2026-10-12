@@ -200,8 +200,8 @@ export default function DriverIncidentBoard() {
         title: "You're back on the road",
         body:
           f.phase === "approved"
-            ? "No stops left today. Dispatch will message you if anything new comes up."
-            : "Dispatch knows. Your route is up to date.",
+            ? "No stops left today."
+            : "Your route is up to date.",
       }
     : null;
 
@@ -299,9 +299,9 @@ export default function DriverIncidentBoard() {
             role="status"
             style={{ border: "1px solid var(--okLine)", background: "var(--okBg)", borderRadius: "10px", padding: "12px 14px" }}
           >
-            <div style={{ fontWeight: "600", color: "var(--ok)" }}>Reported 10:31 · dispatch is handling it</div>
+            <div style={{ fontWeight: "600", color: "var(--ok)" }}>Reported 10:31 · dispatch notified</div>
             <div style={{ fontSize: "13px", color: "#085D3A", marginTop: "2px" }}>
-              You don&#39;t need to call anyone. Fix the tire at your own pace.
+              No need to call anyone.
             </div>
           </div>
         )}
@@ -326,7 +326,7 @@ export default function DriverIncidentBoard() {
               padding: "12px 14px",
             }}
           >
-            This demo covers a flat tire. Tap Flat tire to continue.
+            Demo covers Flat tire only.
           </div>
         ) : (
           <div>
@@ -360,7 +360,7 @@ export default function DriverIncidentBoard() {
             </div>
             {!sent && (
               <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "6px" }}>
-                A rough guess is fine. Dispatch uses it to decide whether to move your stops.
+                A rough guess is fine.
               </div>
             )}
           </div>

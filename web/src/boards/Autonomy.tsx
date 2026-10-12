@@ -99,7 +99,7 @@ export default function AutonomyBoard() {
           <div style={{ flex: "1 1 320px" }}>
             <h1 style={{ margin: "0", fontSize: "20px", fontWeight: "600", letterSpacing: "-0.01em" }}>Autonomy policies</h1>
             <div style={{ color: "var(--mute)", marginTop: "2px" }}>
-              What agents may do alone, what needs approval, and what is never automated.
+              12 standard policies · 4 team triggers
             </div>
           </div>{" "}
           <button
@@ -453,15 +453,15 @@ export default function AutonomyBoard() {
                         Two kinds
                       </div>
                       <div style={{ color: "var(--ink2)", paddingTop: "4px" }}>
-                        <b style={{ color: "var(--ink)" }}>Standard</b> are built into Hamilton. You can change the mode and limits, not
-                        delete them.
+                        <b style={{ color: "var(--ink)" }}>Standard</b> built into Hamilton. Mode and limits editable; can&#39;t be
+                        deleted.
                       </div>
                       <div style={{ color: "var(--ink2)", paddingTop: "4px" }}>
-                        <b style={{ color: "var(--ink)" }}>Yours</b> are triggers your team wrote in plain language. They appear below the
-                        standard ones.
+                        <b style={{ color: "var(--ink)" }}>Yours</b> plain-language triggers from your team, listed after
+                        standard.
                       </div>
                       <div style={{ color: "var(--mute)", paddingTop: "8px", fontSize: "12px" }}>
-                        Use the All / Standard / Yours filter to show one kind.
+                        Filter: All · Standard · Yours
                       </div>
                     </div>
                   </>
@@ -1548,7 +1548,7 @@ export default function AutonomyBoard() {
         <div style={{ padding: "14px 16px", display: "flex", flexDirection: "column", gap: "12px" }}>
           {" "}
           <div style={{ fontSize: "12px", color: "var(--mute)", lineHeight: "1.5" }}>
-            Based on how you approved or rejected agent actions over the last 30 days.
+            From your approvals and rejections · last 30 days
           </div>{" "}
           <article style={{ border: "1px solid var(--line)", borderRadius: "8px", overflow: "hidden" }}>
             {" "}

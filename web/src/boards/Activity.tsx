@@ -368,7 +368,7 @@ export default function ActivityBoard() {
         <div style={{ flex: "1 1 320px" }}>
           <h1 style={{ margin: "0", fontSize: "20px", fontWeight: "600", letterSpacing: "-0.01em" }}>Audit log</h1>
           <div style={{ color: "var(--mute)", marginTop: "2px" }}>
-            Every action an agent took or proposed, the policy it ran under, and why.
+            Agent actions and proposals · policy and reason for each
           </div>
         </div>
         <button
@@ -505,7 +505,7 @@ export default function ActivityBoard() {
               {shown.length === 0 && (
                 <tr>
                   <td colSpan={6} style={{ ...td, padding: "20px 14px", color: "var(--mute)", textAlign: "center" }}>
-                    No events match these filters.
+                    No matching events
                   </td>
                 </tr>
               )}
