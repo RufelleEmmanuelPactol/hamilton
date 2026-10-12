@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { create } from "zustand";
 import { PEOPLE, findPerson, driverToday, type Person } from "@/lib/people";
 import { useScenario } from "@/lib/store";
+import { EntityStyles } from "@/components/Entity";
 
 type Rect = { left: number; top: number; bottom: number; right: number } | null;
 interface OverlayState {
@@ -511,21 +512,34 @@ export function Overlays() {
         openPalette();
       } else if (e.key === "Escape") close();
     };
-    // Hovering a person shows it is clickable.
-    const onOver = (e: MouseEvent) => {
+    // Mark every name and avatar of a known person so it visibly reads as clickable (not only on hover).
+    // Leaf elements whose whole text is a person's name, or small avatars labelled with one.
+    let queued = 0;
+    const mark = () => {
+      queued = 0;
       if (!inConsole()) return;
-      const t = e.target as Element | null;
-      if (!t || handled(t)) return;
-      const hit = personAt(t);
-      if (hit && !hit.el.classList.contains("ham-person")) hit.el.classList.add("ham-person");
+      document.querySelectorAll<HTMLElement>("main span, main div, main td, main b, main strong, main p, aside span, aside div").forEach((el) => {
+        if (el.childElementCount > 0 || el.classList.contains("ham-person") || el.closest(".ham-ent,.ham-chip,[data-overlay],a,button,label,select")) return;
+        const text = el.textContent?.trim() ?? "";
+        const label = el.getAttribute("aria-label") || el.getAttribute("title");
+        const avatar = text.length <= 2 && !!findPerson(label ?? text) && el.offsetWidth <= 44;
+        if (avatar) el.classList.add("ham-person", "ham-avatar");
+        else if (text.length > 2 && findPerson(text)) el.classList.add("ham-person");
+      });
     };
+    const schedule = () => {
+      if (!queued) queued = requestAnimationFrame(mark);
+    };
+    const mo = new MutationObserver(schedule);
+    mo.observe(document.body, { childList: true, subtree: true, characterData: true });
+    schedule();
     document.addEventListener("click", onClick);
     document.addEventListener("keydown", onKey);
-    document.addEventListener("mouseover", onOver);
     return () => {
+      mo.disconnect();
+      cancelAnimationFrame(queued);
       document.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mouseover", onOver);
     };
   }, []);
 
@@ -536,7 +550,8 @@ export function Overlays() {
 
   return (
     <>
-      <style>{`.ham-person{cursor:pointer}.ham-person:hover{text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px}span.ham-person:hover,div.ham-person:hover{filter:brightness(1.05)}`}</style>
+      <EntityStyles />
+      <style>{`.ham-person{cursor:pointer;text-decoration:underline;text-decoration-style:dotted;text-decoration-color:var(--line2);text-underline-offset:3px;transition:color .12s,text-decoration-color .12s}.ham-person:hover{color:var(--brandInk);text-decoration-color:currentColor}.ham-person.ham-avatar{text-decoration:none;transition:box-shadow .12s}.ham-person.ham-avatar:hover{color:#fff;box-shadow:0 0 0 2px var(--panel),0 0 0 4px var(--brand)}`}</style>
       {s.person && <PersonCard key={s.person.p.key} p={s.person.p} rect={s.person.rect} onClose={close} />}
       {s.palette && <Palette onClose={close} />}
       {s.soon && <SoonModal label={s.soon} onClose={close} />}

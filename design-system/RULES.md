@@ -30,6 +30,6 @@ These come from real review feedback. Each one exists because breaking it made a
 ## Visual
 
 17. **No decorative widgets** (clocks, sparkles without meaning, gradients).
-18. **No stacked pills.** One tag per row; anything more becomes text.
+18. **Pills sit side by side.** Several tags or property chips can share a row; each is sized to its content on one line. Never stretch a pill across columns or let its text wrap.
 19. **Text must never wrap** in tabs, tags, times or IDs. Shorten the label instead.
 20. **Prefer a real component over a clever one.** If someone stares at a visual and can't explain it, replace it with a table.
