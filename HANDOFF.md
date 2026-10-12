@@ -179,6 +179,10 @@ The canvas shows the design process, but it isn't the prototype. The brief tests
 - Every live model call falls back to a **cached response**, so the demo works without keys or if a call fails.
 - The autonomy policy is enforced **in code, not in the prompt** ("the AI proposes, the policy decides"). This is the main engineering point.
 - Keys stay server-side in env vars.
+- **Reset to the start, always available.** A visible **Reset demo** control (header or scenario bar) puts everything back to **10:30, before the flat**: seed orders and routes, HAM-417 not yet created, the At-risk count at 0, the inbox and audit log back to their seed entries, and the model-call cache kept.
+  - The scenario state lives in one store, rebuilt from `seed.ts` on reset, so there are no partial resets.
+  - The state is per browser session (local state, or an in-memory session on the server). One reviewer's demo never changes another's.
+  - A fresh page load starts at the reset state. A `?step=` URL param can jump to a step (e.g. straight to Approvals) for the walkthrough video.
 
 **Other screens:** Orders, Drivers, Address book and Autonomy are read-only pages with sample data, ported from the canvas.
 
