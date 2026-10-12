@@ -2,7 +2,7 @@
   "name": "hamilton",
   "private": true,
   "description": "Deploy entry point: builds and serves the web prototype in web/.",
-  "engines": { "node": ">=18.18" },
+  "engines": { "node": "22.x" },
   "scripts": {
     "build": "npm --prefix web ci --no-audit --no-fund && npm --prefix web run build",
     "start": "npm --prefix web start"
