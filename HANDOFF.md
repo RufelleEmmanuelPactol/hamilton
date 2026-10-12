@@ -221,3 +221,9 @@ Open a new session on this repo and say "read HANDOFF.md". Canvas link (private 
   - Scoping deck (slides): https://claude.ai/artifact/P8KM2kMQseL9TCK2YB4GSM
   - Website artifact: https://claude.ai/artifact/8vpLer3NpV1zJ3R3ikUD9j
   - The owner has share links with access keys for both. They are deliberately **not** in this public repo.
+
+### 9.7 Branch: work on `main` (12 Oct, later)
+
+- **Owner's decision: all work happens on `main`.** `main` was created from `claude/funny-gates-6b2di5` and holds everything since (landing page, draggable Orders and Dispatch, profile pop-outs, ⌘K search, header bell and account menu, "Coming soon" dialogs for unbuilt controls, hover effects).
+- Still to do in GitHub/Railway settings (owner): make `main` the default branch, and point the Railway service at `main`. Until then the live site may still deploy the old branch.
+- Unbuilt controls are caught globally in `web/src/components/Overlays.tsx` (any button/link with no React handler opens "Coming soon"). Person names and avatars are matched against `web/src/lib/people.ts` to open profile cards. Add new people there.
