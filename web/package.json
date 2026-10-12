@@ -1,0 +1,26 @@
+{
+  "name": "hamilton-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "npx http-server out -p 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "20.16.11",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "node-html-parser": "6.1.13",
+    "prettier": "^3.3.3",
+    "typescript": "5.6.3"
+  }
+}

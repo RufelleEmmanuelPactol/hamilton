@@ -1,0 +1,25 @@
+/* Pink Console tokens (design-system/tokens.css) plus the few globals the canvas boards rely on. */
+:root{
+  --bg:#F7F8FA; --panel:#FFFFFF; --sub:#F9FAFB;
+  --line:#E4E7EC; --line2:#D0D5DD;
+  --ink:#101828; --ink2:#344054; --mute:#667085;
+  --brand:#E91E63; --brandInk:#C2185B; --brandTint:#FDECF3;
+  --aiBg:#FFF7FA; --aiLine:#F8BBD0;
+  --ok:#067647;   --okBg:#ECFDF3;   --okLine:#ABEFC6;
+  --warn:#B54708; --warnBg:#FFFAEB; --warnLine:#FEDF89;
+  --err:#B42318;  --errBg:#FEF3F2;  --errLine:#FECDCA;
+  --info:#175CD3; --infoBg:#EFF8FF; --infoLine:#B2DDFF;
+  --neutral:#344054; --neutralBg:#F2F4F7; --neutralLine:#D0D5DD;
+  --s1:#2E90FA; --s2:#7A5AF8; --s3:#E91E63; --s4:#F79009; --s5:#12B76A; --s6:#0BA5EC;
+  --font:'IBM Plex Sans', system-ui, sans-serif;
+  --mono:'IBM Plex Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box}
+/* Line height stays "normal": the canvas boards were designed that way. */
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px}
+a{color:#C2185B}a:hover{color:#AD1457}
+button{font-family:inherit}
+@keyframes hamPulse{0%{box-shadow:0 0 0 0 var(--ring)}70%{box-shadow:0 0 0 8px rgba(0,0,0,0)}100%{box-shadow:0 0 0 0 rgba(0,0,0,0)}}
+@keyframes hamFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@keyframes hamDots{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.ham-in{animation:hamFade .25s ease-out both}
