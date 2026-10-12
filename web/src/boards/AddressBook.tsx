@@ -49,7 +49,7 @@ export default function AddressBookBoard() {
           <div style={{ padding: "18px 18px 14px", borderBottom: "1px solid var(--line)" }}>
             {" "}
             <a
-              href="/app/addresses"
+              href="/console/addresses"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -607,7 +607,7 @@ export default function AddressBookBoard() {
                       ? "WhatsApp pre-confirmation sent, Ben replied in 88 min"
                       : "WhatsApp pre-confirmation sent, waiting for Ben's reply"}
                   </div>
-                  <a href="/app/messages" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
+                  <a href="/console/messages" style={{ fontSize: "12px", textDecoration: "none", fontWeight: "500" }}>
                     View conversation
                   </a>
                 </div>
@@ -895,15 +895,15 @@ export default function AddressBookBoard() {
                 ) : (
                   <>
                     <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
-                    <a href="/app/addresses" style={{ textDecoration: "none" }}>
+                    <a href="/console/addresses" style={{ textDecoration: "none" }}>
                       2 failed attempts
                     </a>
                     ,{" "}
-                    <a href="/app/messages" style={{ textDecoration: "none" }}>
+                    <a href="/console/messages" style={{ textDecoration: "none" }}>
                       {replied ? "3 WhatsApp replies" : "2 WhatsApp replies"}
                     </a>{" "}
                     and{" "}
-                    <a href="/app/drivers" style={{ textDecoration: "none" }}>
+                    <a href="/console/drivers" style={{ textDecoration: "none" }}>
                       1 driver note
                     </a>{" "}
                     · updated today {replied ? "10:41" : "09:12"}

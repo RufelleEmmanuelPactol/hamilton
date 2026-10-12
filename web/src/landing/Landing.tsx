@@ -8,7 +8,7 @@ import { check, HAM_417, type Mode, type Proposal } from "@/lib/policy";
 
 const REPO = "https://github.com/RufelleEmmanuelPactol/hamilton";
 const DOCS = `${REPO}/blob/HEAD/docs`;
-const DEMO = "/app/?reset=1";
+const DEMO = "/console/?reset=1";
 
 const DRV = {
   j: { name: "Jun", color: "#2E90FA" },
@@ -170,7 +170,7 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
     title: "Plans the day. Re-plans it when the day breaks.",
     body: "Builds tomorrow’s routes from your drivers, vans, history and address book. When a tire goes flat or a road closes, it finds the fix in seconds and shows you the before and after.",
     bullets: ["Morning plan in one click", "Live re-planning with arrival times you can trust", "Holds a slot open for same-day orders"],
-    demo: "/app/dispatch",
+    demo: "/console/dispatch",
     visual: (
       <table className="lp-table">
         <thead>
@@ -202,7 +202,7 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
     title: "Answers “where’s my order?” before you see it.",
     body: "Reads every WhatsApp and SMS reply, understands “not home until 3pm”, reschedules, and answers from that order’s data only. Anything sensitive lands in your inbox instead.",
     bullets: ["Confirms risky deliveries before the driver leaves", "Reschedules from plain-language replies", "Never promises refunds"],
-    demo: "/app/messages",
+    demo: "/console/messages",
     visual: (
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         <div className="lp-bubble">hi! not home until 3pm today, can you come later? 🙏</div>
@@ -221,7 +221,7 @@ const AGENTS: { id: string; tab: string; title: string; body: string; bullets: s
     title: "Checks proof at the door. Builds the case when it’s disputed.",
     body: "Every proof-of-delivery photo is checked while the driver is still there, so a blurry shot gets retaken, not argued about later. Damage claims get an evidence pack, and a person decides.",
     bullets: ["Instant photo checks: blur, house number, package in frame", "Evidence packs with timestamps and GPS", "Money decisions are always yours"],
-    demo: "/driver/proof",
+    demo: "/app/deliver/?o=1042",
     visual: (
       <div style={{ display: "flex", gap: 14, alignItems: "stretch", flexWrap: "wrap" }}>
         <svg viewBox="0 0 160 120" width="160" height="120" role="img" aria-label="Proof photo: a parcel at a door" style={{ borderRadius: 8, background: "#EEF2F6", flex: "none" }}>
@@ -589,17 +589,17 @@ export default function Landing() {
                 <a className="lp-btn lp-btn-primary" href={DEMO}>
                   Start the demo
                 </a>
-                <Link className="lp-btn lp-btn-outline" href="/driver/">
+                <Link className="lp-btn lp-btn-outline" href="/app/">
                   Open the driver app
                 </Link>
               </div>
             </div>
             <ol className="lp-timeline">
               {[
-                ["10:30", "A calm morning", "Everyone on time.", "/app/"],
-                ["10:31", "Jun reports a flat tire", "One tap in the driver app.", "/driver/report/"],
-                ["10:33", "The agent proposes a fix", "Held for you as HAM-417.", "/app/approvals/"],
-                ["10:44", "You approve", "Routes, ETAs and customers update.", "/app/audit/"],
+                ["10:30", "A calm morning", "Everyone on time.", "/console/"],
+                ["10:31", "Jun reports a flat tire", "One tap in the driver app.", "/app/report/"],
+                ["10:33", "The agent proposes a fix", "Held for you as HAM-417.", "/console/approvals/"],
+                ["10:44", "You approve", "Routes, ETAs and customers update.", "/console/audit/"],
               ].map(([t, h, b, href]) => (
                 <li key={t}>
                   <span className="lp-time">{t}</span>
@@ -661,7 +661,7 @@ export default function Landing() {
           <div className="lp-footer-col">
             <div className="lp-footer-h">Product</div>
             <a href={DEMO}>Live demo</a>
-            <Link href="/driver/">Driver app</Link>
+            <Link href="/app/">Driver app</Link>
             <Link href="/customer/">Customer view</Link>
           </div>
           <div className="lp-footer-col">

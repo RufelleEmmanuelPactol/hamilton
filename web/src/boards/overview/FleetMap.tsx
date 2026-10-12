@@ -308,7 +308,7 @@ export function FleetMap() {
               {f.thinking ? "EDSA near Guadalupe · re-planning his 3 stops" : "EDSA near Guadalupe · 3 stops awaiting reassignment"}
             </div>
             {f.ticketOpen && (
-              <a href="/app/approvals?t=HAM-417" style={{ display: "inline-block", marginTop: "8px", fontWeight: 600, textDecoration: "none" }}>
+              <a href="/console/approvals?t=HAM-417" style={{ display: "inline-block", marginTop: "8px", fontWeight: 600, textDecoration: "none" }}>
                 Review reassignment
               </a>
             )}

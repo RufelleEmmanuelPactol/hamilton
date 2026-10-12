@@ -249,7 +249,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         title: "Red roses (12) + chocolates for Rina Bautista",
         quote: "hi po! can i order the red roses 12pcs w/ chocolates… before 4pm pls",
         meta: "Makati · 13:00–16:00 · not paid yet",
-        link: ["Review in Approvals", "/app/approvals?t=HAM-414"],
+        link: ["Review in Approvals", "/console/approvals?t=HAM-414"],
       },
     ],
     scheduled: [
@@ -276,7 +276,7 @@ function scriptedBoard(f: ReturnType<typeof useScenarioFacts>): Record<ColId, Ca
         border: "var(--errLine)",
         title: "Table posies · Café Morato",
         meta: "Delivered 08:52 · 2 arrived wilted",
-        link: ["Handle in Approvals", "/app/approvals?t=HAM-416"],
+        link: ["Handle in Approvals", "/console/approvals?t=HAM-416"],
       },
     ],
   };
@@ -473,7 +473,7 @@ export default function OrdersBoard() {
   const gridRef = useRef<HTMLDivElement>(null);
   useFlip(gridRef, { paused: !!drag });
 
-  // Deep link: /app/orders?o=%231045 opens that order's details.
+  // Deep link: /console/orders?o=%231045 opens that order's details.
   useEffect(() => {
     const o = new URLSearchParams(window.location.search).get("o");
     if (o) setOpenId(o);
@@ -1315,10 +1315,10 @@ function OrderDrawer({
                 Open {c.ticket}
               </a>
             )}
-            <a href="/app/messages" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            <a href="/console/messages" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
               Message customer
             </a>
-            <a href="/app/dispatch" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
+            <a href="/console/dispatch" style={{ ...btn, height: "34px", display: "inline-flex", alignItems: "center", textDecoration: "none" }}>
               See on route
             </a>
           </div>

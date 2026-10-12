@@ -26,12 +26,14 @@ On any static host, the build output is `web/out/`.
 
 | Time | What happens | Where |
 |---|---|---|
-| 10:30 | A calm morning. 4 drivers, 13 orders, all on time. | `/app` |
-| 10:31 | Jun reports a flat tire and says it'll take about 1 hour. | `/driver/report` |
-| 10:33 | The Dispatch agent proposes moving 3 stops. The policy holds it ("3 stops is above the 1-stop auto limit") and opens **HAM-417**. | `/app/approvals` |
-| 10:44 | Maria approves. Routes, ETAs and the at-risk count update, and customers get new times. | `/app`, `/app/dispatch`, `/customer`, `/app/audit` |
+| 10:30 | A calm morning. 4 drivers, 13 orders, all on time. | `/console` |
+| 10:31 | Jun reports a flat tire and says it'll take about 1 hour. | `/app/report` |
+| 10:33 | The Dispatch agent proposes moving 3 stops. The policy holds it ("3 stops is above the 1-stop auto limit") and opens **HAM-417**. | `/console/approvals` |
+| 10:44 | Maria approves. Routes, ETAs and the at-risk count update, and customers get new times. | `/console`, `/console/dispatch`, `/customer`, `/console/audit` |
 
 Tabs stay in sync, so you can keep the driver app open in one tab and the admin console in another.
+
+The driver app (`/app`) is a full app, not a scripted walkthrough: every stop opens its own screen, any open stop can be delivered (photo → recipient → confirm), and the Me tab switches between Jun's and Ana's accounts. Old `/driver/*` links redirect to `/app`.
 
 ### Presenter controls (hidden on purpose)
 
@@ -44,8 +46,9 @@ Tabs stay in sync, so you can keep the driver app open in one tab and the admin 
 ## Code map
 
 ```
-src/app/            routes (landing, /app/*, /driver/*, /customer)
-src/boards/         one component per Claude Design canvas board
+src/app/            routes (landing, /console/* admin, /app/* driver app, /customer)
+src/boards/         one component per Claude Design canvas board (admin console, customer view)
+src/driver/         the driver app: Today, Stops, Inbox, Me tabs, plus stop, deliver and report screens
 src/lib/store.ts    the scenario state (phase, Jun's report, decision), persisted and synced across tabs
 src/lib/scenario.ts derived facts every screen shares (clock, at-risk count, approvals count), audit events
 src/lib/policy.ts   the autonomy policy check: real code that decides Auto / Ask me / Never

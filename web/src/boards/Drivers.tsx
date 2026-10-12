@@ -41,7 +41,7 @@ export default function DriversBoard() {
         text: (
           <>
             3 remaining stops moved to Ana and Rico{" "}
-            <a href="/app/approvals?t=HAM-417" style={link}>
+            <a href="/console/approvals?t=HAM-417" style={link}>
               HAM-417 approved
             </a>
           </>
@@ -53,7 +53,7 @@ export default function DriversBoard() {
         text: (
           <>
             Keeps his 3 stops; #1042 and #1049 will be late{" "}
-            <a href="/app/approvals?t=HAM-417" style={link}>
+            <a href="/console/approvals?t=HAM-417" style={link}>
               HAM-417 rejected
             </a>
           </>
@@ -69,7 +69,7 @@ export default function DriversBoard() {
             {f.ticketOpen && (
               <>
                 {" "}
-                <a href="/app/approvals?t=HAM-417" style={link}>
+                <a href="/console/approvals?t=HAM-417" style={link}>
                   Pending
                 </a>
               </>
@@ -142,7 +142,7 @@ export default function DriversBoard() {
           />
         </div>{" "}
         <a
-          href="/app/drivers"
+          href="/console/drivers"
           style={{
             display: "flex",
             alignItems: "center",
@@ -189,7 +189,7 @@ export default function DriversBoard() {
           </span>
         </a>{" "}
         <a
-          href="/app/drivers"
+          href="/console/drivers"
           style={{
             display: "flex",
             alignItems: "center",
@@ -235,7 +235,7 @@ export default function DriversBoard() {
           </span>
         </a>{" "}
         <a
-          href="/app/drivers"
+          href="/console/drivers"
           style={{
             display: "flex",
             alignItems: "center",
@@ -281,7 +281,7 @@ export default function DriversBoard() {
           </span>
         </a>{" "}
         <a
-          href="/app/drivers"
+          href="/console/drivers"
           style={{
             display: "flex",
             alignItems: "center",

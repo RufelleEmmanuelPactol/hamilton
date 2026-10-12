@@ -1,9 +1,13 @@
 "use client";
-// Converted from design/project/DriverIncident.dc.html. The canvas shows the screen after HAM-417 was approved.
-// Before the report it's a form; "Send report" calls store.reportFlat(). The timeline follows the scenario phase.
+// Report an issue (/app/report). Converted from design/project/DriverIncident.dc.html.
+// Jun's flat tire drives the scenario: "Send report" calls store.reportFlat() and the timeline follows the phase.
+// Other reports (and Ana's) go to dispatch as a message and stay on this phone.
 import { useState } from "react";
 import { useScenario, type Estimate } from "@/lib/store";
 import { useScenarioFacts } from "@/lib/scenario";
+import { DRIVERS } from "./data";
+import { ScreenHeader, secondaryBtn } from "./ui";
+import { useBack } from "./StopDetail";
 
 type Issue = "flat" | "vehicle" | "late" | "break" | "nothome" | "address";
 
@@ -135,24 +139,32 @@ function Dots() {
   );
 }
 
-export default function DriverIncidentBoard() {
+export default function Report() {
   const f = useScenarioFacts();
+  const account = useScenario((s) => s.driverAccount);
+  const me = DRIVERS[account];
+  const back = useBack("/app/");
+  const [localSent, setLocalSent] = useState(false);
   const reportFlat = useScenario((s) => s.reportFlat);
   const backOnRoad = useScenario((s) => s.backOnRoad);
 
-  const sent = f.phase !== "before";
+  // Only Jun's flat tire is part of the shared scenario.
+  const scenario = account === "jun";
+  const sent = (scenario && f.phase !== "before") || localSent;
   const [issue, setIssue] = useState<Issue>("flat");
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const [note, setNote] = useState("Flat on EDSA near Guadalupe");
 
-  const shownIssue: Issue = sent ? "flat" : issue;
-  const shownEstimate = sent ? (f.report?.estimate ?? "hour") : estimate;
-  const canSend = !sent && issue === "flat" && estimate !== null;
+  const shownIssue: Issue = sent && !localSent ? "flat" : issue;
+  const shownEstimate = sent && !localSent ? (f.report?.estimate ?? "hour") : estimate;
+  const canSend = !sent && estimate !== null;
 
   // "What happened", newest first.
   type Entry = { time: React.ReactNode; text: React.ReactNode; sub?: string; key: string };
   const entries: Entry[] = [];
-  if (f.thinking) {
+  if (localSent) {
+    entries.push({ key: "got", time: "now", text: "Dispatch got your report", sub: "They'll message you in Inbox if your route changes" });
+  } else if (f.thinking) {
     entries.push({
       key: "thinking",
       time: <Dots />,
@@ -195,21 +207,21 @@ export default function DriverIncidentBoard() {
     entries.push({ key: "shop", time: "10:32", text: "Nearest vulcanizing shop: 600 m, Kalayaan Ave" });
   }
 
-  const doneBox = f.junBackOnRoad
+  const doneBox = !localSent && scenario && f.junBackOnRoad
     ? {
         title: "You're back on the road",
         body:
           f.phase === "approved"
-            ? "No stops left today."
-            : "Your route is up to date.",
+            ? "No stops left today. Dispatch will message you if anything new comes up."
+            : "Dispatch knows. Your route is up to date.",
       }
     : null;
 
   return (
     <div
       style={{
-        width: "100%",
-        height: "100%",
+        flex: "1",
+        minHeight: "0",
         boxSizing: "border-box",
         overflow: "hidden",
         position: "relative",
@@ -221,38 +233,7 @@ export default function DriverIncidentBoard() {
         flexDirection: "column",
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          height: "56px",
-          flex: "none",
-          padding: "0 12px",
-          borderBottom: "1px solid var(--line)",
-        }}
-      >
-        <a
-          href="/driver"
-          aria-label="Back"
-          style={{
-            width: "44px",
-            height: "44px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "var(--ink2)",
-          }}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-            <path d="M15 6l-6 6 6 6" />
-          </svg>
-        </a>
-        <div style={{ flex: "1" }}>
-          <div style={{ fontWeight: "600" }}>Report an issue</div>
-          <div style={{ fontSize: "12px", color: "var(--mute)" }}>Jun Reyes · L300 van</div>
-        </div>
-      </header>
+      <ScreenHeader title="Report an issue" sub={`${me.name} · ${me.vehicle}`} onBack={back} />
       <div
         style={{
           padding: "14px 16px",
@@ -299,9 +280,11 @@ export default function DriverIncidentBoard() {
             role="status"
             style={{ border: "1px solid var(--okLine)", background: "var(--okBg)", borderRadius: "10px", padding: "12px 14px" }}
           >
-            <div style={{ fontWeight: "600", color: "var(--ok)" }}>Reported 10:31 · dispatch notified</div>
+            <div style={{ fontWeight: "600", color: "var(--ok)" }}>
+              {localSent ? "Sent · dispatch is on it" : "Reported 10:31 · dispatch is handling it"}
+            </div>
             <div style={{ fontSize: "13px", color: "#085D3A", marginTop: "2px" }}>
-              No need to call anyone.
+              {localSent ? "You don't need to call anyone." : "You don't need to call anyone. Fix the tire at your own pace."}
             </div>
           </div>
         )}
@@ -316,19 +299,7 @@ export default function DriverIncidentBoard() {
           </div>
         )}
 
-        {issue !== "flat" && !sent ? (
-          <div
-            style={{
-              fontSize: "13px",
-              color: "var(--mute)",
-              border: "1px dashed var(--line2)",
-              borderRadius: "10px",
-              padding: "12px 14px",
-            }}
-          >
-            Demo covers Flat tire only.
-          </div>
-        ) : (
+        {
           <div>
             <div style={{ fontSize: "13px", color: "var(--ink2)", marginBottom: "6px" }}>About how long will it take?</div>
             <div role="group" aria-label="About how long will it take?" style={{ display: "flex", gap: "8px" }}>
@@ -360,11 +331,11 @@ export default function DriverIncidentBoard() {
             </div>
             {!sent && (
               <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "6px" }}>
-                A rough guess is fine.
+                A rough guess is fine. Dispatch uses it to decide whether to move your stops.
               </div>
             )}
           </div>
-        )}
+        }
 
         {sent && (
           <section aria-label="What happened" aria-live="polite" style={{ border: "1px solid var(--line)", borderRadius: "10px" }}>
@@ -426,38 +397,32 @@ export default function DriverIncidentBoard() {
             <button
               style={{ ...primary, opacity: canSend ? 1 : 0.45, cursor: canSend ? "pointer" : "not-allowed" }}
               disabled={!canSend}
-              onClick={() => estimate && reportFlat(estimate, note.trim())}
+              onClick={() => {
+                if (!estimate) return;
+                if (scenario && issue === "flat") reportFlat(estimate, note.trim());
+                else setLocalSent(true);
+              }}
             >
               Send report
             </button>
-            {issue === "flat" && estimate === null && (
+            {estimate === null && (
               <div style={{ fontSize: "12px", color: "var(--mute)", textAlign: "center", marginTop: "-2px" }}>
                 Choose about how long it will take
               </div>
             )}
           </>
-        ) : f.junBackOnRoad ? (
-          <a href="/driver" style={primary}>
-            Back to my route
+        ) : localSent || f.junBackOnRoad ? (
+          <a href="/app/" style={primary}>
+            Back to today
           </a>
         ) : (
           <button style={primary} onClick={backOnRoad}>
             I&#39;m back on the road
           </button>
         )}
-        <button
-          style={{
-            font: "inherit",
-            height: "44px",
-            border: "1px solid var(--line2)",
-            borderRadius: "10px",
-            background: "var(--panel)",
-            color: "var(--ink2)",
-            cursor: "pointer",
-          }}
-        >
+        <a href="tel:+639175550100" style={secondaryBtn}>
           Call Maria
-        </button>
+        </a>
       </div>
     </div>
   );

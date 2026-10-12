@@ -38,7 +38,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Move a delivery to a later time today",
     ref: "HAM-418",
-    href: "/app/messages",
+    href: "/console/messages",
     detail: {
       input: "Customer reply: “wala pa ako sa bahay, after 3pm pa po”",
       inputSub: "Read as: not home until after 15:00 · Semantic · 0.94",
@@ -47,7 +47,7 @@ const SEED: Row[] = [
       effects: "Customer confirmed · Address book: “home after 3pm on weekdays”",
       effectsSub: "Cost ₱0.02 · 1.4 s",
       undo: true,
-      link: { label: "Open conversation", href: "/app/messages" },
+      link: { label: "Open conversation", href: "/console/messages" },
     },
   },
   {
@@ -58,7 +58,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Verify proof photos",
     ref: "#1046",
-    href: "/app/orders?o=%231046",
+    href: "/console/orders?o=%231046",
   },
   {
     id: "seed-416",
@@ -68,7 +68,7 @@ const SEED: Row[] = [
     outcome: "Blocked by policy",
     policy: "Refunds, credits and discounts",
     ref: "HAM-416",
-    href: "/app/approvals?t=HAM-416",
+    href: "/console/approvals?t=HAM-416",
   },
   {
     id: "seed-1041",
@@ -78,7 +78,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Ask the driver to retake a photo",
     ref: "#1041",
-    href: "/app/orders?o=%231041",
+    href: "/console/orders?o=%231041",
   },
   {
     id: "seed-1042-note",
@@ -88,7 +88,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Answer customers\u2019 delivery questions",
     ref: "#1042",
-    href: "/app/messages",
+    href: "/console/messages",
   },
   {
     id: "seed-414",
@@ -98,7 +98,7 @@ const SEED: Row[] = [
     outcome: "Asked you",
     policy: "Turn WhatsApp and email requests into orders",
     ref: "HAM-414",
-    href: "/app/approvals?t=HAM-414",
+    href: "/console/approvals?t=HAM-414",
   },
   {
     id: "seed-plan",
@@ -108,7 +108,7 @@ const SEED: Row[] = [
     outcome: "Approved by Maria",
     policy: "Send the morning route plan to drivers",
     ref: "Plan 12 Oct",
-    href: "/app/dispatch",
+    href: "/console/dispatch",
   },
   {
     id: "seed-eta",
@@ -118,7 +118,7 @@ const SEED: Row[] = [
     outcome: "Ran alone",
     policy: "Customer ETA updates · Auto",
     ref: "Plan 12 Oct",
-    href: "/app/dispatch",
+    href: "/console/dispatch",
   },
 ];
 
@@ -143,8 +143,8 @@ const AGENT_OF: Record<string, string> = {
 function hrefFor(ref: string) {
   if (ref.startsWith("HAM-")) return ticketHref(ref);
   if (ref.startsWith("#")) return orderHref(ref);
-  if (ref === "Jun Reyes") return "/app/drivers";
-  return "/app/audit";
+  if (ref === "Jun Reyes") return "/console/drivers";
+  return "/console/audit";
 }
 
 function toRow(e: AuditEvent, i: number): Row {

@@ -1,5 +1,5 @@
 "use client";
-// Overview (/app). Converted from design/project/Main.dc.html and driven by the scenario store.
+// Overview (/console). Converted from design/project/Main.dc.html and driven by the scenario store.
 import { useState, type CSSProperties } from "react";
 import { useScenarioFacts } from "@/lib/scenario";
 import { LiveProgress } from "./overview/Progress";
@@ -51,7 +51,7 @@ function GuideCard({ onDismiss }: { onDismiss: () => void }) {
       <span style={{ flex: "1", color: "var(--ink2)" }}>
         <b style={{ color: "var(--info)" }}>Try the scenario:</b> Jun is about to get a flat tire. Open the driver app and report it.
       </span>
-      <a href="/driver" style={{ fontWeight: 600, textDecoration: "none", color: "var(--info)", whiteSpace: "nowrap" }}>
+      <a href="/app" style={{ fontWeight: 600, textDecoration: "none", color: "var(--info)", whiteSpace: "nowrap" }}>
         Open driver app
       </a>
       <button
@@ -98,7 +98,7 @@ function Metrics() {
   if (f.ticketOpen)
     riskNote = (
       <a
-        href="/app/approvals?t=HAM-417"
+        href="/console/approvals?t=HAM-417"
         style={{
           fontWeight: 600,
           textDecoration: "none",

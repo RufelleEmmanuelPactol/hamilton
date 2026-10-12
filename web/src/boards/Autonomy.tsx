@@ -695,7 +695,7 @@ export default function AutonomyBoard() {
                           {showHeld && (
                             <div style={{ fontSize: "12px", color: "var(--ink2)", marginTop: "3px" }}>
                               Held{" "}
-                              <a href="/app/approvals?t=HAM-417" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
+                              <a href="/console/approvals?t=HAM-417" style={{ textDecoration: "none", fontWeight: 500, whiteSpace: "nowrap" }}>
                                 HAM-417
                               </a>{" "}
                               today at 10:33. {held.reason}
@@ -1157,10 +1157,10 @@ export default function AutonomyBoard() {
                   >
                     <span>Would have fired 6× in the last 30 days</span>
                     <span style={{ flex: "1" }}></span>
-                    <a href="/app/autonomy" style={{ fontWeight: "500", textDecoration: "none" }}>
+                    <a href="/console/autonomy" style={{ fontWeight: "500", textDecoration: "none" }}>
                       See matches
                     </a>
-                    <a href="/app/autonomy" style={{ fontWeight: "500", textDecoration: "none" }}>
+                    <a href="/console/autonomy" style={{ fontWeight: "500", textDecoration: "none" }}>
                       Edit mapping
                     </a>
                   </div>

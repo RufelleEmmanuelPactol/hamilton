@@ -236,7 +236,7 @@ function todayPlan(phase: Phase, ticketOpen: boolean, backOnRoad: boolean): Grou
     ];
   } else if (phase === "incident") {
     const st = (to: string): Stop["status"] =>
-      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: "/app/approvals?t=HAM-417" } : { label: "Re-planning", tone: "neutral" };
+      ticketOpen ? { label: `Moving to ${to} · HAM-417`, tone: "warn", href: "/console/approvals?t=HAM-417" } : { label: "Re-planning", tone: "neutral" };
     junRest = [
       { ...upcoming("#1042", "Mark Tan", "BGC", "10:00–13:00", null, "j", false, m1042), status: st("Ana") },
       { ...upcoming("#1050", "Nicole Ramos", "BGC", "11:00–15:00", null, "j", false), status: st("Ana") },
@@ -524,15 +524,15 @@ function TomorrowDraft({ approved }: { approved: boolean }) {
           </ul>
           <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "8px", paddingTop: "8px", borderTop: "1px solid #FBD5E3" }}>
             <span style={{ color: "var(--brandInk)", fontWeight: "500" }}>Auto-generated</span> from{" "}
-            <a href="/app/orders" style={{ textDecoration: "none" }}>
+            <a href="/console/orders" style={{ textDecoration: "none" }}>
               14 orders
             </a>
             ,{" "}
-            <a href="/app/addresses" style={{ textDecoration: "none" }}>
+            <a href="/console/addresses" style={{ textDecoration: "none" }}>
               the address book
             </a>{" "}
             and{" "}
-            <a href="/app/drivers" style={{ textDecoration: "none" }}>
+            <a href="/console/drivers" style={{ textDecoration: "none" }}>
               driver notes
             </a>{" "}
             · drafted today 06:00
@@ -1363,7 +1363,7 @@ export default function PlanBoard() {
               </button>
             )}
             {f.ticketOpen && (
-              <a href="/app/approvals?t=HAM-417" style={btnPrimary}>
+              <a href="/console/approvals?t=HAM-417" style={btnPrimary}>
                 Review HAM-417
               </a>
             )}
