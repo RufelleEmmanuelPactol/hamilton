@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hamilton · Orders</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F7F8FA;--panel:#FFFFFF;--line:#E4E7EC;--line2:#D0D5DD;--ink:#101828;--ink2:#344054;--mute:#667085;--sub:#F9FAFB;--brand:#E91E63;--brandInk:#C2185B;--brandTint:#FDECF3;--ok:#067647;--okBg:#ECFDF3;--okLine:#ABEFC6;--warn:#B54708;--warnBg:#FFFAEB;--warnLine:#FEDF89;--err:#B42318;--errBg:#FEF3F2;--errLine:#FECDCA;--info:#175CD3;--infoBg:#EFF8FF;--infoLine:#B2DDFF}
+a{color:#C2185B}a:hover{color:#AD1457}
+</style>
+</helmet>
+<div style="font-family: 'IBM Plex Sans', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 1120px; font-size: 13px; display: flex; flex-direction: column">
+
+<header style="height: 52px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--line)">
+<div style="display: flex; align-items: center; gap: 9px; width: 204px">
+<svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E91E63"></rect><path d="M8 23 L11 9 L21 8 L24 18 L14 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="8" cy="23" r="2.4" fill="#fff"></circle><circle cx="14" cy="24" r="2.4" fill="#fff"></circle></svg>
+<span style="font-size: 15px; font-weight: 700; letter-spacing: -0.01em">Hamilton</span>
+</div>
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 6px; color: var(--mute)"><span>Maria&#39;s Flowers &amp; Gifts</span><span>/</span><span style="color: var(--ink); font-weight: 500">Orders</span></nav>
+<div style="flex: 1"></div>
+<label style="display: flex; align-items: center; gap: 8px; width: 280px; height: 32px; border: 1px solid var(--line2); border-radius: 6px; padding: 0 10px; color: var(--mute); background: var(--panel)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input aria-label="Search orders, drivers, addresses" placeholder="Search orders, drivers, addresses" style="font: inherit; border: 0; outline: 0; flex: 1; min-width: 0; color: var(--ink)"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px">⌘K</span></label>
+<div style="width: 30px; height: 30px; border-radius: 99px; background: #344054; color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">MS</div>
+</header>
+
+<div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+<nav aria-label="Main" style="flex: 1 1 220px; max-width: 236px; box-sizing: border-box; background: var(--panel); border-right: 1px solid var(--line); padding: 12px 10px; display: flex; flex-direction: column; gap: 1px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 6px 10px">Operations</div>
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Overview</a>
+<a href="Plan.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="19" r="2.5"></circle><circle cx="18" cy="5" r="2.5"></circle><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"></path></svg>Dispatch</a>
+<a href="Orders.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; background: var(--brandTint); color: var(--brandInk); font-weight: 600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 13h5l2 3h4l2-3h5"></path><path d="M5 5h14l2 8v6H3v-6z"></path></svg><span style="flex: 1">Orders</span><span style="font-size: 11px">13</span></a>
+<a href="Approvals.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg><span style="flex: 1">Approvals</span><span style="font-size: 11px; font-weight: 600; color: #fff; background: var(--brandInk); border-radius: 99px; padding: 0 6px">3</span></a>
+<a href="Messages.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>Customer messages</a>
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 16px 10px 6px">Memory</div>
+<a href="Drivers.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14.5c2 .6 3.2 2.6 3.5 5.5"></path></svg>Drivers</a>
+<a href="AddressBook.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg>Address book</a>
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 16px 10px 6px">Governance</div>
+<a href="Autonomy.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Autonomy policies</a>
+<a href="Activity.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v4h4"></path><path d="M12 8v4l3 2"></path></svg>Audit log</a>
+</nav>
+
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-direction: column">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 20px; background: var(--panel); border-bottom: 1px solid var(--line)">
+<h1 style="margin: 0; font-size: 15px; font-weight: 600">Orders</h1>
+<span style="color: var(--mute)">Today · 13</span>
+<div role="group" aria-label="View" style="display: flex; border: 1px solid var(--line2); border-radius: 6px; overflow: hidden; margin-left: 8px"><button aria-pressed="true" style="font: inherit; font-size: 12px; height: 28px; padding: 0 10px; border: 0; background: var(--sub); font-weight: 600; cursor: pointer">Board</button><button aria-pressed="false" style="font: inherit; font-size: 12px; height: 28px; padding: 0 10px; border: 0; border-left: 1px solid var(--line2); background: var(--panel); color: var(--ink2); cursor: pointer">List</button></div>
+<div style="flex: 1"></div>
+<button style="font: inherit; font-size: 12px; height: 28px; padding: 0 10px; border: 1px dashed var(--line2); border-radius: 6px; background: var(--panel); color: var(--ink2); cursor: pointer">+ Filter</button>
+<button style="font: inherit; font-size: 12px; height: 28px; padding: 0 10px; border: 1px solid var(--line2); border-radius: 6px; background: var(--panel); color: var(--ink2); cursor: pointer">Group: Status</button>
+<button style="font: inherit; font-size: 12px; font-weight: 600; height: 28px; padding: 0 12px; border: 0; border-radius: 6px; background: var(--brandInk); color: #fff; cursor: pointer">New order</button>
+</div>
+
+<div style="flex: 1; overflow-x: auto; padding: 14px 16px">
+<div style="display: grid; grid-template-columns: repeat(5, minmax(240px, 1fr)); gap: 12px; min-width: 1240px; align-items: start">
+
+<section aria-label="Needs review">
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#B54708" stroke-width="2.4" stroke-dasharray="3 3" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg><span style="font-weight: 600">Needs review</span><span style="color: var(--mute)">1</span></div>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; box-shadow: 0 1px 2px rgba(16,24,40,0.04)">
+<div style="display: flex; align-items: center; gap: 6px; color: var(--mute); font-size: 12px"><span style="font-family: 'IBM Plex Mono', monospace">WA-0912</span><span style="margin-left: auto; font-size: 11px; color: #1D6B33; background: #E4F4E8; border-radius: 4px; padding: 0 6px">WhatsApp</span></div>
+<div style="font-weight: 500; line-height: 1.4">Red roses (12) + chocolates for Rina Bautista</div>
+<div style="font-size: 12px; color: var(--ink2); background: var(--sub); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; line-height: 1.45">&#34;hi po! can i order the red roses 12pcs w/ chocolates… before 4pm pls&#34;</div>
+<div style="display: flex; flex-wrap: wrap; gap: 4px"><span style="font-size: 11px; color: var(--warn); background: var(--warnBg); border: 1px solid var(--warnLine); border-radius: 4px; padding: 0 6px">82% parsed</span><span style="font-size: 11px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 4px; padding: 0 6px">Building ambiguous</span><span style="font-size: 11px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 4px; padding: 0 6px">Unpaid</span></div>
+<div style="display: flex; gap: 6px; padding-top: 2px; border-top: 1px solid var(--line)"><button style="font: inherit; font-size: 12px; font-weight: 600; height: 28px; padding: 0 10px; margin-top: 8px; border: 0; border-radius: 6px; background: var(--brandInk); color: #fff; cursor: pointer">Create</button><button style="font: inherit; font-size: 12px; height: 28px; padding: 0 10px; margin-top: 8px; border: 1px solid var(--line2); border-radius: 6px; background: var(--panel); color: var(--ink2); cursor: pointer">Edit</button><span style="margin-left: auto; margin-top: 8px; align-self: center; font-size: 12px; color: var(--mute)">Makati · 13–16</span></div>
+</article>
+</section>
+
+<section aria-label="Scheduled">
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#667085" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle></svg><span style="font-weight: 600">Scheduled</span><span style="color: var(--mute)">5</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<article style="background: var(--panel); border: 1px solid var(--warnLine); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1042</span><span style="font-size: 11px; font-weight: 600; color: var(--warn); background: var(--warnBg); border: 1px solid var(--warnLine); border-radius: 4px; padding: 0 6px">At risk</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #2E90FA; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">JR</span></div><div style="font-weight: 500">Anniversary box · Mark Tan</div><div style="font-size: 12px; color: var(--mute)">BGC · 10:00–13:00 · ETA 13:40</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1049</span><span style="font-size: 11px; font-weight: 600; color: var(--warn); background: var(--warnBg); border: 1px solid var(--warnLine); border-radius: 4px; padding: 0 6px">At risk</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #2E90FA; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">JR</span></div><div style="font-weight: 500">Balloons + roses · Sam Ocampo</div><div style="font-size: 12px; color: var(--mute)">Makati · 09:00–13:00 · ETA 13:55</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1050</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #2E90FA; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">JR</span></div><div style="font-weight: 500">Orchid pot · Nicole Ramos</div><div style="font-size: 12px; color: var(--mute)">BGC · 11:00–15:00</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1044</span><span style="font-size: 11px; color: var(--info); background: var(--infoBg); border: 1px solid var(--infoLine); border-radius: 4px; padding: 0 6px">Rescheduled</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #E91E63; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">AV</span></div><div style="font-weight: 500">Sunflower bundle · Ben Cruz</div><div style="font-size: 12px; color: var(--mute)">Pasig · 15:00–17:00 · confirmed</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1048</span><span style="font-size: 11px; color: var(--ok); background: var(--okBg); border: 1px solid var(--okLine); border-radius: 4px; padding: 0 6px">+ #1052</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #7A5AF8; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">CM</span></div><div style="font-weight: 500">White lilies + bouquet · Grace Lee</div><div style="font-size: 12px; color: var(--mute)">San Juan · 13:00–18:00</div></article>
+</div>
+</section>
+
+<section aria-label="Out for delivery">
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="#2E90FA" stroke-width="2.4"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="#2E90FA"></path></svg><span style="font-weight: 600">Out for delivery</span><span style="color: var(--mute)">2</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1051</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #7A5AF8; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">CM</span></div><div style="font-weight: 500">Retirement arrangement · Prof. Diaz</div><div style="font-size: 12px; color: var(--mute)">UP Diliman · ETA 11:05 · on time</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1043</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #E91E63; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">AV</span></div><div style="font-weight: 500">Office desk arrangement · Raffles</div><div style="font-size: 12px; color: var(--mute)">Ortigas · ETA 13:10 · closes 17:00</div></article>
+</div>
+</section>
+
+<section aria-label="Delivered">
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#12B76A"></circle><path d="M7.5 12.5l3 3 6-7" fill="none" stroke="#fff" stroke-width="2.2"></path></svg><span style="font-weight: 600">Delivered</span><span style="color: var(--mute)">5</span></div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1046</span><span style="font-size: 11px; color: var(--ok); background: var(--okBg); border: 1px solid var(--okLine); border-radius: 4px; padding: 0 6px">Proof verified</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #7A5AF8; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">CM</span></div><div style="font-weight: 500; color: var(--ink2)">Get-well basket · Anna Garcia</div><div style="font-size: 12px; color: var(--mute)">10:36</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1047</span><span style="font-size: 11px; color: var(--ok); background: var(--okBg); border: 1px solid var(--okLine); border-radius: 4px; padding: 0 6px">Proof verified</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #2E90FA; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">JR</span></div><div style="font-weight: 500; color: var(--ink2)">Event arch · Shangri-La</div><div style="font-size: 12px; color: var(--mute)">10:08</div></article>
+<article style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1041</span><span style="font-size: 11px; color: var(--ok); background: var(--okBg); border: 1px solid var(--okLine); border-radius: 4px; padding: 0 6px">Retake passed</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #2E90FA; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">JR</span></div><div style="font-weight: 500; color: var(--ink2)">Pink roses · Liza Santos</div><div style="font-size: 12px; color: var(--mute)">09:24</div></article>
+<button style="font: inherit; font-size: 12px; height: 30px; border: 0; background: none; color: var(--mute); cursor: pointer; text-align: left; padding: 0 4px">Show 2 more</button>
+</div>
+</section>
+
+<section aria-label="Exceptions">
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 4px 10px"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10" fill="#F04438"></circle><path d="M12 7v6M12 16v.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"></path></svg><span style="font-weight: 600">Exceptions</span><span style="color: var(--mute)">1</span></div>
+<article style="background: var(--panel); border: 1px solid var(--errLine); border-radius: 8px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px"><div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--mute)"><span style="font-family: 'IBM Plex Mono', monospace">#1045</span><span style="font-size: 11px; font-weight: 600; color: var(--err); background: var(--errBg); border: 1px solid var(--errLine); border-radius: 4px; padding: 0 6px">Refund request</span><span style="margin-left: auto; width: 20px; height: 20px; border-radius: 99px; background: #7A5AF8; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">CM</span></div><div style="font-weight: 500">Table posies · Café Morato</div><div style="font-size: 12px; color: var(--mute)">Delivered 08:58 · proof pack ready</div><a href="Approvals.dc.html" style="font-size: 12px; font-weight: 600; text-decoration: none">Handle in Approvals</a></article>
+<div style="margin-top: 10px; border: 1px dashed var(--line2); border-radius: 8px; padding: 12px; color: var(--mute); font-size: 12px; line-height: 1.5">Failed and disputed orders land here. Drag a card to another column to move it.</div>
+</section>
+
+</div>
+</div>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

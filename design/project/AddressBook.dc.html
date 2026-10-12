@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hamilton · Address book</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--bg:#F7F8FA;--panel:#FFFFFF;--line:#E4E7EC;--line2:#D0D5DD;--ink:#101828;--ink2:#344054;--mute:#667085;--sub:#F9FAFB;--brand:#E91E63;--brandInk:#C2185B;--brandTint:#FDECF3;--ok:#067647;--okBg:#ECFDF3;--okLine:#ABEFC6;--warn:#B54708;--warnBg:#FFFAEB;--warnLine:#FEDF89;--err:#B42318;--errBg:#FEF3F2;--errLine:#FECDCA;--info:#175CD3;--infoBg:#EFF8FF;--infoLine:#B2DDFF}
+a{color:#C2185B}a:hover{color:#AD1457}
+</style>
+</helmet>
+<div style="font-family: 'IBM Plex Sans', system-ui, sans-serif; background: var(--bg); color: var(--ink); min-height: 1040px; font-size: 13px; display: flex; flex-direction: column">
+
+<header style="height: 52px; flex: none; display: flex; align-items: center; gap: 16px; padding: 0 16px; background: var(--panel); border-bottom: 1px solid var(--line)">
+<div style="display: flex; align-items: center; gap: 9px; width: 204px">
+<svg width="24" height="24" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#E91E63"></rect><path d="M8 23 L11 9 L21 8 L24 18 L14 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"></path><circle cx="8" cy="23" r="2.4" fill="#fff"></circle><circle cx="14" cy="24" r="2.4" fill="#fff"></circle></svg>
+<span style="font-size: 15px; font-weight: 700; letter-spacing: -0.01em">Hamilton</span>
+</div>
+<nav aria-label="Breadcrumb" style="display: flex; align-items: center; gap: 6px; color: var(--mute)"><span>Maria&#39;s Flowers &amp; Gifts</span><span>/</span><a href="AddressBook.dc.html" style="color: var(--mute); text-decoration: none">Address book</a><span>/</span><span style="color: var(--ink); font-weight: 500">Cruz home</span></nav>
+<div style="flex: 1"></div>
+<label style="display: flex; align-items: center; gap: 8px; width: 280px; height: 32px; border: 1px solid var(--line2); border-radius: 6px; padding: 0 10px; color: var(--mute); background: var(--panel)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg><input aria-label="Search orders, drivers, addresses" placeholder="Search orders, drivers, addresses" style="font: inherit; border: 0; outline: 0; flex: 1; min-width: 0; color: var(--ink)"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px">⌘K</span></label>
+<div style="width: 30px; height: 30px; border-radius: 99px; background: #344054; color: #fff; font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center">MS</div>
+</header>
+
+<div style="flex: 1; display: flex; flex-wrap: wrap; min-height: 0">
+
+<nav aria-label="Main" style="flex: 1 1 220px; max-width: 236px; box-sizing: border-box; background: var(--panel); border-right: 1px solid var(--line); padding: 12px 10px; display: flex; flex-direction: column; gap: 1px">
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 6px 10px">Operations</div>
+<a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect><rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect></svg>Overview</a>
+<a href="Plan.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="6" cy="19" r="2.5"></circle><circle cx="18" cy="5" r="2.5"></circle><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"></path></svg>Dispatch</a>
+<a href="Orders.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 13h5l2 3h4l2-3h5"></path><path d="M5 5h14l2 8v6H3v-6z"></path></svg><span style="flex: 1">Orders</span><span style="font-size: 11px; color: var(--mute)">13</span></a>
+<a href="Approvals.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"></path><path d="M9 12l2 2 4-4"></path></svg><span style="flex: 1">Approvals</span><span style="font-size: 11px; font-weight: 600; color: #fff; background: var(--brandInk); border-radius: 99px; padding: 0 6px">3</span></a>
+<a href="Messages.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg>Customer messages</a>
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 16px 10px 6px">Memory</div>
+<a href="Drivers.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20c.8-3.5 3.4-5.5 6.5-5.5s5.7 2 6.5 5.5"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14.5c2 .6 3.2 2.6 3.5 5.5"></path></svg>Drivers</a>
+<a href="AddressBook.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; background: var(--brandTint); color: var(--brandInk); font-weight: 600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg><span style="flex: 1">Address book</span><span style="font-size: 11px">186</span></a>
+
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute); padding: 16px 10px 6px">Governance</div>
+<a href="Autonomy.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"></path><circle cx="16" cy="7" r="2"></circle><circle cx="10" cy="17" r="2"></circle></svg>Autonomy policies</a>
+<a href="Activity.dc.html" style="display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px; border-radius: 6px; text-decoration: none; color: var(--ink2)"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 4v4h4"></path><path d="M12 8v4l3 2"></path></svg>Audit log</a>
+</nav>
+
+<main style="flex: 999 1 640px; min-width: 0; display: flex; flex-wrap: wrap; align-items: stretch">
+
+<aside aria-label="Record properties" style="flex: 1 1 280px; max-width: 320px; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column">
+<div style="padding: 18px 18px 14px; border-bottom: 1px solid var(--line)">
+<a href="AddressBook.dc.html" style="display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 500; text-decoration: none; margin-bottom: 12px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>All addresses</a>
+<div style="display: flex; align-items: center; gap: 12px">
+<span style="width: 44px; height: 44px; border-radius: 10px; background: #FEF0C7; color: #93370D; font-size: 15px; font-weight: 600; display: flex; align-items: center; justify-content: center">BC</span>
+<div><h1 style="margin: 0; font-size: 17px; font-weight: 600">Cruz home</h1><div style="color: var(--mute)">Ben Cruz · Residential</div></div>
+</div>
+<div style="display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap"><span title="2 or more failed deliveries in the last 60 days" style="font-size: 11px; font-weight: 600; color: var(--warn); background: var(--warnBg); border: 1px solid var(--warnLine); border-radius: 4px; padding: 0 6px">2 failed deliveries</span><span style="font-size: 11px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 4px; padding: 0 6px">Orders monthly</span><span style="font-size: 11px; color: var(--ink2); border: 1px solid var(--line2); border-radius: 4px; padding: 0 6px">Message before dispatch</span></div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 14px">
+<button style="font: inherit; font-size: 11px; color: var(--ink2); background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer"><span style="width: 32px; height: 32px; border-radius: 99px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></span>Message</button>
+<button style="font: inherit; font-size: 11px; color: var(--ink2); background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer"><span style="width: 32px; height: 32px; border-radius: 99px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"></path></svg></span>Call</button>
+<button style="font: inherit; font-size: 11px; color: var(--ink2); background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer"><span style="width: 32px; height: 32px; border-radius: 99px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>Order</button>
+<button style="font: inherit; font-size: 11px; color: var(--ink2); background: none; border: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer"><span style="width: 32px; height: 32px; border-radius: 99px; border: 1px solid var(--line2); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></span>Note</button>
+</div>
+</div>
+<div style="padding: 12px 18px; border-bottom: 1px solid var(--line)">
+<div style="display: flex; align-items: center; margin-bottom: 8px"><span style="font-weight: 600; flex: 1">About this address</span><button style="font: inherit; font-size: 12px; border: 0; background: none; color: var(--brandInk); cursor: pointer">Edit</button></div>
+<dl style="margin: 0; display: grid; grid-template-columns: 1fr; gap: 10px">
+<div><dt style="font-size: 12px; color: var(--mute)">Address</dt><dd style="margin: 2px 0 0">8 East Capitol Dr, Kapitolyo, Pasig</dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Primary contact</dt><dd style="margin: 2px 0 0">Ben Cruz · +63 917 222 1004</dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Best delivery time</dt><dd style="margin: 2px 0 0">Weekdays after 15:00 <span style="font-size: 11px; color: var(--ok); background: var(--okBg); border: 1px solid var(--okLine); border-radius: 4px; padding: 0 5px">Learned today</span></dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Safe-drop</dt><dd style="margin: 2px 0 0; color: var(--mute)">Unknown, ask on next miss</dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Access</dt><dd style="margin: 2px 0 0">Green gate, doorbell on left post</dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Preferred channel</dt><dd style="margin: 2px 0 0">WhatsApp (rarely answers calls)</dd></div>
+<div><dt style="font-size: 12px; color: var(--mute)">Language</dt><dd style="margin: 2px 0 0">Tagalog / English</dd></div>
+</dl>
+</div>
+<div style="padding: 12px 18px">
+<div style="font-weight: 600; margin-bottom: 8px">Delivery stats</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); border-radius: 6px">
+<div style="padding: 8px 10px; border-right: 1px solid var(--line)"><div style="font-size: 11px; color: var(--mute)">Orders</div><div style="font-size: 16px; font-weight: 600">5</div></div>
+<div style="padding: 8px 10px; border-right: 1px solid var(--line)"><div style="font-size: 11px; color: var(--mute)">Failed</div><div style="font-size: 16px; font-weight: 600; color: var(--warn)">2</div></div>
+<div style="padding: 8px 10px"><div style="font-size: 11px; color: var(--mute)">Lifetime</div><div style="font-size: 16px; font-weight: 600">₱7,250</div></div>
+</div>
+</div>
+</aside>
+
+<section aria-label="Activity" style="flex: 999 1 420px; min-width: 0; display: flex; flex-direction: column">
+<div role="tablist" aria-label="Record tabs" style="display: flex; gap: 20px; padding: 0 20px; background: var(--panel); border-bottom: 1px solid var(--line)">
+<button role="tab" aria-selected="true" style="font: inherit; font-weight: 600; color: var(--brandInk); background: none; border: 0; border-bottom: 2px solid var(--brandInk); padding: 12px 2px 10px; cursor: pointer">Activity</button>
+<button role="tab" aria-selected="false" style="font: inherit; color: var(--ink2); background: none; border: 0; border-bottom: 2px solid transparent; padding: 12px 2px 10px; cursor: pointer">Orders <span style="color: var(--mute)">5</span></button>
+<button role="tab" aria-selected="false" style="font: inherit; color: var(--ink2); background: none; border: 0; border-bottom: 2px solid transparent; padding: 12px 2px 10px; cursor: pointer">Messages <span style="color: var(--mute)">8</span></button>
+<button role="tab" aria-selected="false" style="font: inherit; color: var(--ink2); background: none; border: 0; border-bottom: 2px solid transparent; padding: 12px 2px 10px; cursor: pointer">Notes <span style="color: var(--mute)">3</span></button>
+</div>
+<div style="padding: 16px 20px; display: flex; flex-direction: column; gap: 14px">
+<div style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; display: flex; gap: 8px"><input aria-label="Add a note" placeholder="Add a note about this address…" style="font: inherit; flex: 1; min-width: 0; border: 0; outline: 0"><button style="font: inherit; font-weight: 600; height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: var(--brandInk); color: #fff; cursor: pointer">Save</button></div>
+
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute)">Today</div>
+<div style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px">
+<div style="display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line)"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--brandTint); color: var(--brandInk); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"></path></svg></span><div style="flex: 1"><div><b>Assurance agent</b> updated <b>Best delivery time</b> to weekdays after 15:00</div><div style="font-size: 12px; color: var(--mute); margin-top: 2px">From reply &#34;wala pa ako sa bahay, after 3pm pa po&#34; · policy: save memory (Auto)</div></div><span style="font-size: 12px; color: var(--mute)">10:41</span></div>
+<div style="display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line)"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--infoBg); color: var(--info); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></span><div style="flex: 1"><div>Order <b>#1044</b> rescheduled 11:00–15:00 → <b>15:00–17:00</b></div><div style="font-size: 12px; color: var(--mute); margin-top: 2px">Driver: Ana Villanueva · route re-sequenced</div></div><span style="font-size: 12px; color: var(--mute)">10:41</span></div>
+<div style="display: flex; gap: 12px; padding: 12px 14px"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: #F2F4F7; color: var(--ink2); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"></path></svg></span><div style="flex: 1"><div>WhatsApp pre-confirmation sent, Ben replied in 88 min</div><a href="Messages.dc.html" style="font-size: 12px; text-decoration: none; font-weight: 500">View conversation</a></div><span style="font-size: 12px; color: var(--mute)">09:12</span></div>
+</div>
+
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute)">September</div>
+<div style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px">
+<div style="display: flex; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line)"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--okBg); color: var(--ok); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span><div style="flex: 1"><div>Order <b>#0972</b> delivered on retry, 16:20</div><div style="font-size: 12px; color: var(--mute); margin-top: 2px">Received by Ben · proof verified</div></div><span style="font-size: 12px; color: var(--mute)">14 Sep</span></div>
+<div style="display: flex; gap: 12px; padding: 12px 14px"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--errBg); color: var(--err); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span><div style="flex: 1"><div>Order <b>#0972</b> failed, nobody home, no answer</div><div style="font-size: 12px; color: var(--mute); margin-top: 2px">Attempt 1 at 11:05 · Driver: Carlo</div></div><span style="font-size: 12px; color: var(--mute)">14 Sep</span></div>
+</div>
+<div style="font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--mute)">August</div>
+<div style="background: var(--panel); border: 1px solid var(--line); border-radius: 8px">
+<div style="display: flex; gap: 12px; padding: 12px 14px"><span style="width: 28px; height: 28px; flex: none; border-radius: 6px; background: var(--errBg); color: var(--err); display: flex; align-items: center; justify-content: center"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span><div style="flex: 1"><div>Order <b>#0881</b> failed, nobody home</div><div style="font-size: 12px; color: var(--mute); margin-top: 2px">10:40 · refunded ₱1,450 by Maria</div></div><span style="font-size: 12px; color: var(--mute)">12 Aug</span></div>
+</div>
+</div>
+</section>
+
+<aside aria-label="Associations" style="flex: 1 1 260px; max-width: 300px; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column">
+<div style="padding: 12px 16px; border-bottom: 1px solid var(--line)">
+<div style="display: flex; align-items: center; margin-bottom: 8px"><span style="font-weight: 600; flex: 1">Open orders</span><span style="color: var(--mute)">1</span></div>
+<div style="border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px"><div style="display: flex; align-items: center; gap: 6px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mute)">#1044</span><span style="font-size: 11px; color: var(--info); background: var(--infoBg); border: 1px solid var(--infoLine); border-radius: 4px; padding: 0 5px">Scheduled</span></div><div style="font-weight: 500; margin-top: 4px">Sunflower bundle</div><div style="font-size: 12px; color: var(--mute)">Today 15:00–17:00 · Ana</div></div>
+</div>
+<div style="padding: 12px 16px; border-bottom: 1px solid var(--line)">
+<div style="font-weight: 600; margin-bottom: 8px">Drivers who&#39;ve been here</div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 0"><span style="width: 22px; height: 22px; border-radius: 99px; background: #7A5AF8; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">CM</span><span style="flex: 1">Carlo Mendoza</span><span style="font-size: 12px; color: var(--mute)">3 visits</span></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 4px 0"><span style="width: 22px; height: 22px; border-radius: 99px; background: #E91E63; color: #fff; font-size: 9px; font-weight: 600; display: flex; align-items: center; justify-content: center">AV</span><span style="flex: 1">Ana Villanueva</span><span style="font-size: 12px; color: var(--mute)">1 visit</span></div>
+</div>
+<div style="padding: 12px 16px">
+<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E91E63" aria-hidden="true"><path d="M12 2l2.1 6.3L20.5 10l-6.4 1.9L12 18l-2.1-6.1L3.5 10l6.4-1.7z"></path><path d="M19 15l.9 2.5 2.6.9-2.6.9L19 22l-.9-2.7-2.6-.9 2.6-.9z"></path></svg><span style="font-weight: 600">Delivery guidance</span><span style="flex: 1"></span><button style="font: inherit; font-size: 12px; height: 26px; padding: 0 8px; border: 1px solid var(--line2); border-radius: 6px; background: var(--panel); color: var(--ink2); cursor: pointer">Edit</button></div><div style="border: 1px solid #F8BBD0; background: #FFF7FA; border-radius: 6px; padding: 10px 12px"><ul style="margin: 0; padding-left: 18px; color: var(--ink2); line-height: 1.6"><li>Message on WhatsApp before dispatch.</li><li>Schedule after 15:00 on weekdays.</li><li>If missed again, ask for a safe-drop person.</li></ul><div style="font-size: 12px; color: var(--mute); margin-top: 8px; padding-top: 8px; border-top: 1px solid #FBD5E3"><span style="color: var(--brandInk); font-weight: 500">Auto-generated</span> from <a href="AddressBook.dc.html" style="text-decoration: none">2 failed attempts</a>, <a href="Messages.dc.html" style="text-decoration: none">3 WhatsApp replies</a> and <a href="Drivers.dc.html" style="text-decoration: none">1 driver note</a> · updated today 10:41</div></div><div style="font-size: 12px; color: var(--mute); margin-top: 8px">Dispatch and Messages agents read this before planning or replying. Your edits are kept and override the summary.</div>
+</div>
+</aside>
+</main>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

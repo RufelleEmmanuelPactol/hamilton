@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pink Console · Components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+.wrap{max-width:1100px;margin:0 auto;padding:24px 16px 64px;display:flex;flex-direction:column;gap:28px}
+h1{margin:0;font-size:20px;font-weight:600;letter-spacing:-.01em}
+h2{margin:0 0 10px;font-size:14px;font-weight:600}
+.lead{color:var(--mute);margin-top:2px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-card)}
+.pad{padding:14px 16px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.sw{width:120px;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.sw i{display:block;height:44px}
+.sw div{padding:6px 8px;font-size:11px}
+.sw code{font-family:var(--mono);color:var(--mute);font-size:11px}
+.btn{font:inherit;height:34px;padding:0 12px;border:1px solid var(--line2);border-radius:var(--r-control);background:var(--panel);color:var(--ink2);cursor:pointer}
+.btn.primary{border:0;background:var(--brandInk);color:#fff;font-weight:600;padding:0 14px}
+.btn.sm{height:28px;font-size:12px;padding:0 10px}
+.tag{font-size:11px;font-weight:500;border-radius:var(--r-tag);padding:0 6px;border:1px solid;white-space:nowrap}
+.t-ok{color:var(--ok);background:var(--okBg);border-color:var(--okLine)}
+.t-warn{color:var(--warn);background:var(--warnBg);border-color:var(--warnLine)}
+.t-err{color:var(--err);background:var(--errBg);border-color:var(--errLine)}
+.t-info{color:var(--info);background:var(--infoBg);border-color:var(--infoLine)}
+.t-n{color:var(--neutral);background:var(--neutralBg);border-color:var(--neutralLine)}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.metrics>div{padding:12px 16px;border-right:1px solid var(--line)}
+.metrics>div:last-child{border-right:0}
+.metrics .l{color:var(--mute);font-weight:500}
+.metrics .v{font-size:22px;font-weight:600;margin-top:4px}
+.metrics .s{font-size:12px;color:var(--mute)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--sub);text-align:left;color:var(--mute);font-size:12px;font-weight:500;padding:8px 12px;border-bottom:1px solid var(--line)}
+td{padding:9px 12px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+.mono{font-family:var(--mono);white-space:nowrap}
+.seg{display:inline-flex;gap:2px;padding:2px;background:#F2F4F7;border:1px solid var(--line);border-radius:7px}
+.seg button{font:inherit;font-size:12px;height:28px;padding:0 12px;border:0;background:none;color:var(--ink2);border-radius:5px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--panel);color:var(--ink);font-weight:600;box-shadow:var(--shadow-raised)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line)}
+.tabs button{font:inherit;height:32px;padding:0 12px;border:0;border-bottom:2px solid transparent;background:none;color:var(--ink2);cursor:pointer}
+.tabs button[aria-selected=true]{border-bottom-color:var(--brandInk);color:var(--ink);font-weight:600}
+.nav a{display:flex;align-items:center;gap:10px;height:32px;padding:0 10px;border-radius:6px;color:var(--ink2)}
+.nav a.on{background:var(--brandTint);color:var(--brandInk);font-weight:600}
+.over{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--mute);padding:12px 10px 6px}
+.ai{border:1px solid var(--aiLine);background:var(--aiBg);border-radius:6px;padding:10px 12px}
+.ai .src{font-size:12px;color:var(--mute);margin-top:8px;padding-top:8px;border-top:1px solid #FBD5E3}
+.pop{width:360px;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:var(--shadow-pop);padding:14px 16px}
+.q{width:22px;height:22px;border-radius:99px;border:1px solid var(--line2);background:var(--panel);color:var(--mute);font:inherit;font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+.inbox a{display:block;padding:10px 14px;border-bottom:1px solid var(--line);color:inherit}
+.inbox a:last-child{border-bottom:0}
+.av{width:22px;height:22px;border-radius:99px;color:#fff;font-size:9px;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+<h1>Pink Console</h1>
+<div class="lead">Component reference. Tokens live in <span class="mono">tokens.css</span>; rules in <span class="mono">README.md</span> and <span class="mono">RULES.md</span>.</div>
+</header>
+
+<section>
+<h2>Color</h2>
+<div class="row">
+<div class="sw"><i style="background:var(--brandInk)"></i><div>brandInk<br><code>#C2185B</code></div></div>
+<div class="sw"><i style="background:var(--brand)"></i><div>brand<br><code>#E91E63</code></div></div>
+<div class="sw"><i style="background:var(--brandTint)"></i><div>brandTint<br><code>#FDECF3</code></div></div>
+<div class="sw"><i style="background:var(--ink)"></i><div>ink<br><code>#101828</code></div></div>
+<div class="sw"><i style="background:var(--ink2)"></i><div>ink2<br><code>#344054</code></div></div>
+<div class="sw"><i style="background:var(--mute)"></i><div>mute<br><code>#667085</code></div></div>
+<div class="sw"><i style="background:var(--line)"></i><div>line<br><code>#E4E7EC</code></div></div>
+<div class="sw"><i style="background:var(--bg)"></i><div>bg<br><code>#F7F8FA</code></div></div>
+</div>
+<div class="row" style="margin-top:10px">
+<span class="tag t-ok">Delivered</span><span class="tag t-info">Next stop</span><span class="tag t-warn">Moving to Ana · HAM-417</span><span class="tag t-err">40 min late</span><span class="tag t-n">Upcoming</span>
+<span style="flex:1"></span>
+<span class="row" style="gap:6px"><span class="av" style="background:var(--s1)">JR</span><span class="av" style="background:var(--s2)">CM</span><span class="av" style="background:var(--s3)">AV</span><span class="av" style="background:var(--s4)">RS</span><span style="color:var(--mute);font-size:12px">series 1–4</span></span>
+</div>
+</section>
+
+<section>
+<h2>Buttons, tabs, segmented toggle, help</h2>
+<div class="card pad" style="display:flex;flex-direction:column;gap:14px">
+<div class="row"><button class="btn primary">Approve</button><button class="btn">Re-plan remaining stops</button><button class="btn sm">Edit</button><a href="#" style="font-weight:500">Open conversation</a></div>
+<div class="tabs" role="tablist"><button role="tab" aria-selected="true">Today · Live</button><button role="tab" aria-selected="false">Tomorrow <span class="tag t-warn">Draft</span></button></div>
+<div class="row"><div class="seg"><button aria-pressed="true">If you do nothing</button><button aria-pressed="false">If you approve</button></div>
+<div class="seg"><button aria-pressed="true">All <span style="color:var(--mute);font-weight:400">16</span></button><button aria-pressed="false">Standard 12</button><button aria-pressed="false">Yours 4</button></div>
+<span class="row" style="gap:8px"><b>Standard policies</b><span class="q">?</span></span></div>
+</div>
+</section>
+
+<section>
+<h2>Metric strip</h2>
+<div class="card metrics">
+<div><div class="l">Delivered</div><div class="v">5 <span class="s">of 13</span></div></div>
+<div><div class="l">On time</div><div class="v">100%</div></div>
+<div><div class="l">Being reassigned</div><div class="v" style="color:var(--warn)">3 <span class="s">Jun · flat tire</span></div></div>
+<div><div class="l">Window conflicts</div><div class="v" style="color:var(--ok)">0</div></div>
+</div>
+</section>
+
+<section>
+<h2>Table with group row</h2>
+<div class="card" style="overflow:hidden">
+<table>
+<thead><tr><th>#</th><th>Status</th><th>Order</th><th>Recipient</th><th>Window</th><th>Time</th><th>Instructions for driver</th></tr></thead>
+<tbody>
+<tr style="background:#FCFCFD"><td colspan="7"><span class="row" style="gap:10px"><span class="av" style="background:var(--s2)">CM</span><b>Carlo Mendoza</b><span style="color:var(--mute)">Motorcycle</span><span class="tag t-info">En route</span><span style="flex:1"></span><span style="color:var(--ink2);font-weight:500">2 of 4 delivered</span></span></td></tr>
+<tr><td style="color:var(--mute)">1</td><td><span class="tag t-ok">Delivered</span></td><td class="mono" style="color:var(--mute)">#1045</td><td style="color:var(--mute)">Café Morato</td><td class="mono" style="color:var(--mute)">08:30–11:00</td><td class="mono" style="color:var(--mute)">08:52</td><td style="color:var(--line2)">—</td></tr>
+<tr style="background:#F5F8FF"><td style="color:var(--mute)">2</td><td><span class="tag t-info">Next stop</span></td><td class="mono">#1051</td><td>Prof. Diaz</td><td class="mono">11:00–15:00</td><td class="mono">ETA 11:05</td><td style="font-size:12px;color:var(--ink2)">Call the recipient when you arrive</td></tr>
+<tr><td style="color:var(--mute)">3</td><td><span class="tag t-n">Upcoming</span></td><td class="mono">#1048</td><td>Grace Lee</td><td class="mono">13:00–18:00</td><td class="mono">ETA 13:45</td><td style="font-size:12px;color:var(--ink2)">Same building as #1052, deliver both together</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+
+<div class="grid2">
+<section>
+<h2>Sidebar</h2>
+<div class="card nav" style="padding:8px 10px;width:220px">
+<div class="over" style="padding-top:4px">Operations</div>
+<a href="#">Overview</a><a href="#" class="on">Dispatch</a><a href="#"><span style="flex:1">Approvals</span><span style="font-size:11px;font-weight:600;background:var(--brandInk);color:#fff;border-radius:99px;padding:0 6px">3</span></a>
+<div class="over">Memory</div><a href="#"><span style="flex:1">Address book</span><span style="font-size:11px;color:var(--mute)">186</span></a>
+</div>
+</section>
+<section>
+<h2>Inbox rows</h2>
+<div class="card inbox">
+<a href="#"><div class="row" style="gap:6px"><span style="width:7px;height:7px;border-radius:99px;background:var(--err)"></span><b>Paolo Lim</b><span class="mono" style="font-size:11px;color:var(--mute)">#1045</span><span style="margin-left:auto;font-size:11px;color:var(--mute)">10:27</span></div><div style="color:var(--ink);margin-top:2px">2 of the centerpieces look wilted, can I get a refund?</div><div style="font-size:12px;color:var(--mute);margin-top:3px">Damage claim · <span style="color:var(--err);font-weight:500">Waiting on you · 18 min</span></div></a>
+<a href="#"><div class="row" style="gap:6px"><span style="font-weight:500">Ben Cruz</span><span class="mono" style="font-size:11px;color:var(--mute)">#1044</span><span style="margin-left:auto;font-size:11px;color:var(--mute)">10:41</span></div><div style="color:var(--ink2);margin-top:2px">Got it Ben, 3–5pm it is.</div><div style="font-size:12px;color:var(--mute);margin-top:3px">Reschedule · Assistant replied</div></a>
+</div>
+</section>
+</div>
+
+<div class="grid2">
+<section>
+<h2>AI-generated content</h2>
+<div class="card pad">
+<div class="row" style="gap:8px;margin-bottom:8px"><svg width="14" height="14" viewBox="0 0 24 24" fill="#E91E63" aria-hidden="true"><path d="M12 2l2.1 6.3L20.5 10l-6.4 1.9L12 18l-2.1-6.1L3.5 10l6.4-1.7z"></path></svg><b>Delivery guidance</b><span style="flex:1"></span><button class="btn sm">Edit</button></div>
+<div class="ai"><ul style="margin:0;padding-left:18px;color:var(--ink2)"><li>Message on WhatsApp before dispatch.</li><li>Schedule after 15:00 on weekdays.</li></ul>
+<div class="src"><span style="color:var(--brandInk);font-weight:500">Auto-generated</span> from <a href="#">2 failed attempts</a>, <a href="#">3 replies</a> · updated 10:41</div></div>
+</div>
+</section>
+<section>
+<h2>Help popover</h2>
+<div class="pop">
+<div class="row"><b style="flex:1">How policies work</b><span style="color:var(--mute)">×</span></div>
+<div class="over" style="padding:8px 0 4px">Modes</div>
+<div style="display:flex;gap:10px;padding:3px 0"><b style="flex:0 0 64px;color:var(--ok)">Auto</b><span style="color:var(--ink2)">Runs on its own.</span></div>
+<div style="display:flex;gap:10px;padding:3px 0"><b style="flex:0 0 64px;color:var(--info)">Auto if…</b><span style="color:var(--ink2)">Runs within your limit, otherwise asks.</span></div>
+<div style="display:flex;gap:10px;padding:3px 0"><b style="flex:0 0 64px">Ask me</b><span style="color:var(--ink2)">Creates a ticket.</span></div>
+<div style="display:flex;gap:10px;padding:3px 0"><b style="flex:0 0 64px;color:var(--err)">Never</b><span style="color:var(--ink2)">Always a person.</span></div>
+</div>
+</section>
+</div>
+
+<section>
+<h2>Before / after decision</h2>
+<div class="card pad">
+<div class="seg" style="margin-bottom:12px"><button aria-pressed="true">If you do nothing</button><button aria-pressed="false">If you approve</button></div>
+<div style="font-size:15px;font-weight:600;margin-bottom:10px">Jun delivers these once he's back on the road. <span style="color:var(--err)">2 will be late.</span></div>
+<div style="border:1px solid var(--line);border-radius:6px;overflow:hidden"><table>
+<thead><tr><th>Delivery</th><th>Driver</th><th>Arrives</th><th>Must arrive by</th><th>Result</th></tr></thead>
+<tbody>
+<tr><td><b class="mono">#1042</b> Mark Tan</td><td>Jun</td><td class="mono">13:40–14:10</td><td class="mono" style="color:var(--mute)">13:00</td><td><span class="tag t-err">40–70 min late</span></td></tr>
+<tr><td><b class="mono">#1050</b> Nicole Ramos</td><td>Jun</td><td class="mono">14:05–14:35</td><td class="mono" style="color:var(--mute)">15:00</td><td><span class="tag t-ok">On time</span></td></tr>
+</tbody></table></div>
+<div style="font-size:12px;color:var(--ink2);margin-top:8px">No extra driving · 2 customers get a late-delivery apology</div>
+</div>
+</section>
+
+<section>
+<h2>Live tracker lane</h2>
+<div class="card" style="padding:14px 16px">
+<div style="position:relative;height:40px;margin:0 8px">
+<span style="position:absolute;top:50%;left:5%;width:40%;border-top:3px solid var(--s2);transform:translateY(-50%)"></span>
+<span style="position:absolute;top:50%;left:45%;width:40%;border-top:3px solid #D0D5DD;transform:translateY(-50%)"></span>
+<span style="position:absolute;top:50%;left:20%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:99px;background:var(--s2);border:2px solid #fff;box-shadow:0 0 0 1px var(--s2);box-sizing:border-box"></span>
+<span style="position:absolute;top:50%;left:45%;transform:translate(-50%,-50%);width:16px;height:16px;border-radius:99px;background:var(--s2);border:3px solid #fff;animation:pcPulse 1.6s ease-out infinite;--ring:rgba(122,90,248,.35)"></span>
+<span style="position:absolute;top:50%;left:60%;transform:translate(-50%,-50%);width:12px;height:12px;border-radius:99px;background:#fff;border:2px solid var(--s2);box-sizing:border-box"></span>
+<span style="position:absolute;top:50%;left:72%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:99px;background:var(--brandTint);border:2px dashed var(--brand);box-sizing:border-box"></span>
+<span style="position:absolute;top:50%;left:85%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:99px;background:#fff;border:2px solid #D0D5DD;box-sizing:border-box"></span>
+<span style="position:absolute;top:0;bottom:0;left:47%;border-left:1.5px solid var(--brand)"></span>
+</div>
+<div class="row" style="font-size:12px;color:var(--mute);gap:14px">Done · Now (pulsing) · Next (ring) · Proposed (pink dashed) · Planned (grey)</div>
+</div>
+</section>
+
+</div>
+</body>
+</html>

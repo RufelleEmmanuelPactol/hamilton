@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Driver · Flat tire reported</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+:root{--panel:#FFFFFF;--line:#E4E7EC;--line2:#D0D5DD;--ink:#101828;--ink2:#344054;--mute:#667085;--sub:#F9FAFB;--brand:#E91E63;--brandInk:#C2185B;--brandTint:#FDECF3;--ok:#067647;--okBg:#ECFDF3;--okLine:#ABEFC6;--err:#B42318;--errBg:#FEF3F2;--errLine:#FECDCA}
+a{color:#C2185B}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; position: relative; font-family: 'IBM Plex Sans', system-ui, sans-serif; background: var(--panel); color: var(--ink); font-size: 14px; display: flex; flex-direction: column">
+
+<header style="display: flex; align-items: center; gap: 10px; height: 56px; padding: 0 12px; border-bottom: 1px solid var(--line)">
+<a href="DriverRoute.dc.html" aria-label="Back" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; color: var(--ink2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg></a>
+<div style="flex: 1"><div style="font-weight: 600">Report an issue</div><div style="font-size: 12px; color: var(--mute)">Jun Reyes · L300 van</div></div>
+</header>
+
+<div style="padding: 14px 16px; display: flex; flex-direction: column; gap: 14px; flex: 1">
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button aria-pressed="true" style="font: inherit; font-size: 13px; font-weight: 600; height: 64px; border: 2px solid var(--brandInk); border-radius: 10px; background: var(--brandTint); color: var(--brandInk); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="3"></circle></svg>Flat tire</button>
+<button aria-pressed="false" style="font: inherit; font-size: 13px; height: 64px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"></path></svg>Vehicle</button>
+<button aria-pressed="false" style="font: inherit; font-size: 13px; height: 64px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="8"></circle><path d="M12 9v4l2 2M9 2h6"></path></svg>Running late</button>
+<button aria-pressed="false" style="font: inherit; font-size: 13px; height: 64px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5z"></path><path d="M16 10h2a2 2 0 0 1 0 4h-2"></path></svg>Break</button>
+<button aria-pressed="false" style="font: inherit; font-size: 13px; height: 64px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10" cy="8" r="4"></circle><path d="M3 20c1-3.5 3.6-5 7-5"></path><path d="M16 15l5 5M21 15l-5 5"></path></svg>Not home</button>
+<button aria-pressed="false" style="font: inherit; font-size: 13px; height: 64px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 11-5.7"></path><path d="M15 9l6 6M21 9l-6 6"></path></svg>Address</button>
+</div>
+
+<div style="border: 1px solid var(--okLine); background: var(--okBg); border-radius: 10px; padding: 12px 14px">
+<div style="font-weight: 600; color: var(--ok)">Reported 10:31 · dispatch is handling it</div>
+<div style="font-size: 13px; color: #085D3A; margin-top: 2px">You don&#39;t need to call anyone. Fix the tire at your own pace.</div>
+</div>
+
+<div><div style="font-size: 13px; color: var(--ink2); margin-bottom: 6px">About how long will it take?</div><div style="display: flex; gap: 8px"><button aria-pressed="false" style="font: inherit; font-size: 13px; height: 40px; flex: 1; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); cursor: pointer">Under 30 min</button><button aria-pressed="true" style="font: inherit; font-size: 13px; font-weight: 600; height: 40px; flex: 1; border: 2px solid var(--brandInk); border-radius: 10px; background: var(--brandTint); color: var(--brandInk); cursor: pointer">About 1 hour</button><button aria-pressed="false" style="font: inherit; font-size: 13px; height: 40px; flex: 1; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); cursor: pointer">Not sure</button></div><div style="font-size: 12px; color: var(--mute); margin-top: 6px">A rough guess is fine. Dispatch uses it to decide whether to move your stops.</div></div>
+
+<section aria-label="What happened" style="border: 1px solid var(--line); border-radius: 10px">
+<div style="padding: 10px 14px; border-bottom: 1px solid var(--line); font-weight: 600">What happened</div>
+<ol style="list-style: none; margin: 0; padding: 10px 14px; display: flex; flex-direction: column; gap: 10px">
+<li style="display: flex; gap: 10px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mute); width: 38px">10:44</span><span style="flex: 1">Maria approved: your 3 stops moved<div style="font-size: 12px; color: var(--mute); margin-top: 2px">#1042, #1050 to Ana · #1049 to Rico</div></span></li>
+<li style="display: flex; gap: 10px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mute); width: 38px">10:44</span><span style="flex: 1">3 customers sent new ETAs</span></li>
+<li style="display: flex; gap: 10px"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--mute); width: 38px">10:32</span><span style="flex: 1">Nearest vulcanizing shop: 600 m, Kalayaan Ave</span></li>
+</ol>
+</section>
+
+<label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--ink2)">Note for dispatch (optional)<input value="Flat on EDSA near Guadalupe" style="font: inherit; height: 44px; border: 1px solid var(--line2); border-radius: 10px; padding: 0 12px; color: var(--ink)"></label>
+</div>
+
+<div style="padding: 10px 16px 18px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 8px">
+<a href="DriverRoute.dc.html" style="height: 52px; border-radius: 10px; background: var(--brandInk); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center">I&#39;m back on the road</a>
+<button style="font: inherit; height: 44px; border: 1px solid var(--line2); border-radius: 10px; background: var(--panel); color: var(--ink2); cursor: pointer">Call Maria</button>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>
