@@ -1,6 +1,112 @@
-/* eslint-disable */
-// Converted from design/project/Drivers.dc.html. Holes: none
-export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any; h?: any }) {
+"use client";
+// Converted from design/project/Drivers.dc.html, then wired to the scenario store.
+import type { CSSProperties, ReactNode } from "react";
+import { useScenarioFacts } from "@/lib/scenario";
+
+type Tone = "ok" | "warn" | "err" | "info" | "neutral";
+const toneStyle = (t: Tone): CSSProperties =>
+  t === "neutral"
+    ? { color: "var(--ink2)", background: "#F2F4F7", border: "1px solid var(--line2)" }
+    : { color: `var(--${t})`, background: `var(--${t}Bg)`, border: `1px solid var(--${t}Line)` };
+const MONO = "'IBM Plex Mono', monospace";
+const link: CSSProperties = { textDecoration: "none", fontWeight: "500", whiteSpace: "nowrap" };
+
+export default function DriversBoard() {
+  const f = useScenarioFacts();
+  // Jun's status, short (list) and long (profile).
+  const jun: { short: string; long: string; tone: Tone } =
+    f.phase === "before"
+      ? { short: "En route", long: "En route", tone: "info" }
+      : f.junBackOnRoad
+        ? { short: "Back on road", long: "Back on the road", tone: "ok" }
+        : f.phase === "approved"
+          ? { short: "Stops moved", long: "Incident · stops moved", tone: "warn" }
+          : { short: "Incident", long: "Incident · flat tire 10:31", tone: "err" };
+  const rico: { label: string; tone: Tone } = f.moved ? { label: "En route", tone: "info" } : { label: "Available", tone: "neutral" };
+
+  // Today's timeline on Jun's profile, newest first.
+  const today: { time: string; text: ReactNode }[] = [];
+  if (f.phase === "before") {
+    today.push({ time: "Now", text: "On the way to #1042 Mark Tan, BGC · ETA 10:50" });
+  } else {
+    if (f.junBackOnRoad) {
+      today.push({
+        time: "Now",
+        text: f.moved ? "Back on the road · tire fixed, no stops left today" : "Back on the road · heading to his 3 remaining stops",
+      });
+    }
+    if (f.phase === "approved") {
+      today.push({
+        time: "10:44",
+        text: (
+          <>
+            3 remaining stops moved to Ana and Rico{" "}
+            <a href="/app/approvals" style={link}>
+              HAM-417 approved
+            </a>
+          </>
+        ),
+      });
+    } else if (f.phase === "rejected") {
+      today.push({
+        time: "10:44",
+        text: (
+          <>
+            Keeps his 3 stops; #1042 and #1049 will be late{" "}
+            <a href="/app/approvals" style={link}>
+              HAM-417 rejected
+            </a>
+          </>
+        ),
+      });
+    }
+    if (!f.thinking) {
+      today.push({
+        time: "10:33",
+        text: (
+          <>
+            3 remaining stops proposed to Ana and Rico
+            {f.ticketOpen && (
+              <>
+                {" "}
+                <a href="/app/approvals" style={link}>
+                  Pending
+                </a>
+              </>
+            )}
+          </>
+        ),
+      });
+    } else {
+      today.push({
+        time: "Now",
+        text: (
+          <span style={{ color: "var(--brandInk)" }}>
+            Dispatch agent is re-planning his 3 stops
+            <span aria-hidden="true" style={{ animation: "hamDots 1.2s infinite" }}>
+              …
+            </span>
+          </span>
+        ),
+      });
+    }
+    today.push({ time: "10:32", text: "Nearest vulcanizing shop sent to him (600 m, Kalayaan Ave)" });
+    const est = f.report?.estimate === "under30" ? "under 30 min" : f.report?.estimate === "unsure" ? "not sure how long" : "about 1 hour";
+    today.push({
+      time: "10:31",
+      text: (
+        <>
+          <span style={{ fontSize: "11px", fontWeight: "600", borderRadius: "4px", padding: "0 5px", ...toneStyle("err") }}>Report</span>{" "}
+          Flat tire · &#34;EDSA near Guadalupe&#34; · {est}
+        </>
+      ),
+    });
+  }
+  today.push({ time: "10:08", text: "Delivered #1047 Shangri-La · proof verified" });
+  today.push({ time: "09:24", text: "Delivered #1041 · photo retake requested once" });
+  today.push({ time: "08:02", text: "Shift started · vehicle check passed" });
+  const progress = f.moved ? "2 of 2 delivered · 3 moved" : "2 of 5 delivered";
+
   return (
     <>
       {" "}
@@ -73,14 +179,13 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
             style={{
               fontSize: "11px",
               fontWeight: "500",
-              color: "var(--err)",
-              background: "var(--errBg)",
-              border: "1px solid var(--errLine)",
               borderRadius: "4px",
               padding: "0 5px",
+              whiteSpace: "nowrap",
+              ...toneStyle(jun.tone),
             }}
           >
-            Incident
+            {jun.short}
           </span>
         </a>{" "}
         <a
@@ -211,14 +316,13 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
             style={{
               fontSize: "11px",
               fontWeight: "500",
-              color: "var(--ink2)",
-              background: "#F2F4F7",
-              border: "1px solid var(--line2)",
               borderRadius: "4px",
               padding: "0 5px",
+              whiteSpace: "nowrap",
+              ...toneStyle(rico.tone),
             }}
           >
-            Available
+            {rico.label}
           </span>
         </a>{" "}
       </section>{" "}
@@ -251,14 +355,13 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
                   style={{
                     fontSize: "12px",
                     fontWeight: "500",
-                    color: "var(--err)",
-                    background: "var(--errBg)",
-                    border: "1px solid var(--errLine)",
                     borderRadius: "99px",
                     padding: "1px 8px",
+                    whiteSpace: "nowrap",
+                    ...toneStyle(jun.tone),
                   }}
                 >
-                  Incident · flat tire 10:31
+                  {jun.long}
                 </span>
               </div>
               <div style={{ color: "var(--mute)", marginTop: "2px" }}>L300 van · NBC 4412 · +63 917 555 0141 · joined Sep 2024</div>
@@ -338,7 +441,7 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
                 cursor: "pointer",
               }}
             >
-              Incidents <span style={{ fontSize: "11px", color: "var(--mute)" }}>2</span>
+              Incidents <span style={{ fontSize: "11px", color: "var(--mute)" }}>{f.junIncident ? 2 : 1}</span>
             </button>{" "}
             <button
               role="tab"
@@ -353,7 +456,7 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
                 cursor: "pointer",
               }}
             >
-              Notes <span style={{ fontSize: "11px", color: "var(--mute)" }}>5</span>
+              Notes <span style={{ fontSize: "11px", color: "var(--mute)" }}>{f.junIncident ? 5 : 4}</span>
             </button>{" "}
           </div>{" "}
         </div>{" "}
@@ -511,7 +614,7 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
                 }}
               >
                 <h3 style={{ margin: "0", fontSize: "14px", fontWeight: "600", flex: "1" }}>Today</h3>
-                <span style={{ color: "var(--mute)" }}>2 of 5 delivered</span>
+                <span style={{ color: "var(--mute)" }}>{progress}</span>
               </div>{" "}
               <ol
                 style={{
@@ -523,46 +626,12 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
                   gap: "12px",
                 }}
               >
-                <li style={{ display: "flex", gap: "10px" }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--mute)", width: "40px" }}>10:44</span>
-                  <span style={{ flex: "1" }}>
-                    3 remaining stops proposed to Ana and Rico{" "}
-                    <a href="/app/approvals" style={{ textDecoration: "none", fontWeight: "500" }}>
-                      Pending
-                    </a>
-                  </span>
-                </li>
-                <li style={{ display: "flex", gap: "10px" }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--mute)", width: "40px" }}>10:31</span>
-                  <span style={{ flex: "1" }}>
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--err)",
-                        background: "var(--errBg)",
-                        border: "1px solid var(--errLine)",
-                        borderRadius: "4px",
-                        padding: "0 5px",
-                      }}
-                    >
-                      Report
-                    </span>{" "}
-                    Flat tire · &#34;EDSA near Guadalupe&#34;
-                  </span>
-                </li>
-                <li style={{ display: "flex", gap: "10px" }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--mute)", width: "40px" }}>10:08</span>
-                  <span style={{ flex: "1" }}>Delivered #1047 Shangri-La · proof verified</span>
-                </li>
-                <li style={{ display: "flex", gap: "10px" }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--mute)", width: "40px" }}>09:24</span>
-                  <span style={{ flex: "1" }}>Delivered #1041 · photo retake requested once</span>
-                </li>
-                <li style={{ display: "flex", gap: "10px" }}>
-                  <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: "var(--mute)", width: "40px" }}>08:02</span>
-                  <span style={{ flex: "1" }}>Shift started · vehicle check passed</span>
-                </li>
+                {today.map((e, i) => (
+                  <li key={i} style={{ display: "flex", gap: "10px" }}>
+                    <span style={{ fontFamily: MONO, color: "var(--mute)", width: "40px", flex: "none" }}>{e.time}</span>
+                    <span style={{ flex: "1" }}>{e.text}</span>
+                  </li>
+                ))}
               </ol>{" "}
             </section>{" "}
           </div>{" "}
@@ -669,45 +738,47 @@ export default function DriversBoard({ v = {} as any, h = {} as any }: { v?: any
             </div>{" "}
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <tbody>
-                <tr>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      width: "70px",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    <span
+                {f.junIncident && (
+                  <tr>
+                    <td
                       style={{
-                        fontSize: "11px",
-                        fontWeight: "600",
-                        color: "var(--brandInk)",
-                        background: "var(--brandTint)",
-                        borderRadius: "4px",
-                        padding: "1px 6px",
+                        padding: "10px 14px",
+                        borderBottom: "1px solid var(--line)",
+                        width: "70px",
+                        verticalAlign: "top",
                       }}
                     >
-                      Agent
-                    </span>
-                  </td>
-                  <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
-                    <div>Second tire incident in 6 weeks on the L300. Suggest a tire check this week.</div>
-                    <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Evidence: incidents 31 Aug, 12 Oct</div>
-                  </td>
-                  <td
-                    style={{
-                      padding: "10px 14px",
-                      borderBottom: "1px solid var(--line)",
-                      textAlign: "right",
-                      color: "var(--mute)",
-                      whiteSpace: "nowrap",
-                      verticalAlign: "top",
-                    }}
-                  >
-                    Today 10:32
-                  </td>
-                </tr>
+                      <span
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: "600",
+                          color: "var(--brandInk)",
+                          background: "var(--brandTint)",
+                          borderRadius: "4px",
+                          padding: "1px 6px",
+                        }}
+                      >
+                        Agent
+                      </span>
+                    </td>
+                    <td style={{ padding: "10px 6px", borderBottom: "1px solid var(--line)" }}>
+                      <div>Second tire incident in 6 weeks on the L300. Suggest a tire check this week.</div>
+                      <div style={{ fontSize: "12px", color: "var(--mute)", marginTop: "2px" }}>Evidence: incidents 31 Aug, 12 Oct</div>
+                    </td>
+                    <td
+                      style={{
+                        padding: "10px 14px",
+                        borderBottom: "1px solid var(--line)",
+                        textAlign: "right",
+                        color: "var(--mute)",
+                        whiteSpace: "nowrap",
+                        verticalAlign: "top",
+                      }}
+                    >
+                      Today 10:32
+                    </td>
+                  </tr>
+                )}
                 <tr>
                   <td style={{ padding: "10px 14px", borderBottom: "1px solid var(--line)", verticalAlign: "top" }}>
                     <span
