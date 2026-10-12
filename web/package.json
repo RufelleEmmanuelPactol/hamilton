@@ -5,11 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "npx http-server out -p 3000",
+    "start": "http-server out -a 0.0.0.0 -p ${PORT:-3000} -c 300 --silent",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "http-server": "14.1.1",
     "next": "14.2.35",
     "react": "18.3.1",
     "react-dom": "18.3.1",
@@ -22,5 +23,8 @@
     "node-html-parser": "6.1.13",
     "prettier": "^3.3.3",
     "typescript": "5.6.3"
+  },
+  "engines": {
+    "node": ">=18.18"
   }
 }
